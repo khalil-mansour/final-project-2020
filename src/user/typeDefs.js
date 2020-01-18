@@ -1,3 +1,4 @@
+const typeDefs =`
 type Query {
   users: [User!]!
 }
@@ -12,4 +13,9 @@ type User {
   name: String!
   lastName: String!
   email: String! 
+}
+`;
+
+module.exports = {
+  typeDefs
 }

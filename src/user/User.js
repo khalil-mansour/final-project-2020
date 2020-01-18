@@ -1,8 +1,8 @@
 
 
-class User {
+class user {
 }
 
 module.exports = {
-  User,
+  user,
 };

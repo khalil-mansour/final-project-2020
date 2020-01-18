@@ -1,4 +1,3 @@
-const {User} = require("./User")
 
 const resolvers = {
   Query: {
@@ -11,7 +10,7 @@ const resolvers = {
       return context.prisma.createUser({
         userId: args.userId,
         name: args.name,
-        lastName: args.name,
+        lastName: args.lastName,
         email: args.email
       })
     }

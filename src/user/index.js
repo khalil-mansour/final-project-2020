@@ -1,7 +1,9 @@
-const { User } = require("./User.js");
-const { resolvers } = require("./resolvers");
+const { user } = require("./user.js");
+const { resolvers } = require("./resolvers.js");
+const { typeDefs } = require("./typeDefs.js");
 
 module.exports = {
-    User,
+    user,
     resolvers,
-}
+    typeDefs
+};
