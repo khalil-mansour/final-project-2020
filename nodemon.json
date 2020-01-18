@@ -1,0 +1,15 @@
+{
+    "restartable": true,
+    "verbose": true,
+    "delay": "5000",
+    "execMap": {
+      "js": "node --harmony"
+    },
+    "watch": [
+      "src/*"
+    ],
+    "env": {
+      "NODE_ENV": "development"
+    },
+    "ext": "js,json"
+  }
