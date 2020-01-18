@@ -1,34 +1,30 @@
 const { GraphQLServer } = require('graphql-yoga')
+const { prisma } = require('./generated/prisma-client')
+const { User } = require('./user/index')
 
-let links = [{
-  id: 'link-0',
-  url: 'www.howtographql.com',
-  description: 'Fullstack tutorial for GraphQL'
-}]
-// 1
-let idCount = links.length
 
+//trouver une facon d'utiliser le resolver de user et le schema
 const resolvers = {
   Query: {
-    info: () => `This is the API of a Hackernews Clone`,
-    feed: () => links,
+    users: (context) => {
+      return context.prisma.users()
+    }, 
   },
   Mutation: {
-    // 2
-    post: (parent, args) => {
-       const link = {
-        id: `link-${idCount++}`,
-        description: args.description,
-        url: args.url,
-      }
-      links.push(link)
-      return link
+    signUp: (root, args, context) => {
+      return context.prisma.createUser({
+        userId: args.userId,
+        name: args.name,
+        lastName: args.name,
+        email: args.email
+      })
     }
-  },
+  }
 }
 
 const server = new GraphQLServer({
-  typeDefs: './src/schema.graphql',
+  typeDefs: './src/user/userSchema.graphql',
   resolvers,
+  context: { prisma }
 })
 server.start(() => console.log(`Server is running on http://localhost:4000`))

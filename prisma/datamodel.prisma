@@ -1,6 +1,47 @@
-type Link {
+type UserGroup {
   id: ID! @id
-  createdAt: DateTime! @createdAt
-  description: String!
-  url: String!
+  user: User! @realtion(name: "userUserGroup")
+  userType: UserType! @relation
+  group: Group! @relation(name:"GroupUserGroup")
 }
+
+type User {
+  id: ID! @id
+  userId: String! @unique
+  name: String!
+  lastName: String!
+  email: String! @unique
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
+}
+
+type UserType{
+  id: ID! @id
+  type: String!
+}
+
+type Group {
+  id: ID! @id
+  name: String!
+  address: Int!
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
+}
+
+type Address {
+  id: ID! @id
+  country: String!
+  province: String!
+  city: String!
+  noCivic: Int!
+  appartmentUnit: Int
+}
+
+type Invitation {
+  id: ID! @id
+  owner: User! @realtion
+  groupe: Group! @realtion(name:"groupInvitation")
+  link: String! 
+  expiredAt: DateTime! 
+}
+

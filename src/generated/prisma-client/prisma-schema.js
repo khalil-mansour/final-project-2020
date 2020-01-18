@@ -3,87 +3,94 @@ module.exports = {
   // Please don't change this file manually but run `prisma generate` to update it.
   // For more information, please read the docs: https://www.prisma.io/docs/prisma-client/
 
-/* GraphQL */ `type AggregateLink {
-  count: Int!
-}
-
-type BatchPayload {
-  count: Long!
-}
-
-scalar DateTime
-
-type Link {
+/* GraphQL */ `type Address {
   id: ID!
-  createdAt: DateTime!
-  description: String!
-  url: String!
+  country: String!
+  province: String!
+  city: String!
+  noCivic: Int!
+  appartmentUnit: Int
 }
 
-type LinkConnection {
+type AddressConnection {
   pageInfo: PageInfo!
-  edges: [LinkEdge]!
-  aggregate: AggregateLink!
+  edges: [AddressEdge]!
+  aggregate: AggregateAddress!
 }
 
-input LinkCreateInput {
+input AddressCreateInput {
   id: ID
-  description: String!
-  url: String!
+  country: String!
+  province: String!
+  city: String!
+  noCivic: Int!
+  appartmentUnit: Int
 }
 
-type LinkEdge {
-  node: Link!
+type AddressEdge {
+  node: Address!
   cursor: String!
 }
 
-enum LinkOrderByInput {
+enum AddressOrderByInput {
   id_ASC
   id_DESC
-  createdAt_ASC
-  createdAt_DESC
-  description_ASC
-  description_DESC
-  url_ASC
-  url_DESC
+  country_ASC
+  country_DESC
+  province_ASC
+  province_DESC
+  city_ASC
+  city_DESC
+  noCivic_ASC
+  noCivic_DESC
+  appartmentUnit_ASC
+  appartmentUnit_DESC
 }
 
-type LinkPreviousValues {
+type AddressPreviousValues {
   id: ID!
-  createdAt: DateTime!
-  description: String!
-  url: String!
+  country: String!
+  province: String!
+  city: String!
+  noCivic: Int!
+  appartmentUnit: Int
 }
 
-type LinkSubscriptionPayload {
+type AddressSubscriptionPayload {
   mutation: MutationType!
-  node: Link
+  node: Address
   updatedFields: [String!]
-  previousValues: LinkPreviousValues
+  previousValues: AddressPreviousValues
 }
 
-input LinkSubscriptionWhereInput {
+input AddressSubscriptionWhereInput {
   mutation_in: [MutationType!]
   updatedFields_contains: String
   updatedFields_contains_every: [String!]
   updatedFields_contains_some: [String!]
-  node: LinkWhereInput
-  AND: [LinkSubscriptionWhereInput!]
-  OR: [LinkSubscriptionWhereInput!]
-  NOT: [LinkSubscriptionWhereInput!]
+  node: AddressWhereInput
+  AND: [AddressSubscriptionWhereInput!]
+  OR: [AddressSubscriptionWhereInput!]
+  NOT: [AddressSubscriptionWhereInput!]
 }
 
-input LinkUpdateInput {
-  description: String
-  url: String
+input AddressUpdateInput {
+  country: String
+  province: String
+  city: String
+  noCivic: Int
+  appartmentUnit: Int
 }
 
-input LinkUpdateManyMutationInput {
-  description: String
-  url: String
+input AddressUpdateManyMutationInput {
+  country: String
+  province: String
+  city: String
+  noCivic: Int
+  appartmentUnit: Int
 }
 
-input LinkWhereInput {
+input AddressWhereInput {
   id: ID
   id_not: ID
   id_in: [ID!]
@@ -98,6 +105,236 @@ input LinkWhereInput {
   id_not_starts_with: ID
   id_ends_with: ID
   id_not_ends_with: ID
+  country: String
+  country_not: String
+  country_in: [String!]
+  country_not_in: [String!]
+  country_lt: String
+  country_lte: String
+  country_gt: String
+  country_gte: String
+  country_contains: String
+  country_not_contains: String
+  country_starts_with: String
+  country_not_starts_with: String
+  country_ends_with: String
+  country_not_ends_with: String
+  province: String
+  province_not: String
+  province_in: [String!]
+  province_not_in: [String!]
+  province_lt: String
+  province_lte: String
+  province_gt: String
+  province_gte: String
+  province_contains: String
+  province_not_contains: String
+  province_starts_with: String
+  province_not_starts_with: String
+  province_ends_with: String
+  province_not_ends_with: String
+  city: String
+  city_not: String
+  city_in: [String!]
+  city_not_in: [String!]
+  city_lt: String
+  city_lte: String
+  city_gt: String
+  city_gte: String
+  city_contains: String
+  city_not_contains: String
+  city_starts_with: String
+  city_not_starts_with: String
+  city_ends_with: String
+  city_not_ends_with: String
+  noCivic: Int
+  noCivic_not: Int
+  noCivic_in: [Int!]
+  noCivic_not_in: [Int!]
+  noCivic_lt: Int
+  noCivic_lte: Int
+  noCivic_gt: Int
+  noCivic_gte: Int
+  appartmentUnit: Int
+  appartmentUnit_not: Int
+  appartmentUnit_in: [Int!]
+  appartmentUnit_not_in: [Int!]
+  appartmentUnit_lt: Int
+  appartmentUnit_lte: Int
+  appartmentUnit_gt: Int
+  appartmentUnit_gte: Int
+  AND: [AddressWhereInput!]
+  OR: [AddressWhereInput!]
+  NOT: [AddressWhereInput!]
+}
+
+input AddressWhereUniqueInput {
+  id: ID
+}
+
+type AggregateAddress {
+  count: Int!
+}
+
+type AggregateGroup {
+  count: Int!
+}
+
+type AggregateInvitation {
+  count: Int!
+}
+
+type AggregateUser {
+  count: Int!
+}
+
+type AggregateUserGroup {
+  count: Int!
+}
+
+type AggregateUserType {
+  count: Int!
+}
+
+type BatchPayload {
+  count: Long!
+}
+
+scalar DateTime
+
+type Group {
+  id: ID!
+  name: String!
+  address: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type GroupConnection {
+  pageInfo: PageInfo!
+  edges: [GroupEdge]!
+  aggregate: AggregateGroup!
+}
+
+input GroupCreateInput {
+  id: ID
+  name: String!
+  address: Int!
+}
+
+input GroupCreateOneInput {
+  create: GroupCreateInput
+  connect: GroupWhereUniqueInput
+}
+
+type GroupEdge {
+  node: Group!
+  cursor: String!
+}
+
+enum GroupOrderByInput {
+  id_ASC
+  id_DESC
+  name_ASC
+  name_DESC
+  address_ASC
+  address_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+}
+
+type GroupPreviousValues {
+  id: ID!
+  name: String!
+  address: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type GroupSubscriptionPayload {
+  mutation: MutationType!
+  node: Group
+  updatedFields: [String!]
+  previousValues: GroupPreviousValues
+}
+
+input GroupSubscriptionWhereInput {
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: GroupWhereInput
+  AND: [GroupSubscriptionWhereInput!]
+  OR: [GroupSubscriptionWhereInput!]
+  NOT: [GroupSubscriptionWhereInput!]
+}
+
+input GroupUpdateDataInput {
+  name: String
+  address: Int
+}
+
+input GroupUpdateInput {
+  name: String
+  address: Int
+}
+
+input GroupUpdateManyMutationInput {
+  name: String
+  address: Int
+}
+
+input GroupUpdateOneRequiredInput {
+  create: GroupCreateInput
+  update: GroupUpdateDataInput
+  upsert: GroupUpsertNestedInput
+  connect: GroupWhereUniqueInput
+}
+
+input GroupUpsertNestedInput {
+  update: GroupUpdateDataInput!
+  create: GroupCreateInput!
+}
+
+input GroupWhereInput {
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  name: String
+  name_not: String
+  name_in: [String!]
+  name_not_in: [String!]
+  name_lt: String
+  name_lte: String
+  name_gt: String
+  name_gte: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  address: Int
+  address_not: Int
+  address_in: [Int!]
+  address_not_in: [Int!]
+  address_lt: Int
+  address_lte: Int
+  address_gt: Int
+  address_gte: Int
   createdAt: DateTime
   createdAt_not: DateTime
   createdAt_in: [DateTime!]
@@ -106,52 +343,181 @@ input LinkWhereInput {
   createdAt_lte: DateTime
   createdAt_gt: DateTime
   createdAt_gte: DateTime
-  description: String
-  description_not: String
-  description_in: [String!]
-  description_not_in: [String!]
-  description_lt: String
-  description_lte: String
-  description_gt: String
-  description_gte: String
-  description_contains: String
-  description_not_contains: String
-  description_starts_with: String
-  description_not_starts_with: String
-  description_ends_with: String
-  description_not_ends_with: String
-  url: String
-  url_not: String
-  url_in: [String!]
-  url_not_in: [String!]
-  url_lt: String
-  url_lte: String
-  url_gt: String
-  url_gte: String
-  url_contains: String
-  url_not_contains: String
-  url_starts_with: String
-  url_not_starts_with: String
-  url_ends_with: String
-  url_not_ends_with: String
-  AND: [LinkWhereInput!]
-  OR: [LinkWhereInput!]
-  NOT: [LinkWhereInput!]
+  updatedAt: DateTime
+  updatedAt_not: DateTime
+  updatedAt_in: [DateTime!]
+  updatedAt_not_in: [DateTime!]
+  updatedAt_lt: DateTime
+  updatedAt_lte: DateTime
+  updatedAt_gt: DateTime
+  updatedAt_gte: DateTime
+  AND: [GroupWhereInput!]
+  OR: [GroupWhereInput!]
+  NOT: [GroupWhereInput!]
 }
 
-input LinkWhereUniqueInput {
+input GroupWhereUniqueInput {
+  id: ID
+}
+
+type Invitation {
+  id: ID!
+  owner: User!
+  groupe: Group!
+  link: String!
+  expiredAt: DateTime!
+}
+
+type InvitationConnection {
+  pageInfo: PageInfo!
+  edges: [InvitationEdge]!
+  aggregate: AggregateInvitation!
+}
+
+input InvitationCreateInput {
+  id: ID
+  owner: UserCreateOneInput!
+  groupe: GroupCreateOneInput!
+  link: String!
+  expiredAt: DateTime!
+}
+
+type InvitationEdge {
+  node: Invitation!
+  cursor: String!
+}
+
+enum InvitationOrderByInput {
+  id_ASC
+  id_DESC
+  link_ASC
+  link_DESC
+  expiredAt_ASC
+  expiredAt_DESC
+}
+
+type InvitationPreviousValues {
+  id: ID!
+  link: String!
+  expiredAt: DateTime!
+}
+
+type InvitationSubscriptionPayload {
+  mutation: MutationType!
+  node: Invitation
+  updatedFields: [String!]
+  previousValues: InvitationPreviousValues
+}
+
+input InvitationSubscriptionWhereInput {
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: InvitationWhereInput
+  AND: [InvitationSubscriptionWhereInput!]
+  OR: [InvitationSubscriptionWhereInput!]
+  NOT: [InvitationSubscriptionWhereInput!]
+}
+
+input InvitationUpdateInput {
+  owner: UserUpdateOneRequiredInput
+  groupe: GroupUpdateOneRequiredInput
+  link: String
+  expiredAt: DateTime
+}
+
+input InvitationUpdateManyMutationInput {
+  link: String
+  expiredAt: DateTime
+}
+
+input InvitationWhereInput {
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  owner: UserWhereInput
+  groupe: GroupWhereInput
+  link: String
+  link_not: String
+  link_in: [String!]
+  link_not_in: [String!]
+  link_lt: String
+  link_lte: String
+  link_gt: String
+  link_gte: String
+  link_contains: String
+  link_not_contains: String
+  link_starts_with: String
+  link_not_starts_with: String
+  link_ends_with: String
+  link_not_ends_with: String
+  expiredAt: DateTime
+  expiredAt_not: DateTime
+  expiredAt_in: [DateTime!]
+  expiredAt_not_in: [DateTime!]
+  expiredAt_lt: DateTime
+  expiredAt_lte: DateTime
+  expiredAt_gt: DateTime
+  expiredAt_gte: DateTime
+  AND: [InvitationWhereInput!]
+  OR: [InvitationWhereInput!]
+  NOT: [InvitationWhereInput!]
+}
+
+input InvitationWhereUniqueInput {
   id: ID
 }
 
 scalar Long
 
 type Mutation {
-  createLink(data: LinkCreateInput!): Link!
-  updateLink(data: LinkUpdateInput!, where: LinkWhereUniqueInput!): Link
-  updateManyLinks(data: LinkUpdateManyMutationInput!, where: LinkWhereInput): BatchPayload!
-  upsertLink(where: LinkWhereUniqueInput!, create: LinkCreateInput!, update: LinkUpdateInput!): Link!
-  deleteLink(where: LinkWhereUniqueInput!): Link
-  deleteManyLinks(where: LinkWhereInput): BatchPayload!
+  createAddress(data: AddressCreateInput!): Address!
+  updateAddress(data: AddressUpdateInput!, where: AddressWhereUniqueInput!): Address
+  updateManyAddresses(data: AddressUpdateManyMutationInput!, where: AddressWhereInput): BatchPayload!
+  upsertAddress(where: AddressWhereUniqueInput!, create: AddressCreateInput!, update: AddressUpdateInput!): Address!
+  deleteAddress(where: AddressWhereUniqueInput!): Address
+  deleteManyAddresses(where: AddressWhereInput): BatchPayload!
+  createGroup(data: GroupCreateInput!): Group!
+  updateGroup(data: GroupUpdateInput!, where: GroupWhereUniqueInput!): Group
+  updateManyGroups(data: GroupUpdateManyMutationInput!, where: GroupWhereInput): BatchPayload!
+  upsertGroup(where: GroupWhereUniqueInput!, create: GroupCreateInput!, update: GroupUpdateInput!): Group!
+  deleteGroup(where: GroupWhereUniqueInput!): Group
+  deleteManyGroups(where: GroupWhereInput): BatchPayload!
+  createInvitation(data: InvitationCreateInput!): Invitation!
+  updateInvitation(data: InvitationUpdateInput!, where: InvitationWhereUniqueInput!): Invitation
+  updateManyInvitations(data: InvitationUpdateManyMutationInput!, where: InvitationWhereInput): BatchPayload!
+  upsertInvitation(where: InvitationWhereUniqueInput!, create: InvitationCreateInput!, update: InvitationUpdateInput!): Invitation!
+  deleteInvitation(where: InvitationWhereUniqueInput!): Invitation
+  deleteManyInvitations(where: InvitationWhereInput): BatchPayload!
+  createUser(data: UserCreateInput!): User!
+  updateUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User
+  updateManyUsers(data: UserUpdateManyMutationInput!, where: UserWhereInput): BatchPayload!
+  upsertUser(where: UserWhereUniqueInput!, create: UserCreateInput!, update: UserUpdateInput!): User!
+  deleteUser(where: UserWhereUniqueInput!): User
+  deleteManyUsers(where: UserWhereInput): BatchPayload!
+  createUserGroup(data: UserGroupCreateInput!): UserGroup!
+  updateUserGroup(data: UserGroupUpdateInput!, where: UserGroupWhereUniqueInput!): UserGroup
+  upsertUserGroup(where: UserGroupWhereUniqueInput!, create: UserGroupCreateInput!, update: UserGroupUpdateInput!): UserGroup!
+  deleteUserGroup(where: UserGroupWhereUniqueInput!): UserGroup
+  deleteManyUserGroups(where: UserGroupWhereInput): BatchPayload!
+  createUserType(data: UserTypeCreateInput!): UserType!
+  updateUserType(data: UserTypeUpdateInput!, where: UserTypeWhereUniqueInput!): UserType
+  updateManyUserTypes(data: UserTypeUpdateManyMutationInput!, where: UserTypeWhereInput): BatchPayload!
+  upsertUserType(where: UserTypeWhereUniqueInput!, create: UserTypeCreateInput!, update: UserTypeUpdateInput!): UserType!
+  deleteUserType(where: UserTypeWhereUniqueInput!): UserType
+  deleteManyUserTypes(where: UserTypeWhereInput): BatchPayload!
 }
 
 enum MutationType {
@@ -172,14 +538,447 @@ type PageInfo {
 }
 
 type Query {
-  link(where: LinkWhereUniqueInput!): Link
-  links(where: LinkWhereInput, orderBy: LinkOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Link]!
-  linksConnection(where: LinkWhereInput, orderBy: LinkOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): LinkConnection!
+  address(where: AddressWhereUniqueInput!): Address
+  addresses(where: AddressWhereInput, orderBy: AddressOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Address]!
+  addressesConnection(where: AddressWhereInput, orderBy: AddressOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): AddressConnection!
+  group(where: GroupWhereUniqueInput!): Group
+  groups(where: GroupWhereInput, orderBy: GroupOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Group]!
+  groupsConnection(where: GroupWhereInput, orderBy: GroupOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): GroupConnection!
+  invitation(where: InvitationWhereUniqueInput!): Invitation
+  invitations(where: InvitationWhereInput, orderBy: InvitationOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Invitation]!
+  invitationsConnection(where: InvitationWhereInput, orderBy: InvitationOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): InvitationConnection!
+  user(where: UserWhereUniqueInput!): User
+  users(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [User]!
+  usersConnection(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): UserConnection!
+  userGroup(where: UserGroupWhereUniqueInput!): UserGroup
+  userGroups(where: UserGroupWhereInput, orderBy: UserGroupOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [UserGroup]!
+  userGroupsConnection(where: UserGroupWhereInput, orderBy: UserGroupOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): UserGroupConnection!
+  userType(where: UserTypeWhereUniqueInput!): UserType
+  userTypes(where: UserTypeWhereInput, orderBy: UserTypeOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [UserType]!
+  userTypesConnection(where: UserTypeWhereInput, orderBy: UserTypeOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): UserTypeConnection!
   node(id: ID!): Node
 }
 
 type Subscription {
-  link(where: LinkSubscriptionWhereInput): LinkSubscriptionPayload
+  address(where: AddressSubscriptionWhereInput): AddressSubscriptionPayload
+  group(where: GroupSubscriptionWhereInput): GroupSubscriptionPayload
+  invitation(where: InvitationSubscriptionWhereInput): InvitationSubscriptionPayload
+  user(where: UserSubscriptionWhereInput): UserSubscriptionPayload
+  userGroup(where: UserGroupSubscriptionWhereInput): UserGroupSubscriptionPayload
+  userType(where: UserTypeSubscriptionWhereInput): UserTypeSubscriptionPayload
+}
+
+type User {
+  id: ID!
+  userId: String!
+  name: String!
+  lastName: String!
+  email: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type UserConnection {
+  pageInfo: PageInfo!
+  edges: [UserEdge]!
+  aggregate: AggregateUser!
+}
+
+input UserCreateInput {
+  id: ID
+  userId: String!
+  name: String!
+  lastName: String!
+  email: String!
+}
+
+input UserCreateOneInput {
+  create: UserCreateInput
+  connect: UserWhereUniqueInput
+}
+
+type UserEdge {
+  node: User!
+  cursor: String!
+}
+
+type UserGroup {
+  id: ID!
+  user: User!
+  userType: UserType!
+  group: Group!
+}
+
+type UserGroupConnection {
+  pageInfo: PageInfo!
+  edges: [UserGroupEdge]!
+  aggregate: AggregateUserGroup!
+}
+
+input UserGroupCreateInput {
+  id: ID
+  user: UserCreateOneInput!
+  userType: UserTypeCreateOneInput!
+  group: GroupCreateOneInput!
+}
+
+type UserGroupEdge {
+  node: UserGroup!
+  cursor: String!
+}
+
+enum UserGroupOrderByInput {
+  id_ASC
+  id_DESC
+}
+
+type UserGroupPreviousValues {
+  id: ID!
+}
+
+type UserGroupSubscriptionPayload {
+  mutation: MutationType!
+  node: UserGroup
+  updatedFields: [String!]
+  previousValues: UserGroupPreviousValues
+}
+
+input UserGroupSubscriptionWhereInput {
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: UserGroupWhereInput
+  AND: [UserGroupSubscriptionWhereInput!]
+  OR: [UserGroupSubscriptionWhereInput!]
+  NOT: [UserGroupSubscriptionWhereInput!]
+}
+
+input UserGroupUpdateInput {
+  user: UserUpdateOneRequiredInput
+  userType: UserTypeUpdateOneRequiredInput
+  group: GroupUpdateOneRequiredInput
+}
+
+input UserGroupWhereInput {
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  user: UserWhereInput
+  userType: UserTypeWhereInput
+  group: GroupWhereInput
+  AND: [UserGroupWhereInput!]
+  OR: [UserGroupWhereInput!]
+  NOT: [UserGroupWhereInput!]
+}
+
+input UserGroupWhereUniqueInput {
+  id: ID
+}
+
+enum UserOrderByInput {
+  id_ASC
+  id_DESC
+  userId_ASC
+  userId_DESC
+  name_ASC
+  name_DESC
+  lastName_ASC
+  lastName_DESC
+  email_ASC
+  email_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+}
+
+type UserPreviousValues {
+  id: ID!
+  userId: String!
+  name: String!
+  lastName: String!
+  email: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type UserSubscriptionPayload {
+  mutation: MutationType!
+  node: User
+  updatedFields: [String!]
+  previousValues: UserPreviousValues
+}
+
+input UserSubscriptionWhereInput {
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: UserWhereInput
+  AND: [UserSubscriptionWhereInput!]
+  OR: [UserSubscriptionWhereInput!]
+  NOT: [UserSubscriptionWhereInput!]
+}
+
+type UserType {
+  id: ID!
+  type: String!
+}
+
+type UserTypeConnection {
+  pageInfo: PageInfo!
+  edges: [UserTypeEdge]!
+  aggregate: AggregateUserType!
+}
+
+input UserTypeCreateInput {
+  id: ID
+  type: String!
+}
+
+input UserTypeCreateOneInput {
+  create: UserTypeCreateInput
+  connect: UserTypeWhereUniqueInput
+}
+
+type UserTypeEdge {
+  node: UserType!
+  cursor: String!
+}
+
+enum UserTypeOrderByInput {
+  id_ASC
+  id_DESC
+  type_ASC
+  type_DESC
+}
+
+type UserTypePreviousValues {
+  id: ID!
+  type: String!
+}
+
+type UserTypeSubscriptionPayload {
+  mutation: MutationType!
+  node: UserType
+  updatedFields: [String!]
+  previousValues: UserTypePreviousValues
+}
+
+input UserTypeSubscriptionWhereInput {
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: UserTypeWhereInput
+  AND: [UserTypeSubscriptionWhereInput!]
+  OR: [UserTypeSubscriptionWhereInput!]
+  NOT: [UserTypeSubscriptionWhereInput!]
+}
+
+input UserTypeUpdateDataInput {
+  type: String
+}
+
+input UserTypeUpdateInput {
+  type: String
+}
+
+input UserTypeUpdateManyMutationInput {
+  type: String
+}
+
+input UserTypeUpdateOneRequiredInput {
+  create: UserTypeCreateInput
+  update: UserTypeUpdateDataInput
+  upsert: UserTypeUpsertNestedInput
+  connect: UserTypeWhereUniqueInput
+}
+
+input UserTypeUpsertNestedInput {
+  update: UserTypeUpdateDataInput!
+  create: UserTypeCreateInput!
+}
+
+input UserTypeWhereInput {
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  type: String
+  type_not: String
+  type_in: [String!]
+  type_not_in: [String!]
+  type_lt: String
+  type_lte: String
+  type_gt: String
+  type_gte: String
+  type_contains: String
+  type_not_contains: String
+  type_starts_with: String
+  type_not_starts_with: String
+  type_ends_with: String
+  type_not_ends_with: String
+  AND: [UserTypeWhereInput!]
+  OR: [UserTypeWhereInput!]
+  NOT: [UserTypeWhereInput!]
+}
+
+input UserTypeWhereUniqueInput {
+  id: ID
+}
+
+input UserUpdateDataInput {
+  userId: String
+  name: String
+  lastName: String
+  email: String
+}
+
+input UserUpdateInput {
+  userId: String
+  name: String
+  lastName: String
+  email: String
+}
+
+input UserUpdateManyMutationInput {
+  userId: String
+  name: String
+  lastName: String
+  email: String
+}
+
+input UserUpdateOneRequiredInput {
+  create: UserCreateInput
+  update: UserUpdateDataInput
+  upsert: UserUpsertNestedInput
+  connect: UserWhereUniqueInput
+}
+
+input UserUpsertNestedInput {
+  update: UserUpdateDataInput!
+  create: UserCreateInput!
+}
+
+input UserWhereInput {
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  userId: String
+  userId_not: String
+  userId_in: [String!]
+  userId_not_in: [String!]
+  userId_lt: String
+  userId_lte: String
+  userId_gt: String
+  userId_gte: String
+  userId_contains: String
+  userId_not_contains: String
+  userId_starts_with: String
+  userId_not_starts_with: String
+  userId_ends_with: String
+  userId_not_ends_with: String
+  name: String
+  name_not: String
+  name_in: [String!]
+  name_not_in: [String!]
+  name_lt: String
+  name_lte: String
+  name_gt: String
+  name_gte: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  lastName: String
+  lastName_not: String
+  lastName_in: [String!]
+  lastName_not_in: [String!]
+  lastName_lt: String
+  lastName_lte: String
+  lastName_gt: String
+  lastName_gte: String
+  lastName_contains: String
+  lastName_not_contains: String
+  lastName_starts_with: String
+  lastName_not_starts_with: String
+  lastName_ends_with: String
+  lastName_not_ends_with: String
+  email: String
+  email_not: String
+  email_in: [String!]
+  email_not_in: [String!]
+  email_lt: String
+  email_lte: String
+  email_gt: String
+  email_gte: String
+  email_contains: String
+  email_not_contains: String
+  email_starts_with: String
+  email_not_starts_with: String
+  email_ends_with: String
+  email_not_ends_with: String
+  createdAt: DateTime
+  createdAt_not: DateTime
+  createdAt_in: [DateTime!]
+  createdAt_not_in: [DateTime!]
+  createdAt_lt: DateTime
+  createdAt_lte: DateTime
+  createdAt_gt: DateTime
+  createdAt_gte: DateTime
+  updatedAt: DateTime
+  updatedAt_not: DateTime
+  updatedAt_in: [DateTime!]
+  updatedAt_not_in: [DateTime!]
+  updatedAt_lt: DateTime
+  updatedAt_lte: DateTime
+  updatedAt_gt: DateTime
+  updatedAt_gte: DateTime
+  AND: [UserWhereInput!]
+  OR: [UserWhereInput!]
+  NOT: [UserWhereInput!]
+}
+
+input UserWhereUniqueInput {
+  id: ID
+  userId: String
+  email: String
 }
 `
       }

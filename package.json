@@ -1,7 +1,11 @@
 {
   "dependencies": {
+    "g": "^2.0.1",
+    "global": "^4.4.0",
     "graphql-yoga": "^1.18.3",
-    "prisma": "^1.34.10"
+    "nodemon": "^2.0.2"
+    "prisma": "^1.34.10",
+    "prisma-client-lib": "^1.34.10"
   },
   "name": "RoomMate",
   "version": "1.0.0",
