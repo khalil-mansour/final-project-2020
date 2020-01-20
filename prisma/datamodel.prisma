@@ -1,6 +1,6 @@
 type UserGroup {
   id: ID! @id
-  user: User! @realtion(name: "userUserGroup")
+  user: User! @relation(name: "UserUserGroup")
   userType: UserType! @relation
   group: Group! @relation(name:"GroupUserGroup")
 }

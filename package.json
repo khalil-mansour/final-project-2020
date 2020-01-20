@@ -5,7 +5,10 @@
     "prisma-client-lib": "^1.34.10"
   },
   "scripts": {
-    "dev": "nodemon ./src/index.js"
+    "server": "nodemon ./src/index.js",
+    "prisma": "docker-compose up -d && sleep 10 && prisma deploy && exit",
+    "dev": "start yarn prisma & yarn server",
+    "down": "prisma delete && docker-compose down"
   },
   "name": "roommate_backend",
   "version": "1.0.0",
