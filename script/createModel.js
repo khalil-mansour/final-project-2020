@@ -1,8 +1,9 @@
 const fs = require('fs');
 const rootDirectory = "../src";
+const modelsDirectory = "models"
 
 const [name] = process.argv.slice(2);
-const folder = `${rootDirectory}/${name}`
+const folder = `${rootDirectory}/${modelsDirectory}/${name}`
 
 const indexContent = `
 const { ${name} } = require("./${name}.js");
