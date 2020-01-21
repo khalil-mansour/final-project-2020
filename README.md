@@ -15,6 +15,10 @@ prisma deploy to start you prisma instance http://localhost:4646/_admin to check
     docker-compose up -d 
     prisma deploy 
 ```
+you can also use the command
+```shell
+    yarn prisma
+```
 you need to deploy eveyrtime you modify the datamodel.prisma
 
 #### Server 
@@ -23,6 +27,12 @@ Run `node src/index.js`  in the project for a dev server. Navigate to `http://lo
 
 ```shell
     node src/index.js
+```
+You can also use nodemon to hot-reload your server. A npm script also exist for this
+```shell
+    nodemon src/index.js
+    OR
+    yarn server
 ```
 
 ####  Usefull command 
