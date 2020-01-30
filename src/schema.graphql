@@ -13,4 +13,3 @@ type User {
   lastName: String!
   email: String! 
 }
-
