@@ -176,6 +176,10 @@ type AggregateAddress {
   count: Int!
 }
 
+type AggregateChatroom {
+  count: Int!
+}
+
 type AggregateGroup {
   count: Int!
 }
@@ -184,7 +188,15 @@ type AggregateInvitation {
   count: Int!
 }
 
+type AggregateMessage {
+  count: Int!
+}
+
 type AggregateUser {
+  count: Int!
+}
+
+type AggregateUserChatroom {
   count: Int!
 }
 
@@ -198,6 +210,167 @@ type AggregateUserType {
 
 type BatchPayload {
   count: Long!
+}
+
+type Chatroom {
+  id: ID!
+  name: String!
+  isArchived: Boolean
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type ChatroomConnection {
+  pageInfo: PageInfo!
+  edges: [ChatroomEdge]!
+  aggregate: AggregateChatroom!
+}
+
+input ChatroomCreateInput {
+  id: ID
+  name: String!
+  isArchived: Boolean
+}
+
+input ChatroomCreateOneInput {
+  create: ChatroomCreateInput
+  connect: ChatroomWhereUniqueInput
+}
+
+type ChatroomEdge {
+  node: Chatroom!
+  cursor: String!
+}
+
+enum ChatroomOrderByInput {
+  id_ASC
+  id_DESC
+  name_ASC
+  name_DESC
+  isArchived_ASC
+  isArchived_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+}
+
+type ChatroomPreviousValues {
+  id: ID!
+  name: String!
+  isArchived: Boolean
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type ChatroomSubscriptionPayload {
+  mutation: MutationType!
+  node: Chatroom
+  updatedFields: [String!]
+  previousValues: ChatroomPreviousValues
+}
+
+input ChatroomSubscriptionWhereInput {
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: ChatroomWhereInput
+  AND: [ChatroomSubscriptionWhereInput!]
+  OR: [ChatroomSubscriptionWhereInput!]
+  NOT: [ChatroomSubscriptionWhereInput!]
+}
+
+input ChatroomUpdateDataInput {
+  name: String
+  isArchived: Boolean
+}
+
+input ChatroomUpdateInput {
+  name: String
+  isArchived: Boolean
+}
+
+input ChatroomUpdateManyMutationInput {
+  name: String
+  isArchived: Boolean
+}
+
+input ChatroomUpdateOneInput {
+  create: ChatroomCreateInput
+  update: ChatroomUpdateDataInput
+  upsert: ChatroomUpsertNestedInput
+  delete: Boolean
+  disconnect: Boolean
+  connect: ChatroomWhereUniqueInput
+}
+
+input ChatroomUpdateOneRequiredInput {
+  create: ChatroomCreateInput
+  update: ChatroomUpdateDataInput
+  upsert: ChatroomUpsertNestedInput
+  connect: ChatroomWhereUniqueInput
+}
+
+input ChatroomUpsertNestedInput {
+  update: ChatroomUpdateDataInput!
+  create: ChatroomCreateInput!
+}
+
+input ChatroomWhereInput {
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  name: String
+  name_not: String
+  name_in: [String!]
+  name_not_in: [String!]
+  name_lt: String
+  name_lte: String
+  name_gt: String
+  name_gte: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  isArchived: Boolean
+  isArchived_not: Boolean
+  createdAt: DateTime
+  createdAt_not: DateTime
+  createdAt_in: [DateTime!]
+  createdAt_not_in: [DateTime!]
+  createdAt_lt: DateTime
+  createdAt_lte: DateTime
+  createdAt_gt: DateTime
+  createdAt_gte: DateTime
+  updatedAt: DateTime
+  updatedAt_not: DateTime
+  updatedAt_in: [DateTime!]
+  updatedAt_not_in: [DateTime!]
+  updatedAt_lt: DateTime
+  updatedAt_lte: DateTime
+  updatedAt_gt: DateTime
+  updatedAt_gte: DateTime
+  AND: [ChatroomWhereInput!]
+  OR: [ChatroomWhereInput!]
+  NOT: [ChatroomWhereInput!]
+}
+
+input ChatroomWhereUniqueInput {
+  id: ID
 }
 
 scalar DateTime
@@ -482,6 +655,135 @@ input InvitationWhereUniqueInput {
 
 scalar Long
 
+type Message {
+  id: ID!
+  content: String!
+  userId: User
+  chatroomId: Chatroom
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type MessageConnection {
+  pageInfo: PageInfo!
+  edges: [MessageEdge]!
+  aggregate: AggregateMessage!
+}
+
+input MessageCreateInput {
+  id: ID
+  content: String!
+  userId: UserCreateOneInput
+  chatroomId: ChatroomCreateOneInput
+}
+
+type MessageEdge {
+  node: Message!
+  cursor: String!
+}
+
+enum MessageOrderByInput {
+  id_ASC
+  id_DESC
+  content_ASC
+  content_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+}
+
+type MessagePreviousValues {
+  id: ID!
+  content: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type MessageSubscriptionPayload {
+  mutation: MutationType!
+  node: Message
+  updatedFields: [String!]
+  previousValues: MessagePreviousValues
+}
+
+input MessageSubscriptionWhereInput {
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: MessageWhereInput
+  AND: [MessageSubscriptionWhereInput!]
+  OR: [MessageSubscriptionWhereInput!]
+  NOT: [MessageSubscriptionWhereInput!]
+}
+
+input MessageUpdateInput {
+  content: String
+  userId: UserUpdateOneInput
+  chatroomId: ChatroomUpdateOneInput
+}
+
+input MessageUpdateManyMutationInput {
+  content: String
+}
+
+input MessageWhereInput {
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  content: String
+  content_not: String
+  content_in: [String!]
+  content_not_in: [String!]
+  content_lt: String
+  content_lte: String
+  content_gt: String
+  content_gte: String
+  content_contains: String
+  content_not_contains: String
+  content_starts_with: String
+  content_not_starts_with: String
+  content_ends_with: String
+  content_not_ends_with: String
+  userId: UserWhereInput
+  chatroomId: ChatroomWhereInput
+  createdAt: DateTime
+  createdAt_not: DateTime
+  createdAt_in: [DateTime!]
+  createdAt_not_in: [DateTime!]
+  createdAt_lt: DateTime
+  createdAt_lte: DateTime
+  createdAt_gt: DateTime
+  createdAt_gte: DateTime
+  updatedAt: DateTime
+  updatedAt_not: DateTime
+  updatedAt_in: [DateTime!]
+  updatedAt_not_in: [DateTime!]
+  updatedAt_lt: DateTime
+  updatedAt_lte: DateTime
+  updatedAt_gt: DateTime
+  updatedAt_gte: DateTime
+  AND: [MessageWhereInput!]
+  OR: [MessageWhereInput!]
+  NOT: [MessageWhereInput!]
+}
+
+input MessageWhereUniqueInput {
+  id: ID
+}
+
 type Mutation {
   createAddress(data: AddressCreateInput!): Address!
   updateAddress(data: AddressUpdateInput!, where: AddressWhereUniqueInput!): Address
@@ -489,6 +791,12 @@ type Mutation {
   upsertAddress(where: AddressWhereUniqueInput!, create: AddressCreateInput!, update: AddressUpdateInput!): Address!
   deleteAddress(where: AddressWhereUniqueInput!): Address
   deleteManyAddresses(where: AddressWhereInput): BatchPayload!
+  createChatroom(data: ChatroomCreateInput!): Chatroom!
+  updateChatroom(data: ChatroomUpdateInput!, where: ChatroomWhereUniqueInput!): Chatroom
+  updateManyChatrooms(data: ChatroomUpdateManyMutationInput!, where: ChatroomWhereInput): BatchPayload!
+  upsertChatroom(where: ChatroomWhereUniqueInput!, create: ChatroomCreateInput!, update: ChatroomUpdateInput!): Chatroom!
+  deleteChatroom(where: ChatroomWhereUniqueInput!): Chatroom
+  deleteManyChatrooms(where: ChatroomWhereInput): BatchPayload!
   createGroup(data: GroupCreateInput!): Group!
   updateGroup(data: GroupUpdateInput!, where: GroupWhereUniqueInput!): Group
   updateManyGroups(data: GroupUpdateManyMutationInput!, where: GroupWhereInput): BatchPayload!
@@ -501,12 +809,24 @@ type Mutation {
   upsertInvitation(where: InvitationWhereUniqueInput!, create: InvitationCreateInput!, update: InvitationUpdateInput!): Invitation!
   deleteInvitation(where: InvitationWhereUniqueInput!): Invitation
   deleteManyInvitations(where: InvitationWhereInput): BatchPayload!
+  createMessage(data: MessageCreateInput!): Message!
+  updateMessage(data: MessageUpdateInput!, where: MessageWhereUniqueInput!): Message
+  updateManyMessages(data: MessageUpdateManyMutationInput!, where: MessageWhereInput): BatchPayload!
+  upsertMessage(where: MessageWhereUniqueInput!, create: MessageCreateInput!, update: MessageUpdateInput!): Message!
+  deleteMessage(where: MessageWhereUniqueInput!): Message
+  deleteManyMessages(where: MessageWhereInput): BatchPayload!
   createUser(data: UserCreateInput!): User!
   updateUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User
   updateManyUsers(data: UserUpdateManyMutationInput!, where: UserWhereInput): BatchPayload!
   upsertUser(where: UserWhereUniqueInput!, create: UserCreateInput!, update: UserUpdateInput!): User!
   deleteUser(where: UserWhereUniqueInput!): User
   deleteManyUsers(where: UserWhereInput): BatchPayload!
+  createUserChatroom(data: UserChatroomCreateInput!): UserChatroom!
+  updateUserChatroom(data: UserChatroomUpdateInput!, where: UserChatroomWhereUniqueInput!): UserChatroom
+  updateManyUserChatrooms(data: UserChatroomUpdateManyMutationInput!, where: UserChatroomWhereInput): BatchPayload!
+  upsertUserChatroom(where: UserChatroomWhereUniqueInput!, create: UserChatroomCreateInput!, update: UserChatroomUpdateInput!): UserChatroom!
+  deleteUserChatroom(where: UserChatroomWhereUniqueInput!): UserChatroom
+  deleteManyUserChatrooms(where: UserChatroomWhereInput): BatchPayload!
   createUserGroup(data: UserGroupCreateInput!): UserGroup!
   updateUserGroup(data: UserGroupUpdateInput!, where: UserGroupWhereUniqueInput!): UserGroup
   upsertUserGroup(where: UserGroupWhereUniqueInput!, create: UserGroupCreateInput!, update: UserGroupUpdateInput!): UserGroup!
@@ -541,15 +861,24 @@ type Query {
   address(where: AddressWhereUniqueInput!): Address
   addresses(where: AddressWhereInput, orderBy: AddressOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Address]!
   addressesConnection(where: AddressWhereInput, orderBy: AddressOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): AddressConnection!
+  chatroom(where: ChatroomWhereUniqueInput!): Chatroom
+  chatrooms(where: ChatroomWhereInput, orderBy: ChatroomOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Chatroom]!
+  chatroomsConnection(where: ChatroomWhereInput, orderBy: ChatroomOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): ChatroomConnection!
   group(where: GroupWhereUniqueInput!): Group
   groups(where: GroupWhereInput, orderBy: GroupOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Group]!
   groupsConnection(where: GroupWhereInput, orderBy: GroupOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): GroupConnection!
   invitation(where: InvitationWhereUniqueInput!): Invitation
   invitations(where: InvitationWhereInput, orderBy: InvitationOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Invitation]!
   invitationsConnection(where: InvitationWhereInput, orderBy: InvitationOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): InvitationConnection!
+  message(where: MessageWhereUniqueInput!): Message
+  messages(where: MessageWhereInput, orderBy: MessageOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Message]!
+  messagesConnection(where: MessageWhereInput, orderBy: MessageOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): MessageConnection!
   user(where: UserWhereUniqueInput!): User
   users(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [User]!
   usersConnection(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): UserConnection!
+  userChatroom(where: UserChatroomWhereUniqueInput!): UserChatroom
+  userChatrooms(where: UserChatroomWhereInput, orderBy: UserChatroomOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [UserChatroom]!
+  userChatroomsConnection(where: UserChatroomWhereInput, orderBy: UserChatroomOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): UserChatroomConnection!
   userGroup(where: UserGroupWhereUniqueInput!): UserGroup
   userGroups(where: UserGroupWhereInput, orderBy: UserGroupOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [UserGroup]!
   userGroupsConnection(where: UserGroupWhereInput, orderBy: UserGroupOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): UserGroupConnection!
@@ -561,9 +890,12 @@ type Query {
 
 type Subscription {
   address(where: AddressSubscriptionWhereInput): AddressSubscriptionPayload
+  chatroom(where: ChatroomSubscriptionWhereInput): ChatroomSubscriptionPayload
   group(where: GroupSubscriptionWhereInput): GroupSubscriptionPayload
   invitation(where: InvitationSubscriptionWhereInput): InvitationSubscriptionPayload
+  message(where: MessageSubscriptionWhereInput): MessageSubscriptionPayload
   user(where: UserSubscriptionWhereInput): UserSubscriptionPayload
+  userChatroom(where: UserChatroomSubscriptionWhereInput): UserChatroomSubscriptionPayload
   userGroup(where: UserGroupSubscriptionWhereInput): UserGroupSubscriptionPayload
   userType(where: UserTypeSubscriptionWhereInput): UserTypeSubscriptionPayload
 }
@@ -576,6 +908,129 @@ type User {
   email: String!
   createdAt: DateTime!
   updatedAt: DateTime!
+}
+
+type UserChatroom {
+  id: ID!
+  userId: User!
+  chatroomId: Chatroom!
+  leftDate: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type UserChatroomConnection {
+  pageInfo: PageInfo!
+  edges: [UserChatroomEdge]!
+  aggregate: AggregateUserChatroom!
+}
+
+input UserChatroomCreateInput {
+  id: ID
+  userId: UserCreateOneInput!
+  chatroomId: ChatroomCreateOneInput!
+  leftDate: DateTime
+}
+
+type UserChatroomEdge {
+  node: UserChatroom!
+  cursor: String!
+}
+
+enum UserChatroomOrderByInput {
+  id_ASC
+  id_DESC
+  leftDate_ASC
+  leftDate_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+}
+
+type UserChatroomPreviousValues {
+  id: ID!
+  leftDate: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type UserChatroomSubscriptionPayload {
+  mutation: MutationType!
+  node: UserChatroom
+  updatedFields: [String!]
+  previousValues: UserChatroomPreviousValues
+}
+
+input UserChatroomSubscriptionWhereInput {
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: UserChatroomWhereInput
+  AND: [UserChatroomSubscriptionWhereInput!]
+  OR: [UserChatroomSubscriptionWhereInput!]
+  NOT: [UserChatroomSubscriptionWhereInput!]
+}
+
+input UserChatroomUpdateInput {
+  userId: UserUpdateOneRequiredInput
+  chatroomId: ChatroomUpdateOneRequiredInput
+  leftDate: DateTime
+}
+
+input UserChatroomUpdateManyMutationInput {
+  leftDate: DateTime
+}
+
+input UserChatroomWhereInput {
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  userId: UserWhereInput
+  chatroomId: ChatroomWhereInput
+  leftDate: DateTime
+  leftDate_not: DateTime
+  leftDate_in: [DateTime!]
+  leftDate_not_in: [DateTime!]
+  leftDate_lt: DateTime
+  leftDate_lte: DateTime
+  leftDate_gt: DateTime
+  leftDate_gte: DateTime
+  createdAt: DateTime
+  createdAt_not: DateTime
+  createdAt_in: [DateTime!]
+  createdAt_not_in: [DateTime!]
+  createdAt_lt: DateTime
+  createdAt_lte: DateTime
+  createdAt_gt: DateTime
+  createdAt_gte: DateTime
+  updatedAt: DateTime
+  updatedAt_not: DateTime
+  updatedAt_in: [DateTime!]
+  updatedAt_not_in: [DateTime!]
+  updatedAt_lt: DateTime
+  updatedAt_lte: DateTime
+  updatedAt_gt: DateTime
+  updatedAt_gte: DateTime
+  AND: [UserChatroomWhereInput!]
+  OR: [UserChatroomWhereInput!]
+  NOT: [UserChatroomWhereInput!]
+}
+
+input UserChatroomWhereUniqueInput {
+  id: ID
 }
 
 type UserConnection {
@@ -869,6 +1324,15 @@ input UserUpdateManyMutationInput {
   name: String
   lastName: String
   email: String
+}
+
+input UserUpdateOneInput {
+  create: UserCreateInput
+  update: UserUpdateDataInput
+  upsert: UserUpsertNestedInput
+  delete: Boolean
+  disconnect: Boolean
+  connect: UserWhereUniqueInput
 }
 
 input UserUpdateOneRequiredInput {

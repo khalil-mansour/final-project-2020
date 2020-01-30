@@ -27,6 +27,18 @@ var models = [
   {
     name: "Invitation",
     embedded: false
+  },
+  {
+    name: "Chatroom",
+    embedded: false
+  },
+  {
+    name: "UserChatroom",
+    embedded: false
+  },
+  {
+    name: "Message",
+    embedded: false
   }
 ];
 exports.Prisma = prisma_lib_1.makePrismaClientClass({

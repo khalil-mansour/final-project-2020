@@ -40,8 +40,34 @@ type Address {
 type Invitation {
   id: ID! @id
   owner: User! @realtion
-  groupe: Group! @realtion(name:"groupInvitation")
+  groupe: Group! @realtion(name:"GroupInvitation")
   link: String! 
   expiredAt: DateTime! 
+}
+
+type Chatroom {
+  id: ID! @id
+  name: String!
+  isArchived: Boolean @default(value: false)
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
+}
+
+type UserChatroom {
+  id : ID! @id
+  userId: User! @relation(name:"UserUserChatroom")
+  chatroomId: Chatroom! @relation(name:"ChatroomUserChatroom")
+  leftDate: DateTime 
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
+}
+
+type Message {
+  id: ID! @id
+  content: String!
+  userId: User @relation(name: "UserMessage")
+  chatroomId: Chatroom @relation(name: "ChatroomMessage")
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
 }
 
