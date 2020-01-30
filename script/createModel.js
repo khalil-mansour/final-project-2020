@@ -39,8 +39,8 @@ const createFolder = (folder) => {
     fs.mkdir(folder, { recursive: true }, (err) => { if (err) throw err; });
 };
 
-const createFile = (name, content) => {
-    fs.appendFile(`${folder}/${name}.js`, content, function (err) {
+const createFile = (folderPath, name, content) => {
+    fs.appendFile(`${folderPath}/${name}.js`, content, function (err) {
         if (err) throw err;
         console.log('Saved!');
       }); 
@@ -48,9 +48,9 @@ const createFile = (name, content) => {
 
 createFolder(folder);
 createFolder(resolversFolder);
-createFile("index", indexContent);
-createFile("Query", "const Query = { \r\n \r\n } \r\n \r\n module.exports = { Query }");
-createFile("Mutation", "const Mutation = { \r\n \r\n } \r\n \r\n module.exports = { Mutation }");
-createFile("Subscription", "const Subscription = { \r\n \r\n } \r\n \r\n module.exports = { Subscription }");
-createFile("typeDefs", 'const typeDefs =` \r\n \r\n ` \r\n \r\n module.exports = { typeDefs }');
-createFile(name, nameContent);
+createFile(folder, "index", indexContent);
+createFile(resolversFolder, "Query", "const Query = {\r\n\r\n}\r\n\r\nmodule.exports = { Query }");
+createFile(resolversFolder, "Mutation", "const Mutation = {\r\n\r\n}\r\n\r\nmodule.exports = { Mutation }");
+createFile(resolversFolder, "Subscription", "const Subscription = {\r\n\r\n}\r\n\r\nmodule.exports = { Subscription }");
+createFile(folder, "typeDefs", 'const typeDefs =`\r\n\r\n`\r\n\r\nmodule.exports = { typeDefs }');
+createFile(folder, name, nameContent);
