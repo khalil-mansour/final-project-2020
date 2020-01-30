@@ -1,7 +1,5 @@
 const Query = {
-  users: (context) => {
-    return context.prisma.users()
-  }, 
-}
+  users: (context) => context.prisma.users(),
+};
 
-module.exports = { Query }
+module.exports = { Query };

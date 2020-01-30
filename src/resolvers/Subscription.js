@@ -1,5 +1,5 @@
 const Subscription = {
-  
-}
 
-module.exports = { Subscription }
+};
+
+module.exports = { Subscription };
