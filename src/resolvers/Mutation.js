@@ -2,7 +2,7 @@ const { authenticate } = require('../utils.js')
 
 const Mutation = {
   signUp: (root, args, context) => { 
-    authenticate(context).then(res => {
+    return authenticate(context).then(res => {
       return context.prisma.createUser({
         userId: args.userId,
         name: args.name,
@@ -10,8 +10,8 @@ const Mutation = {
         email: args.email
       })
     }).catch(error => {
-        console.log(error)
-        throw error
+        console.error(error)
+        return error;
     })
 
   }

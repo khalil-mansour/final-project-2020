@@ -9,12 +9,11 @@ firebaseAdmin.initializeApp({
 
 function authenticate(context) {
     const authorization = context.request.get('Authorization')
-    console.log(authorization)
+    let token = '';
     if (authorization) {
-        const token = authorization.replace('Bearer ', '')
-        return firebaseAdmin.auth().verifyIdToken(token)
+        token = authorization.replace('Bearer ', '')
     }
-    throw new Error('Not authenticated')
+    return firebaseAdmin.auth().verifyIdToken(token)
 }
 
 module.exports = {
