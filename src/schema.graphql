@@ -3,7 +3,7 @@ type Query {
 }
 
 type Mutation {
-  signUp(userId: String, name: String, lastName: String, email: String): AuthPayload
+  signUp(userId: String, name: String, lastName: String, email: String) : AuthPayload
   login(userId: String): AuthPayload
 }
 

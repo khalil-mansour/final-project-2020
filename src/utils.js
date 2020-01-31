@@ -9,6 +9,7 @@ firebaseAdmin.initializeApp({
 
 function authenticate(context) {
     const authorization = context.request.get('Authorization')
+    console.log(authorization)
     if (authorization) {
         const token = authorization.replace('Bearer ', '')
         return firebaseAdmin.auth().verifyIdToken(token)
