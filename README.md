@@ -3,6 +3,10 @@
 - [Visual Studio Code](https://code.visualstudio.com/)
 - [Latest stable version of Node (10.16+) and NPM](https://nodejs.org/en/)
 - [Angular CLI latest version](https://angular.io/guide/setup-local)
+- [Nodemon (to automatically restart the server on file change)](https://www.npmjs.com/package/nodemon)
+  - `npm install -g nodemon`
+- [Prisma client](https://www.npmjs.com/package/prisma)
+  - `npm install --save prisma-client-lib`
 
 ### 👉 Recommended extensions (ordered by importance)
 
