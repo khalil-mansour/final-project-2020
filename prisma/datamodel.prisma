@@ -65,8 +65,8 @@ type UserChatroom {
 type Message {
   id: ID! @id
   content: String!
-  userId: User @relation(name: "UserMessage")
-  chatroomId: Chatroom @relation(name: "ChatroomMessage")
+  userId: User! @relation(name: "UserMessage")
+  chatroomId: Chatroom! @relation(name: "ChatroomMessage")
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
 }

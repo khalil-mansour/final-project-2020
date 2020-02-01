@@ -13,3 +13,28 @@ type User {
   lastName: String!
   email: String! 
 }
+
+type Chatroom {
+  id: ID!
+  name: String!
+  isArchived: Boolean 
+  createdAt: DateTime! 
+  updatedAt: DateTime!
+}
+
+type UserChatroom {
+  userId: User! 
+  chatroomId: Chatroom! 
+  leftDate: DateTime 
+  createdAt: DateTime! 
+  updatedAt: DateTime! 
+}
+
+type Message {
+  id: ID!
+  content: String!
+  userId: User!
+  chatroomId: Chatroom! 
+  createdAt: DateTime! 
+  updatedAt: DateTime! 
+}
