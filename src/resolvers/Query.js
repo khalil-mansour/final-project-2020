@@ -13,7 +13,7 @@ const Query = {
         }
       }
       // Else, something wrong happened, return some kind of error ?
-      throw new Error('auth/invalid_uid_or_expired_bearer_token');
+      throw new Error('auth/invalid_uid');
     })
     .catch((error) => error),
 };
