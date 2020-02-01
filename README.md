@@ -35,14 +35,6 @@ You can also use nodemon to hot-reload your server. A npm script also exist for 
     yarn server
 ```
 
-####  Usefull command 
-
-Create the structur for your model foler and file 
-
-```shell
-    node createModel $modelName
-```
-
 #### EsLint configuration
 
 In Visual Studio Code, add these lines in settings.json :
@@ -58,20 +50,24 @@ The structure is pretty simple here.
 - src/index.js is where the you create your grapqlServer
   In this file you can import all the entity and give them to the grapgqlServer instance 
   so it could resolve and read the schema.
-- src/models/ is where all our models are with the same structure 
+- src/schema.graphql contains the type for our graphql schema
+- src/resolvers/ is where all our resolvers are
   - index combine all the file so we can export them in the index.js <-- server
-  - resolvers contains all the mutation and the query for the entity 
-  - typeDefs contains the type for our graphqlschema
+  - resolvers contains all the mutation and the query for the entity
+  - Query.js contains all the queries for the entity
+  - Subscription.js contains all the subscriptions for the entity
+  - src/Mutation is where all our mutations for the entity are
   
 ```shell
   src
-    | generate
-    | models
+    | generated
+    | resolvers
         - index.js
-        - resolvers.js
-        - typeDefs.js
-        - {entityName}.js 
-    | index.js <---- server
+        - Query.js
+        - Subscription.js
+        | Mutation
+    - index.js <---- server
+    - schema.graphql
 ```
 
 # 🧪 Building and running tests locally 🧪

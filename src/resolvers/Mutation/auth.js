@@ -1,4 +1,4 @@
-const Mutation = {
+const auth = {
   signUp: (root, args, context) => context.prisma.createUser({
     userId: args.userId,
     name: args.name,
@@ -7,4 +7,4 @@ const Mutation = {
   }),
 };
 
-module.exports = { Mutation };
+module.exports = { auth };
