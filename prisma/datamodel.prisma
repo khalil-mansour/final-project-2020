@@ -11,6 +11,7 @@ type User {
   name: String!
   lastName: String!
   email: String! @unique
+  avatar: String
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
 }
