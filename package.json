@@ -6,7 +6,7 @@
   },
   "scripts": {
     "server": "nodemon ./src/index.js",
-    "prisma": "docker-compose up -d && sleep 10 && prisma deploy && exit",
+    "prisma": "docker-compose up -d && sleep 10 && prisma generate && prisma deploy && exit",
     "dev": "start yarn prisma & yarn server",
     "down": "prisma delete && docker-compose down"
   },
@@ -17,5 +17,6 @@
   "devDependencies": {
     "eslint": "^6.8.0",
     "eslint-config-airbnb-base": "^14.0.0",
-    "eslint-plugin-import": "^2.18.2"  }
+    "eslint-plugin-import": "^2.18.2"
+  }
 }
