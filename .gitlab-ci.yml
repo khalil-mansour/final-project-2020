@@ -1,0 +1,36 @@
+image: node:latest
+
+stages:
+  - install
+  - generate
+  - lint
+  
+cache:
+  paths:
+    - node_modules/
+
+install dependencies:
+  stage: install
+  when: always
+  cache:
+    policy: pull-push
+  script:
+    - yarn
+
+generate prisma files:
+  stage: generate
+  before_script:
+    - yarn
+  script:
+    - yarn global add prisma
+    - prisma generate
+
+lint:
+  stage: lint
+  allow_failure: true
+  before_script:
+    - yarn
+    - yarn global add prisma
+    - prisma generate
+  script:
+    - yarn eslint src/
