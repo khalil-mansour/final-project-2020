@@ -1,15 +1,70 @@
 type Query {
+  # query all users
   users: [User!]!
+  # query all groups
+  groups: [Group!]!
+  # query all addresses
+  addresses: [Address!]!
+
+  # query user by id
+  user(id: ID!): User!
+  # query group by id
+  group(id: String!): Group!
 }
 
 type Mutation {
-  signUp(userId: String, name: String, lastName: String, email: String): User
+  # USER
+
+  # create a new user
+  signUp(userId: String, name: String, lastName: String, email: String): User!
+  # edit a user
+  updateUser(userId: ID!, name:String!, lastname: String!, email: String!): User!
+
+  # ADDRESS
+  createAddress(country: String!, province: String!, city: String!, street: String!, apartment_unit: Int) : Address!
+
+  # GROUP
+
+  # create a new group
+  createGroup(name: String!, addressId: ID!, adminId: ID!, membersId: [ID!]!): Group!
+  # leave a group
+  leaveGroup(groupId: ID!): Group!
+  # invite a user to group
+  inviteUserToGroup(userId: ID!, groupId: ID!): Group!
+  # remove user from group
+  removeUserFromGroup(userId: ID!, groupId: ID!): Group!
+  # update group name
+  updateGroupName(groupId: ID!, name: String!): Group!
+}
+
+type User_Type {
+  id: ID!
+  type: String!
 }
 
 type User {
   id: ID!
   userId: String! 
+  type: User_Type
   name: String!
   lastName: String!
   email: String! 
+  groups: [Group!]!
+}
+
+type Address {
+  id: ID!
+  country: String!
+  province: String!
+  city: String!
+  street: String!
+  apartment_unit: Int
+}
+
+type Group {
+  id: ID!
+  name: String!
+  address: Address!
+  admin: User!
+  members: [User!]!
 }

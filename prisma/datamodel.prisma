@@ -1,16 +1,11 @@
-type UserGroup {
-  id: ID! @id
-  user: User! @relation(name: "UserUserGroup")
-  userType: UserType! @relation
-  group: Group! @relation(name:"GroupUserGroup")
-}
-
 type User {
   id: ID! @id
   userId: String! @unique
+  type: UserType @relation(name: "UserUserType")
   name: String!
   lastName: String!
   email: String! @unique
+  groups: [Group!]! @relation(name: "UserGroups")
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
 }
@@ -23,7 +18,9 @@ type UserType{
 type Group {
   id: ID! @id
   name: String!
-  address: Int!
+  address: Address! @relation(name: "GroupAddress")
+  admin: User! @relation(name: "GroupAdmin")
+  members: [User!]! @relation(name: "GroupMembers")
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
 }
@@ -33,14 +30,14 @@ type Address {
   country: String!
   province: String!
   city: String!
-  noCivic: Int!
-  appartmentUnit: Int
+  street: String!
+  apartment_unit: Int
 }
 
 type Invitation {
   id: ID! @id
-  owner: User! @realtion
-  groupe: Group! @realtion(name:"groupInvitation")
+  owner: User! @relation(name: "InvitationOwner")
+  group: Group!
   link: String! 
   expiredAt: DateTime! 
 }
