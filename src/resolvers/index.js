@@ -1,6 +1,6 @@
-const { userMutations } = require('./Mutation/user.mutations');
-const { groupMutations } = require('./Mutation/group.mutations');
-const { addressMutations } = require('./Mutation/address.mutations');
+const { userMutations } = require('./Mutation/user');
+const { groupMutations } = require('./Mutation/group');
+const { addressMutations } = require('./Mutation/address');
 
 const { Query } = require('./Query');
 const { User } = require('./User');

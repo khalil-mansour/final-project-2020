@@ -5,7 +5,7 @@ type User_Type {
 
 type User {
   id: ID!
-  userId: String! 
+  userId: String!
   type: User_Type
   name: String!
   lastName: String!
@@ -50,35 +50,35 @@ type Mutation {
   # USER
 
   # create a new user
-  signUp(input: SignUpInput!): SignUpPayload
+  signUp(input: SignUpInput!): User!
 
   # assign type to user
-  assignTypeToUser(input: AssignTypeToUserInput!): AssignTypeToUserPayload
+  assignTypeToUser(input: AssignTypeToUserInput!): User!
 
   # edit a user
-  updateUser(input: UpdateUserInput!): UpdateUserPayload
+  updateUser(input: UpdateUserInput!): User!
 
 
   # ADDRESS
-  createAddress(input: CreateAddressInput!): CreateAddressPayload
+  createAddress(input: CreateAddressInput!): Address!
 
 
   # GROUP
 
   # create a new group
-  createGroup(input: CreateGroupInput!): CreateGroupPayload
+  createGroup(input: CreateGroupInput!): Group!
 
   # leave a group
-  leaveGroup(input: LeaveGroupInput!): LeaveGroupPayload
+  leaveGroup(input: LeaveGroupInput!): Group!
 
   # invite a user to group
-  inviteUserToGroup(input: InviteUserToGroupInput!): InviteUserToGroupPayload
+  inviteUserToGroup(input: InviteUserToGroupInput!): User!
   
   # remove user from group
-  removeUserFromGroup(input: RemoveUserFromGroupInput!): RemoveUserFromGroupPayload
+  removeUserFromGroup(input: RemoveUserFromGroupInput!): Group!
 
   # update group name
-  updateGroupName(input: UpdateGroupNameInput!): UpdateGroupNamePayload
+  updateGroupName(input: UpdateGroupNameInput!): Group!
 }
 
 # INPUTS
@@ -114,7 +114,6 @@ input CreateGroupInput {
   name: String!
   address: ID!
   admin: ID!
-  members: [ID!]!
 }
 
 input RemoveUserFromGroupInput {
@@ -134,45 +133,4 @@ input InviteUserToGroupInput {
 input UpdateGroupNameInput {
   group: ID!
   name: String!
-}
-
-# PAYLOADS
-
-type SignUpPayload {
-  user: User!
-}
-
-type UpdateUserPayload {
-  user: User!
-}
-
-type UpdateGroupNamePayload {
-  group: Group!
-}
-
-type CreateAddressPayload {
-  address: Address!
-}
-
-type CreateGroupPayload {
-  group: Group!
-}
-
-type LeaveGroupPayload {
-  group: Group!
-}
-
-type InviteUserToGroupPayload {
-  group: Group!
-  user: User!
-}
-
-type RemoveUserFromGroupPayload {
-  group: Group!
-  user: User!
-}
-
-type AssignTypeToUserPayload {
-  user_type: User_Type!
-  user: User!
 }

@@ -1,9 +1,9 @@
 const userMutations = {
   signUp: (root, args, context) => context.prisma.createUser({
-    userId: args.userId,
-    name: args.name,
-    lastName: args.lastName,
-    email: args.email,
+    userId: args.input.userId,
+    name: args.input.name,
+    lastName: args.input.lastName,
+    email: args.input.email,
   }),
 
   assignTypeToUser: (root, args, context) => context.prisma.updateUser({
