@@ -1,7 +1,6 @@
 const User = {
-  groups: ({ id }, args, context) => {
-      return context.prisma.users({ id }).groups
-  },
-}
+  /* GET all groups for user */
+  groups: ({ id }, args, context) => context.prisma.users({ id }).groups,
+};
 
 module.exports = { User };

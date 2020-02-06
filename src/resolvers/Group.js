@@ -1,13 +1,14 @@
 const Group = {
-  address: ({ id }, args, context) => {
-    return context.prisma.groups({ id }).address()
-  },
-  admin: ({ id }, args, context) => {
-    return context.prisma.groups({ id }).admin()
-  },
-  members: ({ id }, args, context) => {
-    return context.prisma.groups({ id }).members()
-  },
-}
+
+  /* GET group address */
+  address: (parent, args, context) => context.prisma.group({ id: parent.id }).address(),
+
+  /* GET group admin */
+  admin: (parent, args, context) => context.prisma.group({ id: parent.id }).admin(),
+
+  /* GET group members */
+  members: (parent, args, context) => context.prisma.group({ id: parent.id }).members(),
+
+};
 
 module.exports = { Group };

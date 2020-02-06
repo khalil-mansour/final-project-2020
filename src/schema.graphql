@@ -1,42 +1,3 @@
-type Query {
-  # query all users
-  users: [User!]!
-  # query all groups
-  groups: [Group!]!
-  # query all addresses
-  addresses: [Address!]!
-
-  # query user by id
-  user(id: ID!): User!
-  # query group by id
-  group(id: String!): Group!
-}
-
-type Mutation {
-  # USER
-
-  # create a new user
-  signUp(userId: String, name: String, lastName: String, email: String): User!
-  # edit a user
-  updateUser(userId: ID!, name:String!, lastname: String!, email: String!): User!
-
-  # ADDRESS
-  createAddress(country: String!, province: String!, city: String!, street: String!, apartment_unit: Int) : Address!
-
-  # GROUP
-
-  # create a new group
-  createGroup(name: String!, addressId: ID!, adminId: ID!, membersId: [ID!]!): Group!
-  # leave a group
-  leaveGroup(groupId: ID!): Group!
-  # invite a user to group
-  inviteUserToGroup(userId: ID!, groupId: ID!): Group!
-  # remove user from group
-  removeUserFromGroup(userId: ID!, groupId: ID!): Group!
-  # update group name
-  updateGroupName(groupId: ID!, name: String!): Group!
-}
-
 type User_Type {
   id: ID!
   type: String!
@@ -67,4 +28,151 @@ type Group {
   address: Address!
   admin: User!
   members: [User!]!
+}
+
+type Query {
+  # query all users
+  users: [User!]!
+  # query all groups
+  groups: [Group!]!
+  # query all addresses
+  addresses: [Address!]!
+
+  # query user by id
+  user(id: ID!): User!
+  # query group by id
+  group(id: ID!): Group!
+  # query address by id
+  address(id: ID!): Address!
+}
+
+type Mutation {
+  # USER
+
+  # create a new user
+  signUp(input: SignUpInput!): SignUpPayload
+
+  # assign type to user
+  assignTypeToUser(input: AssignTypeToUserInput!): AssignTypeToUserPayload
+
+  # edit a user
+  updateUser(input: UpdateUserInput!): UpdateUserPayload
+
+
+  # ADDRESS
+  createAddress(input: CreateAddressInput!): CreateAddressPayload
+
+
+  # GROUP
+
+  # create a new group
+  createGroup(input: CreateGroupInput!): CreateGroupPayload
+
+  # leave a group
+  leaveGroup(input: LeaveGroupInput!): LeaveGroupPayload
+
+  # invite a user to group
+  inviteUserToGroup(input: InviteUserToGroupInput!): InviteUserToGroupPayload
+  
+  # remove user from group
+  removeUserFromGroup(input: RemoveUserFromGroupInput!): RemoveUserFromGroupPayload
+
+  # update group name
+  updateGroupName(input: UpdateGroupNameInput!): UpdateGroupNamePayload
+}
+
+# INPUTS
+
+input SignUpInput {
+  userId: String!
+  name: String!
+  lastName: String!
+  email: String!
+}
+
+input AssignTypeToUserInput {
+  id: ID!
+  type: ID!
+}
+
+input UpdateUserInput {
+  userId: String!
+  name: String!
+  lastName: String!
+  email: String!
+}
+
+input CreateAddressInput {
+  country: String!
+  province: String!
+  city: String!
+  street: String!
+  apartment_unit: Int
+}
+
+input CreateGroupInput {
+  name: String!
+  address: ID!
+  admin: ID!
+  members: [ID!]!
+}
+
+input RemoveUserFromGroupInput {
+  user: ID!
+  group: ID!
+}
+
+input LeaveGroupInput {
+  group: ID!
+}
+
+input InviteUserToGroupInput {
+  user: ID!
+  group: ID!
+}
+
+input UpdateGroupNameInput {
+  group: ID!
+  name: String!
+}
+
+# PAYLOADS
+
+type SignUpPayload {
+  user: User!
+}
+
+type UpdateUserPayload {
+  user: User!
+}
+
+type UpdateGroupNamePayload {
+  group: Group!
+}
+
+type CreateAddressPayload {
+  address: Address!
+}
+
+type CreateGroupPayload {
+  group: Group!
+}
+
+type LeaveGroupPayload {
+  group: Group!
+}
+
+type InviteUserToGroupPayload {
+  group: Group!
+  user: User!
+}
+
+type RemoveUserFromGroupPayload {
+  group: Group!
+  user: User!
+}
+
+type AssignTypeToUserPayload {
+  user_type: User_Type!
+  user: User!
 }

@@ -10,7 +10,7 @@ type User {
   updatedAt: DateTime! @updatedAt
 }
 
-type UserType{
+type UserType {
   id: ID! @id
   type: String!
 }
@@ -20,7 +20,7 @@ type Group {
   name: String!
   address: Address! @relation(name: "GroupAddress")
   admin: User! @relation(name: "GroupAdmin")
-  members: [User!]! @relation(name: "GroupMembers")
+  members: [User!]! @relation(name: "UserGroups")
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
 }

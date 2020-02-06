@@ -1,10 +1,10 @@
-const group_mutations  = {
+const groupMutations = {
   createGroup: (root, args, context) => context.prisma.createGroup({
     name: args.name,
     address: { connect: { id: args.addressId } },
     admin: { connect: { id: args.adminId } },
-    members: { connect: [{ id: args.memberIds }] },
+    members: args.membersId,
   }),
-}
+};
 
-module.exports = { group_mutations };
+module.exports = { groupMutations };
