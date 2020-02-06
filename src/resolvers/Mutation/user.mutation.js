@@ -1,6 +1,6 @@
-const { authenticate } = require('../utils.js');
+const { authenticate } = require('../../utils.js');
 
-const Mutation = {
+const userMutation = {
   signUp: (root, args, context) => authenticate(context)
     .then(() => context.prisma.createUser({
       userId: args.userId,
@@ -15,4 +15,4 @@ const Mutation = {
     }),
 };
 
-module.exports = { auth };
+module.exports = { userMutation };

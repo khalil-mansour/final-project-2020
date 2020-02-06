@@ -1,9 +1,10 @@
+import { userMutations } from './Mutation/user.mutation';
+
 const { Query } = require('./Query');
-const { auth } = require('./Mutation/auth');
 
 module.exports = {
   Query,
   Mutation: {
-    ...auth,
+    ...userMutations,
   },
 };
