@@ -6,9 +6,9 @@
     "prisma-client-lib": "^1.34.10"
   },
   "scripts": {
-    "server": "prisma generate && nodemon ./src/index.js",
-    "prisma": "docker-compose up -d && sleep 10 && prisma deploy && exit",
-    "prisma:powershell": "docker-compose up -d && timeout /t 10 && prisma deploy && exit",
+    "prisma:powershell": "docker-compose up -d && timeout /t 1 && prisma deploy && exit",
+    "server": "nodemon ./src/index.js",
+    "prisma": "docker-compose up -d && sleep 10 && prisma generate && prisma deploy && exit",
     "dev": "start yarn prisma & yarn server",
     "down": "prisma delete && docker-compose down"
   },

@@ -1,14 +1,25 @@
 # 💻 Contributing to the project 💻
 ### 👉 Prerequisites 
 - [Visual Studio Code](https://code.visualstudio.com/)
-- [Latest stable version of Node (10.16+) and NPM](https://nodejs.org/en/)
+- [Latest stable version of Node (10.16+)](https://nodejs.org/en/)
 - [Angular CLI latest version](https://angular.io/guide/setup-local)
 - [Nodemon (to automatically restart the server on file change)](https://www.npmjs.com/package/nodemon)
   - `npm install -g nodemon`
 - [Prisma client](https://www.npmjs.com/package/prisma)
-  - `npm install --save prisma-client-lib`
+  - `npm install -g prisma`
+- [Latest stable version of yarn](https://legacy.yarnpkg.com/en/)
 
 ### 👉 Recommended extensions (ordered by importance)
+
+### 👉 VSCode and Git config
+Run the following line to properly configure git:
+```shell
+    git config --global core.autocrlf true
+```
+
+In VSCode :
+- Set the default end of line character setting to « \n »
+- Specify the end of line used by prettier to be « lf »
 
 ### 👉 Running the application
 
@@ -32,19 +43,11 @@ Run `node src/index.js`  in the project for a dev server. Navigate to `http://lo
 ```shell
     node src/index.js
 ```
-You can also use nodemon to hot-reload your server. A npm script also exist for this
+You can also use nodemon to hot-reload your server. A yarn script also exist for this
 ```shell
     nodemon src/index.js
     OR
     yarn server
-```
-
-####  Usefull command 
-
-Create the structur for your model foler and file 
-
-```shell
-    node createModel $modelName
 ```
 
 #### EsLint configuration
@@ -62,20 +65,24 @@ The structure is pretty simple here.
 - src/index.js is where the you create your grapqlServer
   In this file you can import all the entity and give them to the grapgqlServer instance 
   so it could resolve and read the schema.
-- src/models/ is where all our models are with the same structure 
+- src/schema.graphql contains the type for our graphql schema
+- src/resolvers/ is where all our resolvers are
   - index combine all the file so we can export them in the index.js <-- server
-  - resolvers contains all the mutation and the query for the entity 
-  - typeDefs contains the type for our graphqlschema
+  - resolvers contains all the mutation and the query for the entity
+  - Query.js contains all the queries for the entity
+  - Subscription.js contains all the subscriptions for the entity
+  - src/Mutation is where all our mutations for the entity are
   
 ```shell
   src
-    | generate
-    | models
+    | generated
+    | resolvers
         - index.js
-        - resolvers.js
-        - typeDefs.js
-        - {entityName}.js 
-    | index.js <---- server
+        - Query.js
+        - Subscription.js
+        | Mutation
+    - index.js <---- server
+    - schema.graphql
 ```
 
 # 🧪 Building and running tests locally 🧪
