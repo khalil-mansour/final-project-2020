@@ -1,4 +1,4 @@
-import { userMutations } from './Mutation/user.mutation';
+const { userMutations } = require('./Mutation/user.mutation');
 
 const { Query } = require('./Query');
 
