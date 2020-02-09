@@ -6,8 +6,8 @@ const Group = {
   /* GET group admin */
   admin: (parent, args, context) => context.prisma.group({ id: parent.id }).admin(),
 
-  /* GET group members */
-  members: (parent, args, context) => context.prisma.group({ id: parent.id }).members(),
+  /* GET group users */
+  users: (parent, args, context) => context.prisma.group({ id: parent.id }).users(),
 
 };
 

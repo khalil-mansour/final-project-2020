@@ -3,8 +3,6 @@ const groupMutations = {
     name: args.input.name,
     address: { connect: { id: args.input.address } },
     admin: { connect: { id: args.input.admin } },
-    /* on creation, the admin is automatically a member of the group */
-    members: { connect: { id: args.input.admin } },
   }),
 
   updateGroupName: (root, args, context) => context.prisma.updateGroupName({
@@ -18,7 +16,7 @@ const groupMutations = {
 
   leaveGroup: (parent, args, context) => context.prisma.updateGroup({
     data: {
-      members: {
+      users: {
         disconnect: { id: args.input.user },
       },
     },
@@ -28,7 +26,6 @@ const groupMutations = {
   }),
 
   removeUserFromGroup: (parent, args, context) => {
-    console.log(context.user);
     context.prisma.updateGroup({
 
     });
