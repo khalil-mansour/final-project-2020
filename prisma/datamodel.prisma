@@ -36,9 +36,18 @@ type Address {
 
 type Invitation {
   id: ID! @id
-  owner: User! @relation(name: "InvitationOwner")
+  from: User! @relation(name: "InvitationSent")
+  to: User!
   group: Group!
-  link: String! 
-  expiredAt: DateTime! 
+  link: String!
+  status: Int!
+  expiredAt: String!
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
 }
 
+type User_Group {
+  id: ID! @id
+  user_id: User! @relation
+  group_id: Group! @relation
+}
