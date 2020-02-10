@@ -18,6 +18,12 @@ const Query = {
   /* GET single address by ID */
   address: (root, args, context) => context.prisma.address({ id: args.id }),
 
+  /* GET all invitations */
+  invitations: (root, args, context) => context.prisma.invitations(),
+
+  /* GET single invitation by ID */
+  invitation: (root, args, context) => context.prisma.invitation({ id: args.id }),
+
   /* GET all addresses */
   transactions: (root, args, context) => context.prisma.transactions(),
 

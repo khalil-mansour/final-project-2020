@@ -1,4 +1,4 @@
-type User_Type {
+type UserType {
   id: ID!
   type: String!
 }
@@ -6,22 +6,12 @@ type User_Type {
 type User {
   id: ID!
   userId: String!
-  type: User_Type
   name: String!
   lastName: String!
   email: String! 
-  groups: [Group!]!
+  groups: [UserGroup!]!
   transactions: [Transaction]
   contributions: [Contribution]
-}
-
-type Address {
-  id: ID!
-  country: String!
-  province: String!
-  city: String!
-  street: String!
-  apartment_unit: Int
 }
 
 type Group {
@@ -29,8 +19,15 @@ type Group {
   name: String!
   address: Address!
   admin: User!
-  members: [User!]!
+  users: [UserGroup!]!
   transactions: [Transaction]
+}
+
+type UserGroup {
+  id: ID!
+  user: User!
+  group: Group!
+  join_at: String!
 }
 
 type Invitation {
@@ -42,12 +39,13 @@ type Invitation {
   expiredAt: String!
 }
 
-type User_Group {
+type Address {
   id: ID!
-  user_id: User!
-  group_id: Group!
-  user_type: User_Type!
-  join_at: String!
+  country: String!
+  province: String!
+  city: String!
+  street: String!
+  apartment_unit: Int
 }
 
 type Transaction {
@@ -75,6 +73,8 @@ type Query {
   addresses: [Address!]!
   # query all invitations
   invitations: [Invitation!]!
+  # query all user->group
+  user_groups: [UserGroup!]!
   # query all addresses
   transactions: [Transaction]
   # query all contributions
@@ -88,6 +88,8 @@ type Query {
   address(id: ID!): Address!
   # query invitation by id
   invitation(id: ID!): Invitation!
+  # query user->group by id
+  user_group(id: ID!): UserGroup!
   # query transaction by id
   transaction(id: ID!): Transaction!
   # query contribution by id
@@ -119,7 +121,7 @@ type Mutation {
   # GROUP
 
   # create a new group
-  createGroup(input: CreateGroupInput!): Group!
+  createGroup(input: CreateGroupInput!): UserGroup!
 
   # leave a group
   leaveGroup(input: LeaveGroupInput!): Group!
@@ -129,6 +131,8 @@ type Mutation {
 
   # update group name
   updateGroupName(input: UpdateGroupNameInput!): Group!
+
+  # INVITATION
 
   # invite a user to group
   #createInvitation(input: CreateInvitationInput!): CreateInvitationPayload!
