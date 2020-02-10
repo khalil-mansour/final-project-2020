@@ -6,6 +6,8 @@ type User {
   lastName: String!
   email: String! @unique
   groups: [Group!]! @relation(name: "UserGroups")
+  transactions: [Transaction] @relation(name: "UserTransactions")
+  contributions: [Contribution] @relation(name: "UserContributions")
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
 }
@@ -21,6 +23,7 @@ type Group {
   address: Address! @relation(name: "GroupAddress")
   admin: User! @relation(name: "GroupAdmin")
   members: [User!]! @relation(name: "UserGroups")
+  transactions: [Transaction] @relation(name: "GroupTransactions")
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
 }
@@ -50,4 +53,24 @@ type User_Group {
   id: ID! @id
   user_id: User! @relation
   group_id: Group! @relation
+}
+
+type Transaction {
+  id: ID!
+  paidBy: User! @relation(name: "TransactionPaidBy")
+  amount: Float!
+  description: String
+  group: Group! @relation(name: "TransactionGroup")
+  contributions: [Contribution!]! @relation(name: "TransactionContributions")
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt 
+}
+
+type Contribution {
+  id: ID!
+  user: User! @relation(name: "ContributionUser")
+  transaction: Transaction! @relation(name: "Contribution")
+  percentage: Float!
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
 }

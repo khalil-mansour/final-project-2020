@@ -11,6 +11,8 @@ type User {
   lastName: String!
   email: String! 
   groups: [Group!]!
+  transactions: [Transaction]
+  contributions: [Contribution]
 }
 
 type Address {
@@ -28,6 +30,7 @@ type Group {
   address: Address!
   admin: User!
   members: [User!]!
+  transactions: [Transaction]
 }
 
 type Invitation {
@@ -47,6 +50,22 @@ type User_Group {
   join_at: String!
 }
 
+type Transaction {
+  id: ID!
+  paidBy: User!
+  amount: Float!
+  description: String
+  group: Group!
+  contributions: [Contribution!]! 
+}
+
+type Contribution {
+  id: ID!
+  user: User!
+  transaction: Transaction!
+  percentage: Float!
+}
+
 type Query {
   # query all users
   users: [User!]!
@@ -56,6 +75,10 @@ type Query {
   addresses: [Address!]!
   # query all invitations
   invitations: [Invitation!]!
+  # query all addresses
+  transactions: [Transaction]
+  # query all contributions
+  contributions: [Contribution]
 
   # query user by id
   user(id: ID!): User!
@@ -65,6 +88,15 @@ type Query {
   address(id: ID!): Address!
   # query invitation by id
   invitation(id: ID!): Invitation!
+  # query transaction by id
+  transaction(id: ID!): Transaction!
+  # query contribution by id
+  contribution(id: ID!): Contribution
+  
+  # query all transactions paid by a user with his id
+  userTransactions(id: ID!): [Transaction]
+  # query all transactions of a group with it's id
+  groupTransactions(id: ID!): [Transaction]
 }
 
 type Mutation {
@@ -107,6 +139,10 @@ type Mutation {
   # decline invitation
   #declineInvitation(input: DeclineInvitationInput!): DeclineInvitationPayload!
 
+  # TRANSACTION
+
+  # create a new transaction
+  createTransaction(input: CreateTransactionInput!): Transaction!
 }
 
 # INPUTS
@@ -164,4 +200,17 @@ input InviteUserToGroupInput {
 input UpdateGroupNameInput {
   group: ID!
   name: String!
+}
+
+input CreateTransactionInput {
+  paidBy: ID!
+  amount: Float!
+  description: String
+  group: ID!
+  contributions: [CreateContributionInput!]! 
+}
+
+input CreateContributionInput {
+  user: ID!
+  percentage: Float!
 }
