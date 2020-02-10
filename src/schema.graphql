@@ -1,9 +1,24 @@
+scalar DateTime
+
 type Query {
   users: [User!]!
+  user(id: ID!): User!
+  chatrooms: [Chatroom!]!
 }
 
 type Mutation {
-  signUp(userId: String, name: String, lastName: String, email: String): User
+  signUp(userId: String, name: String, lastName: String, email: String): User,
+
+  #chat
+  createChatroom(name: String!): Chatroom,
+  deactivateChatroom(id: ID!): Chatroom,
+  activateChatroom(id: ID!): Chatroom,
+  joinChatroom(userId: ID!, chatroomId: ID!,): UserChatroom,
+  leaveChatroom(userId: String!, chatroomId: ID!): Chatroom,
+  sendMessage(content: String!, userId: String!, chatroomId: ID!): Message,
+  editMessage(content: String!, id: ID!): Message,
+  deleteMessage(id: ID!): Message,
+
 }
 
 type User {
@@ -12,29 +27,27 @@ type User {
   name: String!
   lastName: String!
   email: String! 
+  userChatroom: [UserChatroom!]!
 }
 
 type Chatroom {
   id: ID!
   name: String!
   isArchived: Boolean 
-  createdAt: DateTime! 
-  updatedAt: DateTime!
+  userChatroom: [UserChatroom!]!
 }
 
 type UserChatroom {
-  userId: User! 
-  chatroomId: Chatroom! 
+  id: ID!
+  user: User! 
+  chatroom: Chatroom! 
   leftDate: DateTime 
-  createdAt: DateTime! 
-  updatedAt: DateTime! 
+  
 }
 
 type Message {
   id: ID!
   content: String!
   userId: User!
-  chatroomId: Chatroom! 
-  createdAt: DateTime! 
-  updatedAt: DateTime! 
+  chatroomId: Chatroom!
 }
