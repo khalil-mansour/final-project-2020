@@ -6,7 +6,7 @@ type User {
   lastName: String!
   email: String! @unique
   groups: [UserGroup!]! @relation(name: "UserGroups")
-  userChatroom: [UserChatroom!]! @relation(name: "UserUserChatroom")
+  chatroom: [UserChatroom!]! @relation(name: "UserUserChatroom")
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
 }
@@ -56,7 +56,7 @@ type Chatroom {
   id: ID! @id
   name: String!
   isArchived: Boolean @default(value: false)
-  userChatroom: [UserChatroom!]! @relation(name: "ChatroomUserChatroom")
+  user: [UserChatroom!]! @relation(name: "ChatroomUserChatroom")
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
 }
@@ -73,8 +73,8 @@ type UserChatroom {
 type Message {
   id: ID! @id
   content: String!
-  userId: User! @relation(name: "UserMessage")
-  chatroomId: Chatroom! @relation(name: "ChatroomMessage")
+  user: User! @relation(name: "UserMessage")
+  chatroom: Chatroom! @relation(name: "ChatroomMessage")
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
   deletedAt: DateTime 

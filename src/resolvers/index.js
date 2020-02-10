@@ -1,11 +1,14 @@
 const { userMutations } = require('./Mutation/user');
 const { groupMutations } = require('./Mutation/group');
 const { addressMutations } = require('./Mutation/address');
+const { chat } = require('./Mutation/chat');
 
 const { Query } = require('./Query');
 const { User } = require('./User');
 const { Group } = require('./Group');
-const { chat } = require('./Mutation/chat');
+const { Chatroom } = require('./Chatroom');
+const { Message } = require('./Message');
+const { UserChatroom } = require('./UserChatroom');
 
 module.exports = {
   Query,
@@ -17,4 +20,7 @@ module.exports = {
   },
   User,
   Group,
+  Chatroom,
+  Message,
+  UserChatroom,
 };

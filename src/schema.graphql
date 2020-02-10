@@ -1,3 +1,5 @@
+scalar DateTime
+
 type UserType {
   id: ID!
   type: String!
@@ -10,6 +12,7 @@ type User {
   lastName: String!
   email: String! 
   groups: [UserGroup!]!
+  userChatrooms: [UserChatroom!]!
 }
 
 type Group {
@@ -57,14 +60,15 @@ type UserChatroom {
   user: User! 
   chatroom: Chatroom! 
   leftDate: DateTime 
-  
+  userChatrooms: [UserChatroom!]!
 }
 
 type Message {
   id: ID!
   content: String!
-  userId: User!
-  chatroomId: Chatroom!
+  user: User!
+  chatroom: Chatroom!
+}
 
 type Query {
   # query all users
@@ -88,6 +92,11 @@ type Query {
   invitation(id: ID!): Invitation!
   # query user->group by id
   user_group(id: ID!): UserGroup!
+
+  # Chat
+
+  # query all chatrooms
+  chatrooms: [Chatroom]!
 }
 
 type Mutation {
@@ -201,4 +210,3 @@ input UpdateGroupNameInput {
   group: ID!
   name: String!
 }
-
