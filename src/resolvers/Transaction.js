@@ -7,7 +7,6 @@ const Transaction = {
   group: (parent, args, context) => context.prisma.transaction({ id: parent.id }).group(),
 
   /* GET transaction contributions */
-  // eslint-disable-next-line max-len
   contributions: (parent, args, context) => context.prisma.transaction({ id: parent.id }).contributions(),
 
 };

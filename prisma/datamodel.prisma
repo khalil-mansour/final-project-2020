@@ -60,7 +60,7 @@ type Transaction {
   amount: Float!
   description: String
   group: Group! @relation(name: "GroupTransactions")
-  contributions: [Contribution!]! @relation(name: "TransactionContributions")
+  contributions: [Contribution!]! @relation(name: "TransactionContributions", onDelete: CASCADE)
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt 
 }

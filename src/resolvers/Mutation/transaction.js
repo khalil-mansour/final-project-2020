@@ -11,6 +11,9 @@ const transactionMutations = {
       })),
     },
   }),
+
+  // with the onDelete: CASCADE in the datamodel.prisma, the contributions will be deleted as well
+  deleteTransaction: (root, args, context) => context.prisma.deleteTransaction({ id: args.input.transaction }),
 };
 
 module.exports = { transactionMutations };

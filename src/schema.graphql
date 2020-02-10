@@ -147,6 +147,9 @@ type Mutation {
 
   # create a new transaction
   createTransaction(input: CreateTransactionInput!): Transaction!
+
+  # delete a transaction
+  deleteTransaction(input: DeleteTransactionInput!): Transaction!
 }
 
 # INPUTS
@@ -217,4 +220,8 @@ input CreateTransactionInput {
 input CreateContributionInput {
   user: ID!
   percentage: Float!
+}
+
+input DeleteTransactionInput {
+  transaction: ID!
 }

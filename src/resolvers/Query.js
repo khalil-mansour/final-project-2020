@@ -31,11 +31,9 @@ const Query = {
   transaction: (root, args, context) => context.prisma.transaction({ id: args.id }),
 
   /* GET all transactions paid by a user */
-  // eslint-disable-next-line max-len
   userTransactions: (root, args, context) => context.prisma.transactions({ paidBy: { id: args.id } }),
 
   /* GET all transactions of a group */
-  // eslint-disable-next-line max-len
   groupTransactions: (root, args, context) => context.prisma.transactions({ group: { id: args.id } }),
 
   /* GET all contributions */
