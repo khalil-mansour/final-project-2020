@@ -1,32 +1,36 @@
-type UserGroup {
-  id: ID! @id
-  user: User! @relation(name: "UserUserGroup")
-  userType: UserType! @relation
-  group: Group! @relation(name:"GroupUserGroup")
-}
-
 type User {
   id: ID! @id
-  userId: String! 
+  userId: String! @unique
+  type: UserType @relation(name: "UserUserType")
   name: String!
   lastName: String!
   email: String! @unique
+  groups: [UserGroup!]! @relation(name: "UserGroups")
   userChatroom: [UserChatroom!]! @relation(name: "UserUserChatroom")
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
 }
 
-type UserType{
-  id: ID! @id
-  type: String!
-}
-
 type Group {
   id: ID! @id
   name: String!
-  address: Int!
+  address: Address! @relation(name: "GroupAddress")
+  admin: User! @relation(name: "GroupAdmin")
+  users: [UserGroup!]! @relation(name: "GroupUsers")
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
+}
+
+type UserGroup {
+  id: ID! @id
+  user_id: User! @relation(name: "UserGroups")
+  group_id: Group! @relation(name: "GroupUsers")
+  join_at: String!
+}
+
+type UserType {
+  id: ID! @id
+  type: String!
 }
 
 type Address {
@@ -34,16 +38,18 @@ type Address {
   country: String!
   province: String!
   city: String!
-  noCivic: Int!
-  appartmentUnit: Int
+  street: String!
+  apartment_unit: Int
 }
 
 type Invitation {
   id: ID! @id
-  owner: User! @realtion
-  groupe: Group! @realtion(name:"GroupInvitation")
-  link: String! 
-  expiredAt: DateTime! 
+  from: User! @relation(name: "InvitationUser")
+  group: Group! @relation(name: "InvitationGroup")
+  link: String!
+  expiredAt: String!
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
 }
 
 type Chatroom {
@@ -73,4 +79,3 @@ type Message {
   updatedAt: DateTime! @updatedAt
   deletedAt: DateTime 
 }
-

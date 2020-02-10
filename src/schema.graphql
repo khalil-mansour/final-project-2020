@@ -1,33 +1,48 @@
-scalar DateTime
-
-type Query {
-  users: [User!]!
-  user(id: ID!): User!
-  chatrooms: [Chatroom!]!
-}
-
-type Mutation {
-  signUp(userId: String, name: String, lastName: String, email: String): User,
-
-  #chat
-  createChatroom(name: String!): Chatroom,
-  deactivateChatroom(id: ID!): Chatroom,
-  activateChatroom(id: ID!): Chatroom,
-  joinChatroom(userId: ID!, chatroomId: ID!,): UserChatroom,
-  leaveChatroom(userId: String!, chatroomId: ID!): Chatroom,
-  sendMessage(content: String!, userId: String!, chatroomId: ID!): Message,
-  editMessage(content: String!, id: ID!): Message,
-  deleteMessage(id: ID!): Message,
-
+type UserType {
+  id: ID!
+  type: String!
 }
 
 type User {
   id: ID!
-  userId: String! 
+  userId: String!
   name: String!
   lastName: String!
   email: String! 
-  userChatroom: [UserChatroom!]!
+  groups: [UserGroup!]!
+}
+
+type Group {
+  id: ID!
+  name: String!
+  address: Address!
+  admin: User!
+  users: [UserGroup!]!
+}
+
+type UserGroup {
+  id: ID!
+  user: User!
+  group: Group!
+  join_at: String!
+}
+
+type Invitation {
+  id: ID!
+  from: User!
+  to: User!
+  group: Group!
+  status: Int!
+  expiredAt: String!
+}
+
+type Address {
+  id: ID!
+  country: String!
+  province: String!
+  city: String!
+  street: String!
+  apartment_unit: Int
 }
 
 type Chatroom {
@@ -50,4 +65,140 @@ type Message {
   content: String!
   userId: User!
   chatroomId: Chatroom!
+
+type Query {
+  # query all users
+  users: [User!]!
+  # query all groups
+  groups: [Group!]!
+  # query all addresses
+  addresses: [Address!]!
+  # query all invitations
+  invitations: [Invitation!]!
+  # query all user->group
+  user_groups: [UserGroup!]!
+
+  # query user by id
+  user(id: ID!): User!
+  # query group by id
+  group(id: ID!): Group!
+  # query address by id
+  address(id: ID!): Address!
+  # query invitation by id
+  invitation(id: ID!): Invitation!
+  # query user->group by id
+  user_group(id: ID!): UserGroup!
 }
+
+type Mutation {
+  # USER
+
+  # create a new user
+  signUp(input: SignUpInput!): User!
+
+  # assign type to user
+  assignTypeToUser(input: AssignTypeToUserInput!): User!
+
+  # edit a user
+  updateUser(input: UpdateUserInput!): User!
+
+
+  # ADDRESS
+  createAddress(input: CreateAddressInput!): Address!
+
+
+  # GROUP
+
+  # create a new group
+  createGroup(input: CreateGroupInput!): UserGroup!
+
+  # leave a group
+  leaveGroup(input: LeaveGroupInput!): Group!
+
+  # remove user from group
+  removeUserFromGroup(input: RemoveUserFromGroupInput!): Group!
+
+  # update group name
+  updateGroupName(input: UpdateGroupNameInput!): Group!
+
+  # INVITATION
+
+  # invite a user to group
+  #createInvitation(input: CreateInvitationInput!): CreateInvitationPayload!
+
+  # accept invitation
+  #acceptInvitation(input: AcceptInvitationInput!): AcceptInvitationPayload!
+  
+  # decline invitation
+  #declineInvitation(input: DeclineInvitationInput!): DeclineInvitationPayload!
+
+  #chat
+
+  createChatroom(name: String!): Chatroom,
+  deactivateChatroom(id: ID!): Chatroom,
+  activateChatroom(id: ID!): Chatroom,
+  joinChatroom(userId: ID!, chatroomId: ID!,): UserChatroom,
+  leaveChatroom(userId: String!, chatroomId: ID!): Chatroom,
+  sendMessage(content: String!, userId: String!, chatroomId: ID!): Message,
+  editMessage(content: String!, id: ID!): Message,
+  deleteMessage(id: ID!): Message,
+
+}
+
+# INPUTS
+
+input SignUpInput {
+  userId: String!
+  name: String!
+  lastName: String!
+  email: String!
+}
+
+input AssignTypeToUserInput {
+  id: ID!
+  type: ID!
+}
+
+input UpdateUserInput {
+  id: ID!
+  userId: String!
+  name: String!
+  lastName: String!
+  email: String!
+}
+
+input CreateAddressInput {
+  country: String!
+  province: String!
+  city: String!
+  street: String!
+  apartment_unit: Int
+}
+
+input CreateGroupInput {
+  name: String!
+  address: ID!
+  admin: ID!
+}
+
+input RemoveUserFromGroupInput {
+  admin: ID!
+  user: ID!
+  group: ID!
+}
+
+input LeaveGroupInput {
+  group: ID!
+  user: ID!
+}
+
+input InviteUserToGroupInput {
+  user: ID!
+  group: ID!
+}
+
+input UpdateGroupNameInput {
+  group: ID!
+  name: String!
+}
+
