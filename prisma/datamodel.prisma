@@ -5,7 +5,7 @@ type User {
   name: String!
   lastName: String!
   email: String! @unique
-  transactions: [Transaction] @relation(name: "UserTransactions")
+  transactions: [Transaction] @relation(name: "PaidByTransactions")
   contributions: [Contribution] @relation(name: "UserContributions")
   groups: [UserGroup!]! @relation(name: "UserGroups")
   createdAt: DateTime! @createdAt
@@ -55,20 +55,20 @@ type Invitation {
 }
 
 type Transaction {
-  id: ID!
-  paidBy: User! @relation(name: "TransactionPaidBy")
+  id: ID! @id
+  paidBy: User! @relation(name: "PaidByTransactions")
   amount: Float!
   description: String
-  group: Group! @relation(name: "TransactionGroup")
+  group: Group! @relation(name: "GroupTransactions")
   contributions: [Contribution!]! @relation(name: "TransactionContributions")
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt 
 }
 
 type Contribution {
-  id: ID!
-  user: User! @relation(name: "ContributionUser")
-  transaction: Transaction! @relation(name: "Contribution")
+  id: ID! @id
+  user: User! @relation(name: "UserContributions")
+  transaction: Transaction! @relation(name: "TransactionContributions")
   percentage: Float!
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
