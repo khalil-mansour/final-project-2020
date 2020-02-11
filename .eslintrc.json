@@ -16,6 +16,7 @@
   },
   "rules": {
     "linebreak-style": ["error", "unix"],
-    "max-len": ["error", 125, 4]
+    "max-len": [1, 125, 4],
+    "no-plusplus": 0
   }
 }

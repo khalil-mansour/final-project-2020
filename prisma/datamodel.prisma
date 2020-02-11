@@ -57,7 +57,8 @@ type Invitation {
 type Transaction {
   id: ID! @id
   paidBy: User! @relation(name: "PaidByTransactions")
-  amount: Float!
+  amount: Int!
+  isEven: Boolean!
   description: String
   group: Group! @relation(name: "GroupTransactions")
   contributions: [Contribution!]! @relation(name: "TransactionContributions", onDelete: CASCADE)
@@ -70,6 +71,7 @@ type Contribution {
   user: User! @relation(name: "UserContributions")
   transaction: Transaction! @relation(name: "TransactionContributions")
   percentage: Float!
+  amount: Int!
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
 }

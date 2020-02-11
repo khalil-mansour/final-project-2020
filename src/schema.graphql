@@ -51,7 +51,8 @@ type Address {
 type Transaction {
   id: ID!
   paidBy: User!
-  amount: Float!
+  amount: Int!
+  isEven: Boolean!
   description: String
   group: Group!
   contributions: [Contribution!]! 
@@ -62,6 +63,7 @@ type Contribution {
   user: User!
   transaction: Transaction!
   percentage: Float!
+  amount: Int!
 }
 
 type Query {
@@ -148,6 +150,9 @@ type Mutation {
   # create a new transaction
   createTransaction(input: CreateTransactionInput!): Transaction!
 
+  # create a new even transaction
+  createEvenTransaction(input: CreateEvenTransactionInput!): Transaction!
+
   # delete a transaction
   deleteTransaction(input: DeleteTransactionInput!): Transaction!
 }
@@ -209,9 +214,18 @@ input UpdateGroupNameInput {
   name: String!
 }
 
+# Note the difference with contributors field
+input CreateEvenTransactionInput {
+  paidBy: ID!
+  amount: Int!
+  description: String
+  group: ID!
+  contributors: [ID!]!
+}
+
 input CreateTransactionInput {
   paidBy: ID!
-  amount: Float!
+  amount: Int!
   description: String
   group: ID!
   contributions: [CreateContributionInput!]! 
