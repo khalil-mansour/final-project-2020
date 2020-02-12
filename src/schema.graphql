@@ -150,9 +150,6 @@ type Mutation {
   # create a new transaction
   createTransaction(input: CreateTransactionInput!): Transaction!
 
-  # create a new even transaction
-  createEvenTransaction(input: CreateEvenTransactionInput!): Transaction!
-
   # delete a transaction
   deleteTransaction(input: DeleteTransactionInput!): Transaction!
 }
@@ -214,17 +211,9 @@ input UpdateGroupNameInput {
   name: String!
 }
 
-# Note the difference with contributors field
-input CreateEvenTransactionInput {
-  paidBy: ID!
-  amount: Int!
-  description: String
-  group: ID!
-  contributors: [ID!]!
-}
-
 input CreateTransactionInput {
   paidBy: ID!
+  isEven: Boolean!
   amount: Int!
   description: String
   group: ID!
@@ -233,7 +222,7 @@ input CreateTransactionInput {
 
 input CreateContributionInput {
   user: ID!
-  percentage: Float!
+  percentage: Float
 }
 
 input DeleteTransactionInput {
