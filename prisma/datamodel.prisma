@@ -22,8 +22,8 @@ type Group {
 
 type UserGroup {
   id: ID! @id
-  user_id: User! @relation(name: "UserGroups")
-  group_id: Group! @relation(name: "GroupUsers")
+  user: User! @relation(name: "UserGroups")
+  group: Group! @relation(name: "GroupUsers")
   join_at: String!
 }
 

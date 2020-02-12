@@ -30,9 +30,8 @@ type UserGroup {
 type Invitation {
   id: ID!
   from: User!
-  to: User!
   group: Group!
-  status: Int!
+  link: String!
   expiredAt: String!
 }
 
@@ -55,7 +54,7 @@ type Query {
   # query all invitations
   invitations: [Invitation!]!
   # query all user->group
-  user_groups: [UserGroup!]!
+  userGroups: [UserGroup!]!
 
   # query user by id
   user(id: ID!): User!
@@ -66,7 +65,7 @@ type Query {
   # query invitation by id
   invitation(id: ID!): Invitation!
   # query user->group by id
-  user_group(id: ID!): UserGroup!
+  userGroup(id: ID!): UserGroup!
 }
 
 type Mutation {
@@ -103,10 +102,10 @@ type Mutation {
   # INVITATION
 
   # invite a user to group
-  #createInvitation(input: CreateInvitationInput!): CreateInvitationPayload!
+  createInvitation(input: CreateInvitationInput!): Invitation!
 
   # accept invitation
-  #acceptInvitation(input: AcceptInvitationInput!): AcceptInvitationPayload!
+  acceptInvitation(input: AcceptInvitationInput!): UserGroup!
   
   # decline invitation
   #declineInvitation(input: DeclineInvitationInput!): DeclineInvitationPayload!
@@ -160,12 +159,18 @@ input LeaveGroupInput {
   user: ID!
 }
 
-input InviteUserToGroupInput {
-  user: ID!
-  group: ID!
+input AcceptInvitationInput {
+  invitation: ID!
 }
 
 input UpdateGroupNameInput {
   group: ID!
   name: String!
+}
+
+input CreateInvitationInput {
+  from: ID!
+  group: ID!
+  link: String!
+  expiredAt: String!
 }

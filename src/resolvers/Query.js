@@ -19,6 +19,11 @@ const Query = {
   invitations: (root, args, context) => context.prisma.invitations(),
   /* GET single invitation by ID */
   invitation: (root, args, context) => context.prisma.invitation({ id: args.id }),
+
+  /* Get all userGroups */
+  userGroups: (root, args, context) => context.prisma.userGroups(),
+  /* Get userGroup by ID */
+  userGroup: (root, args, context) => context.prisma.userGroup({ id: args.id }),
 };
 
 module.exports = { Query };

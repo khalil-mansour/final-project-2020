@@ -5,12 +5,12 @@ const groupMutations = {
     admin: { connect: { id: args.input.admin } },
   }),
 
-  updateGroupName: (root, args, context) => context.prisma.updateGroupName({
+  updateGroupName: (root, args, context) => context.prisma.updateGroup({
     data: {
       name: args.input.name,
     },
     where: {
-      groupId: args.input.groupId,
+      id: args.input.group,
     },
   }),
 
