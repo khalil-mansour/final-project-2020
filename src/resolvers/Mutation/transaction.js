@@ -51,7 +51,7 @@ const createEvenTransaction = (root, args, context) => {
 };
 
 // create a new transaction with a total amount distributed among contributors according to their contribution percentage
-const createTransactionWhitPercentage = (root, args, context) => {
+const createTransactionWithPercentage = (root, args, context) => {
   if (!contributionPercentagesAddUpToHundred(args.input.contributions)) {
     throw new Error('Percentages doesn\'t add up to a hundred!');
   } else {
@@ -74,16 +74,108 @@ const createTransactionWhitPercentage = (root, args, context) => {
   }
 };
 
+// TODO - link to transaction
+const createEvenContribution = (root, args, context, contribution, contributionAmounts, amount) => context.prisma.createContribution({
+  user: { connect: { id: contribution.user } },
+  percentage: percentOfTotalAmount(contributionAmounts[contribution.user], amount),
+  amount: contributionAmounts[contribution.user].getAmount(),
+});
+
+const updateEvenContribution = (root, args, context, contribution, contributionAmounts, amount) => context.prisma.updateContribution({
+  where: {
+    user: {
+      id: contribution.user,
+    },
+    transaction: {
+      id: args.input.transaction,
+    },
+  },
+  data: {
+    percentage: percentOfTotalAmount(contributionAmounts[contribution.user], amount),
+    amount: contributionAmounts[contribution.user].getAmount(),
+  },
+});
+
+const updateEvenContributions = (root, args, context, amount) => {
+  const contributionAmounts = splitEvenly(amount, args.input.contributions);
+
+  args.input.contributions.forEach((contribution) => {
+    if (context.prisma.$exists.contribution({
+      user: {
+        id: contribution.user,
+      },
+      transaction: {
+        id: args.input.transaction,
+      },
+    })) {
+      updateEvenContribution(root, args, context, contribution, contributionAmounts, amount);
+    } else {
+      createEvenContribution(root, args, context, contribution, contributionAmounts, amount);
+    }
+  });
+};
+
+// TODO - link to transaction
+const createContributionWithPercentage = (root, args, context, contribution, contributionAmounts) => context.prisma.createContribution({
+  user: { connect: { id: contribution.user } },
+  percentage: contribution.percentage,
+  amount: contributionAmounts[contribution.user].getAmount(),
+});
+
+const updateContributionWithPercentage = (root, args, context, contribution, contributionAmounts) => context.prisma.updateContribution({
+  where: {
+    user: {
+      id: contribution.user,
+    },
+    transaction: {
+      id: args.input.transaction,
+    },
+  },
+  data: {
+    percentage: contribution.percentage,
+    amount: contributionAmounts[contribution.user].getAmount(),
+  },
+});
+
+const updateContributionsWithPercentage = (root, args, context, amount) => {
+  const contributionAmounts = splitWithPercentage(amount, args.input.contributions);
+
+  args.input.contributions.forEach((contribution) => {
+    if (context.prisma.$exists.contribution({
+      user: {
+        id: contribution.user,
+      },
+      transaction: {
+        id: args.input.transaction,
+      },
+    })) {
+      updateContributionWithPercentage(root, args, context, contribution, contributionAmounts);
+    } else {
+      createContributionWithPercentage(root, args, context, contribution, contributionAmounts);
+    }
+  });
+};
+
 const transactionMutations = {
   createTransaction: (root, args, context) => {
     if (args.input.isEven) {
       return createEvenTransaction(root, args, context);
     }
-    return createTransactionWhitPercentage(root, args, context);
+    return createTransactionWithPercentage(root, args, context);
   },
 
   // with the onDelete: CASCADE in the datamodel.prisma, the contributions will be deleted as well
   deleteTransaction: (root, args, context) => context.prisma.deleteTransaction({ id: args.input.transaction }),
+
+  updateTransactionContributions: (root, args, context) => {
+    const { amount } = context.prisma.transaction({ id: args.input.transaction });
+
+    if (args.input.isEven) {
+      updateEvenContributions(root, args, context, amount);
+    } else {
+      updateContributionsWithPercentage(root, args, context, amount);
+    }
+  },
 };
 
 module.exports = { transactionMutations };

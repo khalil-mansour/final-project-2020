@@ -152,6 +152,8 @@ type Mutation {
 
   # delete a transaction
   deleteTransaction(input: DeleteTransactionInput!): Transaction!
+
+  updateTransactionContributions(input: UpdateTransactionContributionsInput!): Transaction!
 }
 
 # INPUTS
@@ -217,14 +219,20 @@ input CreateTransactionInput {
   amount: Int!
   description: String
   group: ID!
-  contributions: [CreateContributionInput!]! 
+  contributions: [ContributionInput!]! 
 }
 
-input CreateContributionInput {
+input ContributionInput {
   user: ID!
   percentage: Float
 }
 
 input DeleteTransactionInput {
   transaction: ID!
+}
+
+input UpdateTransactionContributionsInput {
+  transaction: ID!
+  isEven: Boolean!
+  contributions: [ContributionInput!]!
 }
