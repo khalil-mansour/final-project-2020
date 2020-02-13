@@ -53,19 +53,23 @@ type Query {
   addresses: [Address!]!
   # query all invitations
   invitations: [Invitation!]!
-  # query all user->group
+  # query all userGroups
   userGroups: [UserGroup!]!
 
   # query user by id
   user(id: ID!): User!
+  # query user by firebase id (string)
+  user_by_uid(uid: String!): User!
   # query group by id
   group(id: ID!): Group!
   # query address by id
   address(id: ID!): Address!
   # query invitation by id
   invitation(id: ID!): Invitation!
-  # query user->group by id
+  # query userGroup by id
   userGroup(id: ID!): UserGroup!
+  # query userGroup
+  userGroup_by_ids(input: UserGroupByIdsInput!): [UserGroup]
 }
 
 type Mutation {
@@ -106,16 +110,12 @@ type Mutation {
 
   # accept invitation
   acceptInvitation(input: AcceptInvitationInput!): UserGroup!
-  
-  # decline invitation
-  #declineInvitation(input: DeclineInvitationInput!): DeclineInvitationPayload!
 
 }
 
 # INPUTS
 
 input SignUpInput {
-  userId: String!
   name: String!
   lastName: String!
   email: String!
@@ -128,7 +128,6 @@ input AssignTypeToUserInput {
 
 input UpdateUserInput {
   id: ID!
-  userId: String!
   name: String!
   lastName: String!
   email: String!
@@ -156,7 +155,6 @@ input RemoveUserFromGroupInput {
 
 input LeaveGroupInput {
   group: ID!
-  user: ID!
 }
 
 input AcceptInvitationInput {
@@ -169,8 +167,12 @@ input UpdateGroupNameInput {
 }
 
 input CreateInvitationInput {
-  from: ID!
   group: ID!
   link: String!
   expiredAt: String!
+}
+
+input UserGroupByIdsInput {
+  user: ID!
+  group: ID!
 }

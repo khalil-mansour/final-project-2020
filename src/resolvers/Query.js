@@ -4,6 +4,8 @@ const Query = {
   users: (root, args, context) => context.prisma.users(),
   /* GET user by ID */
   user: (root, args, context) => context.prisma.user({ id: args.id }),
+  /* GET user by firebase ID */
+  user_by_uid: (root, args, context) => context.prisma.user({ userId: args.uid }),
 
   /* GET all groups */
   groups: (parent, args, context) => context.prisma.groups(),
@@ -24,6 +26,17 @@ const Query = {
   userGroups: (root, args, context) => context.prisma.userGroups(),
   /* Get userGroup by ID */
   userGroup: (root, args, context) => context.prisma.userGroup({ id: args.id }),
+  /* Get userGroup by user and group IDs */
+  userGroup_by_ids: (root, args, context) => context.prisma.userGroups({
+    where: {
+      user: {
+        id: args.input.user,
+      },
+      group: {
+        id: args.input.group,
+      },
+    },
+  }),
 };
 
 module.exports = { Query };
