@@ -30,6 +30,30 @@ const percentOfTotalAmount = (amount, totalAmount) => (amount.getAmount() * 100)
 // verify if the total of all the percentages add up to a hundred
 const contributionPercentagesAddUpToHundred = (contributions) => contributions.map((contribution) => contribution.percentage).reduce((total, percentage) => total + percentage) === 100;
 
+// get the id of the contribution related to a user and a transaction if it exists
+const getContributionId = async (context, transactionId, userId) => {
+  const existingContributions = await context.prisma.contributions({
+    where: {
+      transaction: {
+        id: transactionId,
+      },
+      user: {
+        id: userId,
+      },
+    },
+  });
+
+  let contributionId;
+
+  if (existingContributions.length > 1) {
+    throw new Error('The result of the query is inconsistent. A user should only contribute one time to a transaction.');
+  } else if (existingContributions.length === 1) {
+    contributionId = existingContributions[0].id;
+  }
+
+  return contributionId;
+};
+
 // create a new transaction with a total amount splitted evenly between contributors
 const createEvenTransaction = (root, args, context) => {
   const contributionAmounts = splitEvenly(args.input.amount, args.input.contributions);
@@ -74,21 +98,26 @@ const createTransactionWithPercentage = (root, args, context) => {
   }
 };
 
-// TODO - link to transaction
-const createEvenContribution = (root, args, context, contribution, contributionAmounts, amount) => context.prisma.createContribution({
-  user: { connect: { id: contribution.user } },
-  percentage: percentOfTotalAmount(contributionAmounts[contribution.user], amount),
-  amount: contributionAmounts[contribution.user].getAmount(),
+// create and add a new contribution to an equally distributed existing transaction
+const createEvenContribution = async (root, args, context, contribution, contributionAmounts, amount) => context.prisma.updateTransaction({
+  where: {
+    id: args.input.transaction,
+  },
+  data: {
+    contributions: {
+      create: {
+        user: { connect: { id: contribution.user } },
+        percentage: percentOfTotalAmount(contributionAmounts[contribution.user], amount),
+        amount: contributionAmounts[contribution.user].getAmount(),
+      },
+    },
+  },
 });
 
-const updateEvenContribution = (root, args, context, contribution, contributionAmounts, amount) => context.prisma.updateContribution({
+// update a contribution of an equally distributed existing transaction
+const updateEvenContribution = async (root, args, context, contribution, contributionAmounts, amount, contributionId) => context.prisma.updateContribution({
   where: {
-    user: {
-      id: contribution.user,
-    },
-    transaction: {
-      id: args.input.transaction,
-    },
+    id: contributionId,
   },
   data: {
     percentage: percentOfTotalAmount(contributionAmounts[contribution.user], amount),
@@ -96,40 +125,41 @@ const updateEvenContribution = (root, args, context, contribution, contributionA
   },
 });
 
-const updateEvenContributions = (root, args, context, amount) => {
+// update all the contributions of an equally distributed existing transaction
+const updateEvenContributions = async (root, args, context, amount) => {
   const contributionAmounts = splitEvenly(amount, args.input.contributions);
 
-  args.input.contributions.forEach((contribution) => {
-    if (context.prisma.$exists.contribution({
-      user: {
-        id: contribution.user,
-      },
-      transaction: {
-        id: args.input.transaction,
-      },
-    })) {
-      updateEvenContribution(root, args, context, contribution, contributionAmounts, amount);
+  await args.input.contributions.forEach(async (contribution) => {
+    const contributionId = await getContributionId(context, args.input.transaction, contribution.user);
+
+    if (contributionId) {
+      await updateEvenContribution(root, args, context, contribution, contributionAmounts, amount, contributionId);
     } else {
-      createEvenContribution(root, args, context, contribution, contributionAmounts, amount);
+      await createEvenContribution(root, args, context, contribution, contributionAmounts, amount);
     }
   });
 };
 
-// TODO - link to transaction
-const createContributionWithPercentage = (root, args, context, contribution, contributionAmounts) => context.prisma.createContribution({
-  user: { connect: { id: contribution.user } },
-  percentage: contribution.percentage,
-  amount: contributionAmounts[contribution.user].getAmount(),
+// create and add a new contribution to an existing transaction distributed with percentages
+const createContributionWithPercentage = async (root, args, context, contribution, contributionAmounts) => context.prisma.updateTransaction({
+  where: {
+    id: args.input.transaction,
+  },
+  data: {
+    contributions: {
+      create: {
+        user: { connect: { id: contribution.user } },
+        percentage: contribution.percentage,
+        amount: contributionAmounts[contribution.user].getAmount(),
+      },
+    },
+  },
 });
 
-const updateContributionWithPercentage = (root, args, context, contribution, contributionAmounts) => context.prisma.updateContribution({
+// update a contribution of an existing transaction distributed with percentages
+const updateContributionWithPercentage = async (root, args, context, contribution, contributionAmounts, contributionId) => context.prisma.updateContribution({
   where: {
-    user: {
-      id: contribution.user,
-    },
-    transaction: {
-      id: args.input.transaction,
-    },
+    id: contributionId,
   },
   data: {
     percentage: contribution.percentage,
@@ -137,21 +167,17 @@ const updateContributionWithPercentage = (root, args, context, contribution, con
   },
 });
 
-const updateContributionsWithPercentage = (root, args, context, amount) => {
+// update all the contributions of an existing transaction distributed with percentages
+const updateContributionsWithPercentage = async (root, args, context, amount) => {
   const contributionAmounts = splitWithPercentage(amount, args.input.contributions);
 
-  args.input.contributions.forEach((contribution) => {
-    if (context.prisma.$exists.contribution({
-      user: {
-        id: contribution.user,
-      },
-      transaction: {
-        id: args.input.transaction,
-      },
-    })) {
-      updateContributionWithPercentage(root, args, context, contribution, contributionAmounts);
+  await args.input.contributions.forEach(async (contribution) => {
+    const contributionId = await getContributionId(context, args.input.transaction, contribution.user);
+
+    if (contributionId) {
+      await updateContributionWithPercentage(root, args, context, contribution, contributionAmounts, contributionId);
     } else {
-      createContributionWithPercentage(root, args, context, contribution, contributionAmounts);
+      await createContributionWithPercentage(root, args, context, contribution, contributionAmounts);
     }
   });
 };
@@ -167,14 +193,24 @@ const transactionMutations = {
   // with the onDelete: CASCADE in the datamodel.prisma, the contributions will be deleted as well
   deleteTransaction: (root, args, context) => context.prisma.deleteTransaction({ id: args.input.transaction }),
 
-  updateTransactionContributions: (root, args, context) => {
-    const { amount } = context.prisma.transaction({ id: args.input.transaction });
+  async updateTransactionContributions(root, args, context) {
+    const amount = await context.prisma.transaction({ id: args.input.transaction }).amount();
 
     if (args.input.isEven) {
-      updateEvenContributions(root, args, context, amount);
+      await updateEvenContributions(root, args, context, amount);
     } else {
-      updateContributionsWithPercentage(root, args, context, amount);
+      await updateContributionsWithPercentage(root, args, context, amount);
     }
+
+    // update isEven field for the concerned transaction
+    return context.prisma.updateTransaction({
+      where: {
+        id: args.input.transaction,
+      },
+      data: {
+        isEven: args.input.isEven,
+      },
+    });
   },
 };
 
