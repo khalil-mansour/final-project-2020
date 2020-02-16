@@ -59,7 +59,7 @@ type Transaction {
   paidBy: User! @relation(name: "PaidByTransactions")
   amount: Int!
   isEven: Boolean!
-  description: String
+  description: String!
   group: Group! @relation(name: "GroupTransactions")
   contributions: [Contribution!]! @relation(name: "TransactionContributions", onDelete: CASCADE)
   createdAt: DateTime! @createdAt

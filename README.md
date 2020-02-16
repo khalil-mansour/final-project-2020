@@ -1,7 +1,7 @@
 # 💻 Contributing to the project 💻
 ### 👉 Prerequisites 
 - [Visual Studio Code](https://code.visualstudio.com/)
-- [Latest stable version of Node (10.16+)](https://nodejs.org/en/)
+- [Latest stable version of Node (12.16+)](https://nodejs.org/en/)
 - [Angular CLI latest version](https://angular.io/guide/setup-local)
 - [Latest stable version of yarn](https://legacy.yarnpkg.com/en/)
 
