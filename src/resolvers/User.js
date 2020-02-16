@@ -1,8 +1,8 @@
 const User = {
   /* GET all groups for user */
-  groups: ({ id }, args, context) => context.prisma.user({ id }).groups(),
+  groups: (parent, args, context) => context.prisma.user({ id: parent.id }).groups(),
   /* GET all Chatrooms for user */
-  userChatrooms: ({ id }, args, context) => context.prisma.user({ id }).userChatrooms(),
+  userChatrooms: (parent, args, context) => context.prisma.user({ id: parent.id }).userChatrooms(),
 };
 
 module.exports = { User };

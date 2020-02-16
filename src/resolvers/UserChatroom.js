@@ -1,9 +1,9 @@
 const UserChatroom = {
   /* GET all chatroom for userChatroom */
-  user: ({ id }, args, context) => context.prisma.userChatroom({ id }).chatroom(),
+  user: (parent, args, context) => context.prisma.userChatroom({ id: parent.id }).chatroom(),
 
   /* GET all user for userChatroom */
-  chatroom: ({ id }, args, context) => context.prisma.userChatroom({ id }).user(),
+  chatroom: (parent, args, context) => context.prisma.userChatroom({ id: parent.id }).user(),
 
 };
 

@@ -141,16 +141,31 @@ type Mutation {
   # decline invitation
   #declineInvitation(input: DeclineInvitationInput!): DeclineInvitationPayload!
 
-  #chat
+  # CHAT
 
-  createChatroom(name: String!): Chatroom,
-  deactivateChatroom(id: ID!): Chatroom,
-  activateChatroom(id: ID!): Chatroom,
-  joinChatroom(userId: ID!, chatroomId: ID!,): UserChatroom,
-  leaveChatroom(userId: String!, chatroomId: ID!): Chatroom,
-  sendMessage(content: String!, userId: String!, chatroomId: ID!): Message,
-  editMessage(content: String!, id: ID!): Message,
-  deleteMessage(id: ID!): Message,
+  # create a chatroom
+  createChatroom(input: CreateChatroom!): Chatroom,
+
+  # archive a chatroom
+  deactivateChatroom(input: UpdateChatroom): Chatroom,
+
+  # unarchive a chatroom
+  activateChatroom(input: UpdateChatroom!): Chatroom,
+
+  # join a chatroom
+  joinChatroom(input: JoinLeaveChatroom!): UserChatroom,
+
+  # leave a chatroom
+  leaveChatroom(input: JoinLeaveChatroom!): Chatroom,
+
+  # send a message to a chatroom
+  sendMessage(input: SendMessage!): Message,
+
+  # edit a message
+  editMessage(input: EditMessage!): Message,
+
+  # soft delete a message
+  deleteMessage(input: DeleteMessage!): Message,
 
 }
 
@@ -209,4 +224,32 @@ input InviteUserToGroupInput {
 input UpdateGroupNameInput {
   group: ID!
   name: String!
+}
+
+input CreateChatroom {
+  name: String!
+}
+
+input UpdateChatroom {
+  id: ID!
+}
+
+input JoinLeaveChatroom {
+  userId: ID!
+  chatroomId: ID!
+}
+
+input SendMessage {
+  content: String!
+  userId: ID!
+  chatroomId: ID!
+}
+
+input EditMessage {
+  content: String!
+  id: ID!
+}
+
+input DeleteMessage {
+  id: ID!
 }

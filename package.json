@@ -8,7 +8,8 @@
     "server": "nodemon ./src/index.js",
     "prisma": "docker-compose up -d && sleep 10 && prisma generate && prisma deploy && exit",
     "dev": "start yarn prisma & yarn server",
-    "down": "prisma delete && docker-compose down"
+    "down": "prisma delete && docker-compose down",
+    "test": "mocha test/*.test.js"
   },
   "name": "roommate_backend",
   "version": "1.0.0",

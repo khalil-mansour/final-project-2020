@@ -1,8 +1,25 @@
+const getUserChatroomById = async (args, context) => {
+  const chatrooms = await context.prisma.userChatrooms({
+    where: {
+      user: {
+        id: args.input.userId,
+      },
+      chatroom: {
+        id: args.input.chatroomId,
+      },
+    },
+  });
+  if (chatrooms.length > 1) {
+    throw new Error('A user cannot join a Chatroom multiple times');
+  } else {
+    return chatrooms[0];
+  }
+};
 const chat = {
 
   // Create a chatroom
   createChatroom: (root, args, context) => context.prisma.createChatroom({
-    name: args.name,
+    name: args.input.name,
   }),
   // Deactivate a chatroom
   deactivateChatroom: (root, args, context) => context.prisma.updateChatroom({
@@ -10,7 +27,7 @@ const chat = {
       isArchived: true,
     },
     where: {
-      id: args.id,
+      id: args.input.id,
     },
   }),
   // Activate a chatrrom
@@ -19,7 +36,7 @@ const chat = {
       isArchived: false,
     },
     where: {
-      id: args.id,
+      id: args.input.id,
     },
   }),
   // Enter a chatroom
@@ -28,57 +45,68 @@ const chat = {
       user: {
         connect:
         {
-          id: args.userId,
+          id: args.input.userId,
         },
       },
       chatroom: {
         connect:
         {
-          id: args.chatroomId,
+          id: args.input.chatroomId,
         },
       },
     },
   ),
 
   // Leave a chatroom
-  leaveChatroom: (root, args, context) => context.prisma.updateUserChatroom({
-    data: {
-      leftDate: Date.now(),
-    },
-    where: {
-      id: args.id,
-    },
-  }),
+  leaveChatroom: async (root, args, context) => {
+    const dateTime = new Date().toISOString();
+    const chatroom = await getUserChatroomById(args, context);
+    console.log(dateTime);
+
+    return context.prisma.updateUserChatroom({
+      data: {
+        leftDate: dateTime,
+      },
+      where: {
+        id: chatroom.id,
+      },
+    });
+  },
   // Send a message
   sendMessage: (root, args, context) => context.prisma.createMessage({
-    content: args.content,
-    userId: args.userId,
-    chatroomId: args.chatroomId,
+    content: args.input.content,
+    user: {
+      connect: {
+        id: args.input.userId,
+      },
+    },
+    chatroom: {
+      connect: {
+        id: args.input.chatroomId,
+      },
+    },
   }),
   // Update a message
   editMessage: (root, args, context) => context.prisma.updateMessage({
     data: {
-      content: args.content,
+      content: args.input.content,
     },
     where: {
-      AND: {
-        userId: args.userId,
-        chatroomId: args.chatroomId,
-      },
+      id: args.input.id,
     },
   }),
   // Delete a message
-  deleteMessage: (root, args, context) => context.prisma.updateMessage({
-    data: {
-      deletedAt: Date.now(),
-    },
-    where: {
-      AND: {
-        userId: args.userId,
-        chatroomId: args.chatroomId,
+  deleteMessage: (root, args, context) => {
+    const date = new Date().toISOString();
+    return context.prisma.updateMessage({
+      data: {
+        deletedAt: date,
       },
-    },
-  }),
+      where: {
+        id: args.input.id,
+      },
+    });
+  },
 };
 
 module.exports = { chat };

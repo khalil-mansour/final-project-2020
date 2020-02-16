@@ -1,9 +1,9 @@
 const Message = {
   /* GET all chatroom for a Message */
-  user: ({ id }, args, context) => context.prisma.message({ id }).chatroom(),
+  user: (parent, args, context) => context.prisma.message({ id: parent.id }).chatroom(),
 
   /* GET all user for Message */
-  chatroom: ({ id }, args, context) => context.prisma.message({ id }).user(),
+  chatroom: (parent, args, context) => context.prisma.message({ id: parent.id }).user(),
 
 };
 
