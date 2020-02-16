@@ -9,10 +9,7 @@ const userMutation = {
       email: args.email,
       avatar: args.avatar,
     }))
-    .catch((error) => {
-      console.error(error);
-      return error;
-    }),
+    .catch((error) => error),
 };
 
 module.exports = { userMutation };

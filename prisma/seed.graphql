@@ -1,0 +1,12 @@
+mutation {
+  createUser(
+    data: {
+      userId: "G4ZaG49WfabtVgzbUYnELosxlqL2",
+      name: "admin"
+      lastName: "admin"
+      email: "admin@admin.ca"
+    }){
+      userId
+    }
+
+}

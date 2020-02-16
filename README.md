@@ -36,6 +36,11 @@ you can also use the command
 ```
 you need to deploy eveyrtime you modify the datamodel.prisma
 
+to get the seed for you dev env run
+```
+ prisma seed
+```
+
 #### Server 
 
 Run `node src/index.js`  in the project for a dev server. Navigate to `http://localhost:4000/`. The app will automatically reload if you change any of the source files.
@@ -49,6 +54,15 @@ You can also use nodemon to hot-reload your server. A yarn script also exist for
     OR
     yarn server
 ```
+
+#### EsLint configuration
+
+In Visual Studio Code, add these lines in settings.json :
+
+    "eslint.format.enable": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    },
 
 #### EsLint configuration
 

@@ -1,22 +1,179 @@
-type Query {
-  users: [User!]!
-  login(userId: String): Boolean!
-}
-
-type Mutation {
-  signUp(userId: String, name: String, lastName: String, email: String, avatar: String) : User
-}
-
-type AuthPayload {
-  token: String
-  user: User
+type UserType {
+  id: ID!
+  type: String!
 }
 
 type User {
   id: ID!
-  userId: String! 
+  userId: String!
   name: String!
   lastName: String!
   email: String! 
-  avatar: String
+  groups: [UserGroup!]!
+}
+
+type Group {
+  id: ID!
+  name: String!
+  address: Address!
+  admin: User!
+  users: [UserGroup!]!
+}
+
+type UserGroup {
+  id: ID!
+  user: User!
+  group: Group!
+  join_at: String!
+}
+
+type Invitation {
+  id: ID!
+  from: User!
+  group: Group!
+  link: String!
+  expiredAt: String!
+}
+
+type Address {
+  id: ID!
+  country: String!
+  province: String!
+  city: String!
+  street: String!
+  apartment_unit: Int
+}
+
+type Query {
+  # query all users
+  # query all groups
+  groups: [Group!]!
+  # query all addresses
+  addresses: [Address!]!
+  # query all invitations
+  invitations: [Invitation!]!
+  # query all userGroups
+  userGroups: [UserGroup!]!
+
+  # query user by id
+  user(id: ID!): User!
+
+  login(userId: String): Boolean!
+  # query user by firebase id (string)
+  user_by_uid(uid: String!): User!
+  # query group by id
+  group(id: ID!): Group!
+  # query address by id
+  address(id: ID!): Address!
+  # query invitation by id
+  invitation(id: ID!): Invitation!
+  # query userGroup by id
+  userGroup(id: ID!): UserGroup!
+  # query userGroup
+  userGroup_by_ids(input: UserGroupByIdsInput!): [UserGroup]
+}
+
+type Mutation {
+  # USER
+
+  # create a new user
+  signUp(input: SignUpInput!): User!
+
+  # assign type to user
+  assignTypeToUser(input: AssignTypeToUserInput!): User!
+
+  # edit a user
+  updateUser(input: UpdateUserInput!): User!
+
+
+  # ADDRESS
+  createAddress(input: CreateAddressInput!): Address!
+
+
+  # GROUP
+
+  # create a new group
+  createGroup(input: CreateGroupInput!): UserGroup!
+
+  # leave a group
+  leaveGroup(input: LeaveGroupInput!): Group!
+
+  # remove user from group
+  removeUserFromGroup(input: RemoveUserFromGroupInput!): Group!
+
+  # update group name
+  updateGroupName(input: UpdateGroupNameInput!): Group!
+
+  # INVITATION
+
+  # invite a user to group
+  createInvitation(input: CreateInvitationInput!): Invitation!
+
+  # accept invitation
+  acceptInvitation(input: AcceptInvitationInput!): UserGroup!
+
+}
+
+# INPUTS
+
+input SignUpInput {
+  name: String!
+  lastName: String!
+  email: String!
+}
+
+input AssignTypeToUserInput {
+  id: ID!
+  type: ID!
+}
+
+input UpdateUserInput {
+  id: ID!
+  name: String!
+  lastName: String!
+  email: String!
+}
+
+input CreateAddressInput {
+  country: String!
+  province: String!
+  city: String!
+  street: String!
+  apartment_unit: Int
+}
+
+input CreateGroupInput {
+  name: String!
+  address: ID!
+  admin: ID!
+}
+
+input RemoveUserFromGroupInput {
+  admin: ID!
+  user: ID!
+  group: ID!
+}
+
+input LeaveGroupInput {
+  group: ID!
+}
+
+input AcceptInvitationInput {
+  invitation: ID!
+}
+
+input UpdateGroupNameInput {
+  group: ID!
+  name: String!
+}
+
+input CreateInvitationInput {
+  group: ID!
+  link: String!
+  expiredAt: String!
+}
+
+input UserGroupByIdsInput {
+  user: ID!
+  group: ID!
 }
