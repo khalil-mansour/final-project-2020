@@ -182,6 +182,34 @@ const updateContributionsWithPercentage = async (root, args, context, amount) =>
   });
 };
 
+// delete contributions for users who are no longer involved in a transaction
+const deleteOldContributions = async (args, context) => {
+  const fragment = `
+  fragment ContributionWithUserId on Contribution {
+    user {
+      id
+    }
+  }
+  `;
+  const oldContributions = await context.prisma.transaction({ id: args.input.transaction }).contributions().$fragment(fragment);
+  const oldContributionUserIds = oldContributions.map((contribution) => contribution.user.id);
+  const newContributionUserIds = args.input.contributions.map((contribution) => contribution.user);
+  const contributionToDeleteUserIds = oldContributionUserIds.filter((userId) => !newContributionUserIds.includes(userId));
+
+  return context.prisma.updateTransaction({
+    where: {
+      id: args.input.transaction,
+    },
+    data: {
+      contributions: {
+        delete: await Promise.all(contributionToDeleteUserIds.map(async (userId) => ({
+          id: await getContributionId(context, args.input.transaction, userId),
+        }))),
+      },
+    },
+  });
+};
+
 const transactionMutations = {
   createTransaction: (root, args, context) => {
     if (args.input.isEven) {
@@ -201,6 +229,8 @@ const transactionMutations = {
     } else {
       await updateContributionsWithPercentage(root, args, context, amount);
     }
+
+    await deleteOldContributions(args, context);
 
     // update isEven field for the concerned transaction
     return context.prisma.updateTransaction({
