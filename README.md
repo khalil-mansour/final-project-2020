@@ -55,14 +55,34 @@ You can also use nodemon to hot-reload your server. A yarn script also exist for
     yarn server
 ```
 
-#### EsLint configuration
+##### To fake the firebase authentication
+- Execute `git update-index --skip-worktree src/config.json` to prevent any modifications to the `config.json` file on the master branch.
+- 1. Go to `src/config.json`
+- 2. Set `simulate_firebase_auth` to true
+- 3. Set `simulated_firebase_uid` to the [firebase uid](https://console.firebase.google.com/u/0/project/roommate-93dcd/authentication/users) of the user you want the server to see you as.
 
-In Visual Studio Code, add these lines in settings.json :
-
-    "eslint.format.enable": true,
-    "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": true
-    },
+Exemples :
+```json
+The server will see any request as coming from 'admin@admin.com'
+{
+  "simulate_firebase_auth": true,
+  "simulated_firebase_uid": "G4ZaG49WfabtVgzbUYnELosxlqL2"
+}
+```
+```json
+The server will see any request as coming from 'proprio@admin.com'
+{
+  "simulate_firebase_auth": true,
+  "simulated_firebase_uid": "tT8tv8UXt2MSJiXoO5GoWFBfU0v2"
+}
+```
+```json
+The server will see any request as coming from 'locataire@admin.com'
+{
+  "simulate_firebase_auth": true,
+  "simulated_firebase_uid": "yaXRcIB3F5eUB94OOxfCDuCVl7O2"
+}
+```
 
 #### EsLint configuration
 
