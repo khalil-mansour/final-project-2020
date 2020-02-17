@@ -1,5 +1,7 @@
 const firebaseAdmin = require('firebase-admin');
 const serviceAccount = require('./serviceKey.json');
+const config = require('./config.json');
+
 require('dotenv').config();
 
 firebaseAdmin.initializeApp({
@@ -8,9 +10,9 @@ firebaseAdmin.initializeApp({
 });
 
 function authenticate(context) {
-  if (process.env.DEV_FLAG === 'true') {
+  if (config.simulate_firebase_auth) {
     return new Promise((resolve) => {
-      resolve({ uid: 'G4ZaG49WfabtVgzbUYnELosxlqL2' });
+      resolve({ uid: config.simulated_firebase_uid });
     });
   }
   const authorization = context.request.get('Authorization');
