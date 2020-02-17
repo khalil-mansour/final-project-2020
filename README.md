@@ -56,6 +56,7 @@ You can also use nodemon to hot-reload your server. A yarn script also exist for
 ```
 
 ##### To fake the firebase authentication
+- Prerequisite : execute `git update-index --skip-worktree src/config.json` to prevent any modifications to the `config.json` file.
 - 1. Go to `src/config.json`
 - 2. Set `simulate_firebase_auth` to true
 - 3. Set `simulated_firebase_uid` to the [firebase uid](https://console.firebase.google.com/u/0/project/roommate-93dcd/authentication/users) of the user you want the server to see you as.
