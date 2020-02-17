@@ -54,8 +54,8 @@ const getContributionId = async (context, transactionId, userId) => {
   return contributionId;
 };
 
-const inputValidation = (args) => {
-  if (!args.input.isEven) {
+const inputValidation = (args, contributionsCount) => {
+  if (args.input.isEven === false) {
     args.input.contributions.forEach((contribution) => {
       if (!contribution.percentage) {
         throw new Error('A percentage value is missing in the mutation\'s input.');
@@ -64,6 +64,10 @@ const inputValidation = (args) => {
     if (!contributionPercentagesAddUpToHundred(args.input.contributions)) {
       throw new Error('Percentages doesn\'t add up to a hundred.');
     }
+  }
+
+  if (args.input.amount < contributionsCount) {
+    throw new Error(`The total amount of the transaction is too small to be distributed among ${contributionsCount} people.`);
   }
 
   return true;
@@ -223,7 +227,7 @@ const deleteOldContributions = async (args, context, transaction) => {
 
 const transactionMutations = {
   createTransaction: (root, args, context) => {
-    if (inputValidation(args)) {
+    if (inputValidation(args, args.input.contributions.length)) {
       const inputTransaction = {
         paidBy: {
           id: args.input.paidBy,
@@ -256,7 +260,7 @@ const transactionMutations = {
   deleteTransaction: (root, args, context) => context.prisma.deleteTransaction({ id: args.input.transaction }),
 
   async updateTransactionContributions(root, args, context) {
-    if (inputValidation(args)) {
+    if (inputValidation(args, args.input.contributions.length)) {
       const inputTransaction = {
         id: args.input.transaction,
         isEven: args.input.isEven,
@@ -293,19 +297,59 @@ const transactionMutations = {
     throw new Error('An error occurred while updating a transaction\'s contributions.');
   },
 
-  /* updateTransactionAmount: async (root, args, context) => {
-    const inputTransaction = {
-      id: args.input.transaction,
-      amount: args.input.amount,
-    };
+  updateTransactionAmount: async (root, args, context) => {
+    const contributionsCount = await context.prisma.contributionsConnection({
+      where: {
+        transaction: {
+          id: args.input.transaction,
+        },
+      },
+    }).aggregate().count();
 
-    const isEven = await context.prisma.transaction({ id: args.input.transaction }).isEven();
-    if (isEven) {
-      await updateEvenContributions(root, args, context, args.input.amount);
-    } else {
-      await updateContributionsWithPercentage(root, args, context, args.input.amount);
+    if (inputValidation(
+      args,
+      contributionsCount,
+    )) {
+      const inputTransaction = {
+        id: args.input.transaction,
+        amount: args.input.amount,
+      };
+
+      const fragment = `
+      fragment TransactionWithRelations on Transaction {
+        id
+        isEven
+        contributions {
+          user {
+            id
+          }
+          percentage
+        }
+      }
+      `;
+
+      const currentTransaction = await context.prisma.transaction({ id: inputTransaction.id }).$fragment(fragment);
+
+      if (currentTransaction.isEven) {
+        await updateEvenContributions(context, currentTransaction, inputTransaction.amount);
+      } else {
+        await updateContributionsWithPercentage(context, currentTransaction, inputTransaction.amount);
+      }
+
+      // TODO - les contributions retournées ne sont pas à jours avec les nouvelles valeurs modifées
+      //        (probablement à cause des foreach)
+      // update amount field for the concerned transaction
+      return context.prisma.updateTransaction({
+        where: {
+          id: inputTransaction.id,
+        },
+        data: {
+          amount: inputTransaction.amount,
+        },
+      });
     }
-  }, */
+    throw new Error('An error occurred while updating a transaction\'s total amount.');
+  },
 };
 
 module.exports = { transactionMutations };

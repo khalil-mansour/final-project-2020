@@ -155,7 +155,7 @@ type Mutation {
 
   updateTransactionContributions(input: UpdateTransactionContributionsInput!): Transaction!
 
-  # updateTransactionAmount(input: UpdateTransactionAmountInput!): Transaction!
+  updateTransactionAmount(input: UpdateTransactionAmountInput!): Transaction!
 }
 
 # INPUTS
