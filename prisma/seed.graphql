@@ -1,10 +1,28 @@
 mutation {
-  createUser(
+  admin: createUser(
     data: {
       userId: "G4ZaG49WfabtVgzbUYnELosxlqL2",
       name: "admin"
       lastName: "admin"
       email: "admin@admin.ca"
+    }){
+      userId
+    },
+  proprio: createUser(
+    data: {
+      userId: "tT8tv8UXt2MSJiXoO5GoWFBfU0v2",
+      name: "proprio"
+      lastName: "proprio"
+      email: "proprio@admin.com"
+    }){
+      userId
+    },
+  locataire: createUser(
+    data: {
+      userId: "yaXRcIB3F5eUB94OOxfCDuCVl7O2",
+      name: "locataire"
+      lastName: "locataire"
+      email: "locataire@admin.com"
     }){
       userId
     }

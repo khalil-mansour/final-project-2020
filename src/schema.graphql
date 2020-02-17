@@ -120,6 +120,7 @@ input SignUpInput {
   name: String!
   lastName: String!
   email: String!
+  avatar: String
 }
 
 input AssignTypeToUserInput {
@@ -132,6 +133,7 @@ input UpdateUserInput {
   name: String!
   lastName: String!
   email: String!
+  avatat: String
 }
 
 input CreateAddressInput {

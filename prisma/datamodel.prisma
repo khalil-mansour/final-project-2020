@@ -4,6 +4,7 @@ type User {
   type: UserType @relation(name: "UserUserType")
   name: String!
   lastName: String!
+  avatar: String
   email: String! @unique
   groups: [UserGroup!]! @relation(name: "UserGroups")
   createdAt: DateTime! @createdAt

@@ -7,6 +7,7 @@ const userMutation = {
       name: args.input.name,
       lastName: args.input.lastName,
       email: args.input.email,
+      avatar: args.input.avatar,
     }))
     .catch((error) => error),
 };
