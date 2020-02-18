@@ -350,6 +350,15 @@ const transactionMutations = {
     }
     throw new Error('An error occurred while updating a transaction\'s total amount.');
   },
+
+  updateTransactionDescription: (root, args, context) => context.prisma.updateTransaction({
+    where: {
+      id: args.input.transaction,
+    },
+    data: {
+      description: args.input.description,
+    },
+  }),
 };
 
 module.exports = { transactionMutations };

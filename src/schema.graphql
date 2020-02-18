@@ -153,9 +153,14 @@ type Mutation {
   # delete a transaction
   deleteTransaction(input: DeleteTransactionInput!): Transaction!
 
+  # update a transaction's contributions
   updateTransactionContributions(input: UpdateTransactionContributionsInput!): Transaction!
 
+  # update a transaction's total amount
   updateTransactionAmount(input: UpdateTransactionAmountInput!): Transaction!
+
+  # update a transaction's description
+  updateTransactionDescription(input: UpdateTransactionDescriptionInput!): Transaction!
 }
 
 # INPUTS
@@ -242,4 +247,9 @@ input UpdateTransactionContributionsInput {
 input UpdateTransactionAmountInput {
   transaction: ID!
   amount: Int!
+}
+
+input UpdateTransactionDescriptionInput {
+  transaction: ID!
+  description: String!
 }
