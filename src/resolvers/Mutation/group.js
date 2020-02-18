@@ -1,50 +1,51 @@
 const { authenticate } = require('../../utils.js');
 
 const groupMutation = {
-  createGroup: (root, args, context) => authenticate(context)
-    .then((res) => context.prisma.createGroup({
+  createGroup: async (root, args, context) => {
+    const res = await authenticate(context);
+    return await context.prisma.createGroup({
       name: args.input.name,
       address: { connect: { id: args.input.address } },
       admin: { connect: { id: args.input.admin } },
-    }))
+    })
     .catch((error) => {
-      console.error(error);
-      return error;
-    }),
+      throw new Error(error.message);
+    })
+  },
 
-  updateGroupName: (root, args, context) => authenticate(context)
-    .then((res) => context.prisma.updateGroup({
+  updateGroupName: async (root, args, context) =>  {
+    const res = await authenticate(context);
+    return await context.prisma.updateGroup({
       data: {
         name: args.input.name,
       },
       where: {
         id: args.input.group,
       },
-    }))
+    })
     .catch((error) => {
-      console.error(error);
-      return error;
-    }),
+      throw new Error(error.message);
+    })
+  },
 
-  leaveGroup: (parent, args, context) => authenticate(context)
-    .then(async (res) => {
-      const user = await context.prisma.user({ userId: res.uid });
-      const userGroup = await context.prisma.userGroups({
-        where: {
-          user: {
-            id: user.id,
-          },
-          group: {
-            id: args.input.group,
-          },
+  leaveGroup: async (parent, args, context) => {
+    const res = await authenticate(context);
+    const user = await context.prisma.user({ userId: res.uid });
+    const userGroup = await context.prisma.userGroups({
+      where: {
+        user: {
+          id: user.id,
         },
-      });
-      const userGroupId = userGroup[0].id;
-      console.log(userGroupId);
-
-      /* TODO: Fix return object (Mutation works, reponse has non-nullable error) */
-      return context.prisma.deleteUserGroup({ id: userGroupId });
-    }),
+        group: {
+          id: args.input.group,
+        },
+      },
+    });
+    const userGroupId = userGroup[0].id;
+    /* TODO: Fix return object (Mutation works, reponse has non-nullable error) */
+    return context.prisma.deleteUserGroup({ id: userGroupId });
+    
+  },
 
   removeUserFromGroup: (parent, args, context) => {
     context.prisma.updateGroup({

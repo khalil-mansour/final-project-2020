@@ -59,7 +59,7 @@ type Query {
   # query user by id
   user(id: ID!): User!
   # query user by firebase id (string)
-  user_by_uid(uid: String!): User!
+  userByUid(uid: String!): User!
   # query group by id
   group(id: ID!): Group!
   # query address by id
@@ -69,7 +69,7 @@ type Query {
   # query userGroup by id
   userGroup(id: ID!): UserGroup!
   # query userGroup
-  userGroup_by_ids(input: UserGroupByIdsInput!): [UserGroup]
+  userGroupByIds(input: UserGroupByIdsInput!): [UserGroup]
 }
 
 type Mutation {

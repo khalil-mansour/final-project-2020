@@ -11,7 +11,9 @@ function authenticate(context) {
   /* tried this but didn't work for now fuck it will do later */
 
   /*
-  const authorization = context.request.get('authorization');
+  const authorization = await context.request.get('Authorization');
+  console.log(authorization);
+
   const mode = context.request.get('mode');
   // Requests from playground
   if (mode === 'dev') {
