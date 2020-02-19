@@ -5,7 +5,7 @@ type UserType {
 
 type User {
   id: ID!
-  userId: String!
+  firebaseId: String!
   name: String!
   lastName: String!
   email: String! 
@@ -57,22 +57,23 @@ type Query {
   userGroups: [UserGroup!]!
 
   # query user by id
-  user(id: ID!): User!
+  user(userId: ID!): User!
   # query user by firebase id (string)
-  userByUid(uid: String!): User!
+  userByFirebase(firebaseId: String!): User!
   # query group by id
-  group(id: ID!): Group!
+  group(groupId: ID!): Group!
   # query address by id
-  address(id: ID!): Address!
+  address(addressId: ID!): Address!
   # query invitation by id
-  invitation(id: ID!): Invitation!
+  invitation(invitationId: ID!): Invitation!
   # query userGroup by id
-  userGroup(id: ID!): UserGroup!
+  userGroup(userGroupId: ID!): UserGroup!
   # query userGroup
   userGroupByIds(input: UserGroupByIdsInput!): [UserGroup]
 }
 
 type Mutation {
+
   # USER
 
   # create a new user
@@ -86,22 +87,29 @@ type Mutation {
 
 
   # ADDRESS
+
+  # create a new address
   createAddress(input: CreateAddressInput!): Address!
 
+  # edit a new address
+  updateAddress(input: UpdateAddressInput!): Address!
 
   # GROUP
 
   # create a new group
-  createGroup(input: CreateGroupInput!): UserGroup!
+  createGroup(input: CreateGroupInput!): Group!
 
   # leave a group
   leaveGroup(input: LeaveGroupInput!): Group!
 
-  # remove user from group
+  # remove user from group (admin only)
   removeUserFromGroup(input: RemoveUserFromGroupInput!): Group!
 
   # update group name
   updateGroupName(input: UpdateGroupNameInput!): Group!
+
+  # delete group (admin only)
+  deleteGroup(input: DeleteGroupInput!): Group!
 
   # INVITATION
 
@@ -122,15 +130,14 @@ input SignUpInput {
 }
 
 input AssignTypeToUserInput {
-  id: ID!
-  type: ID!
+  userId: ID!
+  typeId: ID!
 }
 
 input UpdateUserInput {
-  id: ID!
-  name: String!
-  lastName: String!
-  email: String!
+  name: String
+  lastName: String
+  email: String
 }
 
 input CreateAddressInput {
@@ -143,36 +150,47 @@ input CreateAddressInput {
 
 input CreateGroupInput {
   name: String!
-  address: ID!
-  admin: ID!
+  addressId: ID!
 }
 
 input RemoveUserFromGroupInput {
-  admin: ID!
-  user: ID!
-  group: ID!
+  userId: ID!
+  groupId: ID!
 }
 
 input LeaveGroupInput {
-  group: ID!
+  groupId: ID!
+}
+
+input DeleteGroupInput {
+  groupId: ID!
 }
 
 input AcceptInvitationInput {
-  invitation: ID!
+  invitationId: ID!
 }
 
 input UpdateGroupNameInput {
-  group: ID!
+  groupId: ID!
   name: String!
 }
 
 input CreateInvitationInput {
-  group: ID!
+  groupId: ID!
   link: String!
   expiredAt: String!
 }
 
 input UserGroupByIdsInput {
-  user: ID!
-  group: ID!
+  userId: ID!
+  groupId: ID!
+}
+
+input UpdateAddressInput {
+  addressId: ID!
+  country: String!
+  province: String!
+  city: String!
+  street: String!
+  apartment_unit: Int
 }

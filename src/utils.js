@@ -8,32 +8,11 @@ firebaseAdmin.initializeApp({
 });
 
 function authenticate(context) {
-  /* tried this but didn't work for now fuck it will do later */
-
-  /*
-  const authorization = await context.request.get('Authorization');
-  console.log(authorization);
-
-  const mode = context.request.get('mode');
-  // Requests from playground
-  if (mode === 'dev') {
-    return new Promise((resolve, reject) => {
-      resolve({ uid: 'tT8tv8UXt2MSJiXoO5GoWFBfU0v2' });
-    });
-  }
-  // Requests from succesful login
-  let token = '';
-  if (authorization) {
-    token = authorization.replace('Bearer ', '');
-  }
-  return firebaseAdmin.auth().verifyIdToken(token);
-  */
-
-  /* this is the 'fake' auth check */
-
   // tT8tv8UXt2MSJiXoO5GoWFBfU0v2
+  // user1
+  // user2
   return new Promise((resolve, reject) => {
-    resolve({ uid: 'tT8tv8UXt2MSJiXoO5GoWFBfU0v2' });
+    resolve({ firebaseId: 'tT8tv8UXt2MSJiXoO5GoWFBfU0v2' });
   });
 }
 
