@@ -108,3 +108,5 @@ src/generated/
 
 # config file
 src/config.json
+# vscode settings
+.vscode

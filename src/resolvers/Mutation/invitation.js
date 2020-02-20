@@ -1,50 +1,58 @@
 const { authenticate } = require('../../utils.js');
+const { Query } = require('../Query.js');
+const { Invitation } = require('../Invitation.js');
 
 const invitationMutation = {
-  createInvitation: async (root, args, context) => authenticate(context)
-    .then(async (res) => {
-      // TODO : Check if user creating the invite is already in the group !
-
-      /* Fetch user from database */
-      const user = await context.prisma.user({ userId: res.uid });
-      return context.prisma.createInvitation({
-        from: { connect: { id: user.id } },
-        group: { connect: { id: args.input.group } },
-        link: args.input.link,
-        expiredAt: args.input.expiredAt,
-      }).catch((error) => {
-        console.log(error);
-        throw new Error('invitation / could not create a new invitation.');
+  createInvitation: async (root, args, context) => {
+    try {
+      const res = await authenticate(context);
+      // fetch user by uid
+      const user = await Query.userByFirebase(root, res.uid, context);
+      // check if user is in group
+      const exists = await context.prisma.$exists.userGroup({
+        user: { id: user.id },
+        group: { id: args.input.groupId },
       });
-    }),
+      if (exists) {
+        return context.prisma.createInvitation({
+          from: { connect: { id: user.id } },
+          group: { connect: { id: args.input.groupId } },
+          link: args.input.link,
+          expiredAt: args.input.expiredAt,
+        });
+      }
+      throw new Error('User sending invite not in current group');
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  },
 
   acceptInvitation: async (root, args, context) => {
-    /* Validate user */
-    authenticate(context).then(async (res) => {
-      const group = await context.prisma.invitation({ id: args.input.invitation }).group();
-      const user = await context.prisma.user({ userId: res.uid });
-      const userGroupArray = await context.prisma.userGroups({
-        where: {
-          user: {
-            id: user.id,
-          },
-          group: {
-            id: group.id,
-          },
-        },
+    try {
+      const res = await authenticate(context);
+      // fetch user by uid
+      const user = await Query.userByFirebase(root, res.uid, context);
+      // fetch invitation by id
+      const invitation = await Query.invitation(root, args.input, context);
+      // fetch group linked to invitation
+      const group = await Invitation.group(invitation, res, context);
+      // check if user already in group
+      const exists = await context.prisma.$exists.userGroup({
+        user: { id: user.id },
+        group: { id: group.id },
       });
 
-      /* Check if already in group before adding */
-      if (userGroupArray.length === 0) {
+      if (!exists) {
         return context.prisma.createUserGroup({
           user: { connect: { id: user.id } },
           group: { connect: { id: group.id } },
-          join_at: 'datetime.now()',
+          join_at: new Date().toUTCString(),
         });
       }
-      console.log('User already joined the group');
-      throw new Error('invitation / user already in group.');
-    });
+      throw new Error('User is already a member of the group');
+    } catch (error) {
+      throw new Error(error.message);
+    }
   },
 };
 
