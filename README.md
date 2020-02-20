@@ -55,6 +55,15 @@ In Visual Studio Code, add these lines in settings.json :
         "source.fixAll.eslint": true
     },
 
+#### EsLint configuration
+
+In Visual Studio Code, add these lines in settings.json :
+
+    "eslint.format.enable": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    },
+
 # 📖 Understanding the project structure 🤔💡
 The structure is pretty simple here. 
 - One rule don't modify the generated code for prisma 
