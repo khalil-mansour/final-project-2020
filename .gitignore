@@ -105,3 +105,6 @@ dist
 
 # generated prisma-client
 src/generated/
+
+# vscode settings
+.vscode
