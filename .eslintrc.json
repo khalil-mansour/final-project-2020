@@ -7,7 +7,7 @@
   },
   "extends": [
     "airbnb-base",
-    "eslint-plugin-mocha"
+    "plugin:mocha/recommended"
   ],
   "globals": {
     "Atomics": "readonly",
@@ -17,6 +17,7 @@
     "ecmaVersion": 2018
   },
   "rules": {
-    "linebreak-style": ["error", "unix"]
+    "linebreak-style": ["error", "unix"],
+    "mocha/no-mocha-arrows": 0
   }
 }

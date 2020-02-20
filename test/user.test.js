@@ -1,18 +1,16 @@
 
-
 const fs = require('fs');
 const path = require('path');
 const EasyGraphQLTester = require('easygraphql-tester');
-//const { UserType, User, Group, UserGroup, Invitation, Address } = require("./schema")
 
-const schema = fs.readFileSync(path.join(__dirname, '..', 'src', 'schema.graphql'), 'utf8')
+const schema = fs.readFileSync(path.join(__dirname, '..', 'src', 'schema.graphql'), 'utf8');
 
 describe('User', () => {
-  let tester
+  let tester;
 
   before(() => {
-    tester = new EasyGraphQLTester(schema)
-  })
+    tester = new EasyGraphQLTester(schema);
+  });
 
   it('all field exist', () => {
     const query = `{
@@ -26,9 +24,9 @@ describe('User', () => {
           id
         }
       }
-    }`
-    tester.test(true, query)
-  })
+    }`;
+    tester.test(true, query);
+  });
 
   it('fail if a field doesn\'t exist', () => {
     const query = `{
@@ -42,9 +40,17 @@ describe('User', () => {
           id
         }
       }
-    }`
-    tester.test(false, query)
-  })
+    }`;
+    tester.test(false, query);
+  });
 
+  it('fetch a user by ID', () => {
+    // TODO
+    // const query = `{
+    //   getUser(id: "1") {
+    //     id
+    //     name
+    //   }
+    // }`;
+  });
 });
-
