@@ -2,12 +2,17 @@ const { authenticate } = require('../utils.js');
 
 const Query = {
 
-  login: (root, args, context) => authenticate(context)
-    .then((validatedUser) => context.prisma.$exists.user({ firebaseId: validatedUser.uid }))
-    .catch((error) => {
-      console.error(error);
+  /* verify if the user exist in the database */
+  login: async (root, args, context) => {
+    try {
+      const res = await authenticate(context);
+      return context.prisma.$exists.user({ firebaseId: res.uid });
+    } catch (error) {
+      console.log(error);
       return error;
-    }),
+    }
+  },
+
   /* GET user by ID */
   user: (root, args, context) => context.prisma.user({ id: args.userId }),
   /* GET user by firebase ID */
