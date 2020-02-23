@@ -1,11 +1,24 @@
+const { authenticate } = require('../utils.js');
+
 const Query = {
 
-  /* GET all users */
-  users: (root, args, context) => context.prisma.users(),
+  /* verify if the user exist in the database */
+  login: async (root, args, context) => {
+    try {
+      const res = await authenticate(context);
+      return context.prisma.$exists.user({ firebaseId: res.uid });
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
+  },
+
   /* GET user by ID */
   user: (root, args, context) => context.prisma.user({ id: args.userId }),
   /* GET user by firebase ID */
-  userByFirebase: (root, args, context) => context.prisma.user({ firebaseId: args.firebaseId }),
+  users: (root, args, context) => context.prisma.users(),
+  /* GET user by firebase ID */
+  userByFirebase: (root, firebaseId, context) => context.prisma.user({ firebaseId }),
 
   /* GET all groups */
   groups: (parent, args, context) => context.prisma.groups(),

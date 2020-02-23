@@ -7,9 +7,10 @@ const userMutation = {
       const res = await authenticate(context);
       return context.prisma.createUser({
         name: args.input.name,
-        firebaseId: res.firebaseId,
+        firebaseId: res.uid,
         lastName: args.input.lastName,
         email: args.input.email,
+        avatar: args.input.avatar,
       });
     } catch (error) {
       throw new Error(error.message);
@@ -25,7 +26,7 @@ const userMutation = {
     try {
       const res = await authenticate(context);
       // fetch current user by uid
-      const user = await Query.userByFirebase(root, res, context);
+      const user = await Query.userByFirebase(root, res.uid, context);
       return context.prisma.updateUser({
         data: {
           name: args.input.name,
