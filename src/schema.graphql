@@ -134,6 +134,7 @@ input SignUpInput {
 
 input UpdateUserInput {
   userId: ID!
+  typeId: ID!
   name: String!
   lastName: String!
   email: String!
