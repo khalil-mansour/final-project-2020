@@ -17,8 +17,34 @@ type Group {
   address: Address! @relation(name: "GroupAddress")
   admin: User! @relation(name: "GroupAdmin")
   users: [UserGroup!]! @relation(name: "GroupUsers", onDelete: CASCADE)
+  list: [List] @relation(name: "GroupLists", onDelete:CASCADE)
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
+}
+
+type List{
+  id: ID! @id
+  title: String!
+  description: String
+  type: String
+  group: Group! @relation(name: "GroupLists")
+  sections: [ListSection!]! @relation(name: "ListSections", onDelete: CASCADE)
+}
+
+type ListSection {
+  id: ID! @id
+  title: String!
+  list: List! @relation(name: "ListSections")
+  lines: [ListLine] @relation(name: "SectionLines", onDelete: CASCADE)
+  mainSection: Boolean
+}
+
+type ListLine {
+  id: ID! @id
+  section: ListSection! @relation(name: "SectionLines", onDelete: CASCADE)
+  text: String!
+  quantity: Int
+  checked: Boolean
 }
 
 type UserGroup {

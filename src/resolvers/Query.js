@@ -46,6 +46,12 @@ const Query = {
       group: { id: args.input.groupId },
     },
   }),
+
+  /* Get all list for user */
+  // eslint-disable-next-line max-len
+  listsByGroup: (root, args, context) => context.prisma.group({ id: args.id }).lists(),
+
+  list: (root, args, context) => context.prisma.list({ id: args.id }),
 };
 
 module.exports = { Query };

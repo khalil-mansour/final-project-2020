@@ -10,6 +10,7 @@ type User {
   lastName: String!
   email: String! 
   groups: [UserGroup!]!
+  lists: [List]
 }
 
 type Group {
@@ -18,6 +19,7 @@ type Group {
   address: Address!
   admin: User!
   users: [UserGroup!]!
+  lists: [List]
 }
 
 type UserGroup {
@@ -33,6 +35,31 @@ type Invitation {
   group: Group!
   link: String!
   expiredAt: String!
+}
+
+type List {
+  id: ID!
+  title: String!
+  description: String
+  type: String
+  group: Group!
+  sections: [ListSection!]!
+}
+
+type ListSection {
+  id: ID!
+  list: List!
+  title: String!
+  lines: [ListLine]
+  mainSection: Boolean
+}
+
+type ListLine {
+  id: ID!
+  section: ListSection!
+  text: String!
+  quantity: Int
+  checked: Boolean
 }
 
 type Address {
@@ -72,6 +99,11 @@ type Query {
   userGroup(userGroupId: ID!): UserGroup!
   # query userGroup
   userGroupByIds(input: UserGroupByIdsInput!): [UserGroup]
+  #query lists for a group
+  listsByGroup(userGroupId: ID!): [List]
+  #query list from id
+  list(listId: ID!): List!
+
 }
 
 type Mutation {
@@ -120,6 +152,12 @@ type Mutation {
 
   # accept invitation
   acceptInvitation(input: AcceptInvitationInput!): UserGroup!
+
+  #List
+  
+  #create list
+
+  createList(input: CreateListInput!): List!
 
 }
 
@@ -199,4 +237,24 @@ input UpdateAddressInput {
   city: String!
   street: String!
   apartment_unit: Int
+}
+
+input CreateListInput {
+  title: String!
+  description: String
+  type: String
+  groupId: ID!
+  sections: [CreateSectionInput!]!
+}
+
+input CreateSectionInput {
+  title: String!
+  lines: [CreateListLineInput!]!
+  mainSection: Boolean
+}
+
+input CreateListLineInput {
+  text: String!
+  quantity: Int
+  checked: Boolean
 }
