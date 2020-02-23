@@ -92,7 +92,14 @@ In Visual Studio Code, add these lines in settings.json :
     "editor.codeActionsOnSave": {
         "source.fixAll.eslint": true
     },
-    
+
+### run EsLint auto fix
+
+```shell
+  yarn eslint src/ --fix
+```
+
+
 # 📖 Understanding the project structure 🤔💡
 The structure is pretty simple here. 
 - One rule don't modify the generated code for prisma 
