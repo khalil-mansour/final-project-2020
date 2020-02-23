@@ -4,9 +4,9 @@
 - [Latest stable version of Node (10.16+)](https://nodejs.org/en/)
 - [Angular CLI latest version](https://angular.io/guide/setup-local)
 - [Nodemon (to automatically restart the server on file change)](https://www.npmjs.com/package/nodemon)
-  - `npm install -g nodemon`
+  - `yarn global add nodemon`
 - [Prisma client](https://www.npmjs.com/package/prisma)
-  - `npm install -g prisma`
+  - `yarn global add prisma`
 - [Latest stable version of yarn](https://legacy.yarnpkg.com/en/)
 
 ### 👉 Recommended extensions (ordered by importance)

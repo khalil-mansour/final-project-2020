@@ -12,7 +12,7 @@ firebaseAdmin.initializeApp({
 function authenticate(context) {
   if (process.env.DEV_FLAG) {
     return new Promise((resolve) => {
-      resolve({ uid: config.simulated_firebase_uid });
+      resolve({ uid: config.simulated_firebase_id });
     });
   }
   const authorization = context.request.get('Authorization');
