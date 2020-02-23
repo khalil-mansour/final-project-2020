@@ -1,6 +1,8 @@
 const firebaseAdmin = require('firebase-admin');
-
 const serviceAccount = require('./serviceKey.json');
+const config = require('./config.json');
+
+require('dotenv').config();
 
 firebaseAdmin.initializeApp({
   credential: firebaseAdmin.credential.cert(serviceAccount),
@@ -8,12 +10,17 @@ firebaseAdmin.initializeApp({
 });
 
 function authenticate(context) {
-  // tT8tv8UXt2MSJiXoO5GoWFBfU0v2
-  // user1
-  // user2
-  return new Promise((resolve, reject) => {
-    resolve({ firebaseId: 'tT8tv8UXt2MSJiXoO5GoWFBfU0v2' });
-  });
+  if (process.env.DEV_FLAG) {
+    return new Promise((resolve) => {
+      resolve({ uid: config.simulated_firebase_id });
+    });
+  }
+  const authorization = context.request.get('Authorization');
+  let token = '';
+  if (authorization) {
+    token = authorization.replace('Bearer ', '');
+  }
+  return firebaseAdmin.auth().verifyIdToken(token);
 }
 
 module.exports = { authenticate };

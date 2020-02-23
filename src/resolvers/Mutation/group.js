@@ -17,7 +17,7 @@ const groupMutation = {
     try {
       const res = await authenticate(context);
       // fetch user by uid
-      const user = await Query.userByFirebase(root, res, context);
+      const user = await Query.userByFirebase(root, res.uid, context);
 
       // create the group
       const createdGroup = await context.prisma.createGroup({
@@ -41,7 +41,7 @@ const groupMutation = {
     try {
       const res = await authenticate(context);
       // fetch user by uid
-      const user = await Query.userByFirebase(root, res, context);
+      const user = await Query.userByFirebase(root, res.uid, context);
       // check if user is in group
       const exists = await context.prisma.$exists.userGroup({
         user: { id: user.id },
@@ -69,7 +69,7 @@ const groupMutation = {
     try {
       const res = await authenticate(context);
       // fetch user by uid
-      const user = await Query.userByFirebase(root, res, context);
+      const user = await Query.userByFirebase(root, res.uid, context);
       // check if user is in group
       const exists = await context.prisma.$exists.userGroup({
         user: { id: user.id },
@@ -94,7 +94,7 @@ const groupMutation = {
     try {
       const res = await authenticate(context);
       // fetch current user by uid
-      const user = await Query.userByFirebase(root, res, context);
+      const user = await Query.userByFirebase(root, res.uid, context);
       // fetch group by id
       const group = await Query.group(root, args.input, context);
       // fetch admin
@@ -126,7 +126,7 @@ const groupMutation = {
     try {
       const res = await authenticate(context);
       // fetch user by uid
-      const user = await Query.userByFirebase(root, res, context);
+      const user = await Query.userByFirebase(root, res.uid, context);
       // fetch group by id
       const group = await Query.group(root, args.input, context);
       // fetch admin

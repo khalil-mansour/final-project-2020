@@ -57,7 +57,9 @@ type Query {
   userGroups: [UserGroup!]!
 
   # query user by id
-  user(userId: ID!): User!
+  user(id: ID!): User!
+  
+  login: Boolean!
   # query user by firebase id (string)
   userByFirebase(firebaseId: String!): User!
   # query group by id
@@ -127,17 +129,21 @@ input SignUpInput {
   name: String!
   lastName: String!
   email: String!
+  avatar: String
+}
+
+input UpdateUserInput {
+  userId: ID!
+  typeId: ID!
+  name: String!
+  lastName: String!
+  email: String!
+  avatat: String
 }
 
 input AssignTypeToUserInput {
   userId: ID!
   typeId: ID!
-}
-
-input UpdateUserInput {
-  name: String
-  lastName: String
-  email: String
 }
 
 input CreateAddressInput {
