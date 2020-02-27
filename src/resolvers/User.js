@@ -7,7 +7,6 @@ const User = {
 
   /* GET user contributions */
   contributions: ({ id }, args, context) => context.prisma.user({ id }).contributions(),
-
 };
 
 module.exports = { User };

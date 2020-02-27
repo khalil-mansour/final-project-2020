@@ -1,13 +1,14 @@
 type User {
   id: ID! @id
-  userId: String! @unique
+  firebaseId: String! @unique
   type: UserType @relation(name: "UserUserType")
   name: String!
   lastName: String!
+  avatar: String
   email: String! @unique
   transactions: [Transaction] @relation(name: "PaidByTransactions")
   contributions: [Contribution] @relation(name: "UserContributions")
-  groups: [UserGroup!]! @relation(name: "UserGroups")
+  groups: [UserGroup!]! @relation(name: "UserGroups", onDelete: CASCADE)
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
 }
@@ -18,15 +19,15 @@ type Group {
   address: Address! @relation(name: "GroupAddress")
   admin: User! @relation(name: "GroupAdmin")
   transactions: [Transaction] @relation(name: "GroupTransactions")
-  users: [UserGroup!]! @relation(name: "GroupUsers")
+  users: [UserGroup!]! @relation(name: "GroupUsers", onDelete: CASCADE)
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
 }
 
 type UserGroup {
   id: ID! @id
-  user_id: User! @relation(name: "UserGroups")
-  group_id: Group! @relation(name: "GroupUsers")
+  user: User! @unique @relation(name: "UserGroups")
+  group: Group! @unique @relation(name: "GroupUsers")
   join_at: String!
 }
 
