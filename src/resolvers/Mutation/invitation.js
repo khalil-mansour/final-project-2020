@@ -7,7 +7,7 @@ const invitationMutation = {
     try {
       const res = await authenticate(context);
       // fetch user by uid
-      const user = await Query.userByFirebase(root, res, context);
+      const user = await Query.userByFirebase(root, res.uid, context);
       // check if user is in group
       const exists = await context.prisma.$exists.userGroup({
         user: { id: user.id },
@@ -31,7 +31,7 @@ const invitationMutation = {
     try {
       const res = await authenticate(context);
       // fetch user by uid
-      const user = await Query.userByFirebase(root, res, context);
+      const user = await Query.userByFirebase(root, res.uid, context);
       // fetch invitation by id
       const invitation = await Query.invitation(root, args.input, context);
       // fetch group linked to invitation

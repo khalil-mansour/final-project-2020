@@ -1,0 +1,30 @@
+mutation {
+  admin: createUser(
+    data: {
+      firebaseId: "G4ZaG49WfabtVgzbUYnELosxlqL2",
+      name: "admin"
+      lastName: "admin"
+      email: "admin@admin.ca"
+    }){
+      firebaseId
+    },
+  proprio: createUser(
+    data: {
+      firebaseId: "tT8tv8UXt2MSJiXoO5GoWFBfU0v2",
+      name: "proprio"
+      lastName: "proprio"
+      email: "proprio@admin.com"
+    }){
+      firebaseId
+    },
+  locataire: createUser(
+    data: {
+      firebaseId: "yaXRcIB3F5eUB94OOxfCDuCVl7O2",
+      name: "locataire"
+      lastName: "locataire"
+      email: "locataire@admin.com"
+    }){
+      firebaseId
+    }
+
+}
