@@ -14,7 +14,7 @@ type User {
 type Group {
   id: ID! @id
   name: String!
-  address: Address! @relation(name: "GroupAddress")
+  address: Address @relation(name: "GroupAddress")
   admin: User! @relation(name: "GroupAdmin")
   users: [UserGroup!]! @relation(name: "GroupUsers", onDelete: CASCADE)
   createdAt: DateTime! @createdAt

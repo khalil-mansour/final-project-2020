@@ -17,12 +17,11 @@ const groupMutation = {
     try {
       const res = await authenticate(context);
       // fetch user by uid
-      const user = await Query.userByFirebase(root, res.uid, context);
+      const user = await Query.userByFirebase(root, { firebaseId: res.uid }, context);
 
       // create the group
       const createdGroup = await context.prisma.createGroup({
         name: args.input.name,
-        address: { connect: { id: args.input.addressId } },
         admin: { connect: { id: user.id } },
       });
       // create the userGroup with current user
@@ -32,6 +31,39 @@ const groupMutation = {
         join_at: new Date().toUTCString(),
       });
       return createdGroup;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  },
+
+  joinGroup: async (root, args, context) => {
+    try {
+      const res = await authenticate(context);
+      // fetch user by uid
+      const user = await Query.userByFirebase(root, { firebaseId: res.uid }, context);
+
+      const exists = await context.prisma.$exists.group({
+        id: args.input.groupId,
+      });
+
+      if (exists) {
+        const userInGroup = await context.prisma.$exists.userGroup({
+          user: { id: user.id },
+          group: { id: args.groupId },
+        });
+        if (!userInGroup) {
+          await context.prisma.createUserGroup({
+            user: { connect: { id: user.id } },
+            group: { connect: { id: args.input.groupId } },
+            join_at: new Date().toUTCString(),
+          });
+        } else {
+          throw new Error('User already in group!');
+        }
+        return await Query.group(root, args.input, context);
+      }
+
+      throw new Error("Group doesn't exist!");
     } catch (error) {
       throw new Error(error.message);
     }

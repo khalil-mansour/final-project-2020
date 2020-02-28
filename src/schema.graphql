@@ -8,7 +8,7 @@ type User {
   firebaseId: String!
   name: String!
   lastName: String!
-  email: String! 
+  email: String!
   groups: [UserGroup!]!
 }
 
@@ -58,7 +58,7 @@ type Query {
 
   # query user by id
   user(id: ID!): User!
-  
+
   login: Boolean!
   # query user by firebase id (string)
   userByFirebase(firebaseId: String!): User!
@@ -72,10 +72,11 @@ type Query {
   userGroup(userGroupId: ID!): UserGroup!
   # query userGroup
   userGroupByIds(input: UserGroupByIdsInput!): [UserGroup]
+  #query userGroup by user id
+  userGroupsByUserId: [UserGroup]!
 }
 
 type Mutation {
-
   # USER
 
   # create a new user
@@ -86,7 +87,6 @@ type Mutation {
 
   # edit a user
   updateUser(input: UpdateUserInput!): User!
-
 
   # ADDRESS
 
@@ -100,6 +100,9 @@ type Mutation {
 
   # create a new group
   createGroup(input: CreateGroupInput!): Group!
+
+  # joinGroup
+  joinGroup(input: JoinGroupInput!): Group!
 
   # leave a group
   leaveGroup(input: LeaveGroupInput!): Group!
@@ -120,7 +123,6 @@ type Mutation {
 
   # accept invitation
   acceptInvitation(input: AcceptInvitationInput!): UserGroup!
-
 }
 
 # INPUTS
@@ -156,11 +158,14 @@ input CreateAddressInput {
 
 input CreateGroupInput {
   name: String!
-  addressId: ID!
 }
 
 input RemoveUserFromGroupInput {
   userId: ID!
+  groupId: ID!
+}
+
+input JoinGroupInput {
   groupId: ID!
 }
 
