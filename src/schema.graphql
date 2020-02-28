@@ -135,12 +135,10 @@ input SignUpInput {
 }
 
 input UpdateUserInput {
-  userId: ID!
-  typeId: ID!
   name: String!
   lastName: String!
   email: String!
-  avatat: String
+  avatar: String
 }
 
 input AssignTypeToUserInput {
