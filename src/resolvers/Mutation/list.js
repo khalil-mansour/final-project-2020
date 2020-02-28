@@ -1,12 +1,12 @@
 const { authenticate } = require('../../utils.js');
 
-const listMutations = {
+const listMutation = {
   createList: async (root, args, context) => {
     try {
       const res = await authenticate(context);
       return context.prisma.createList({
         title: args.input.title,
-        groupId: args.input.groupId,
+        group: { connect: { id: args.input.group } },
         description: args.input.description,
         type: args.input.type,
         sections: {
@@ -29,4 +29,4 @@ const listMutations = {
     }
   },
 };
-module.exports = { listMutations };
+module.exports = { listMutation };

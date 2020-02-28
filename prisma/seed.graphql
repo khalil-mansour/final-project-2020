@@ -25,6 +25,15 @@ mutation {
       email: "locataire@admin.com"
     }){
       firebaseId
-    }
-
+    },
+  createAddress(
+    data: {
+      city: "Camelot"
+      country: "Bretagne "
+      province: "Unknown"
+      street: "Dragon"
+    }){
+      id
+    },
+  
 }

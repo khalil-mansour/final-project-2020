@@ -10,7 +10,6 @@ type User {
   lastName: String!
   email: String! 
   groups: [UserGroup!]!
-  lists: [List]
 }
 
 type Group {
@@ -100,10 +99,9 @@ type Query {
   # query userGroup
   userGroupByIds(input: UserGroupByIdsInput!): [UserGroup]
   #query lists for a group
-  listsByGroup(userGroupId: ID!): [List]
+  listsByGroup(groupId: ID!): [List]
   #query list from id
   list(listId: ID!): List!
-
 }
 
 type Mutation {
@@ -243,7 +241,7 @@ input CreateListInput {
   title: String!
   description: String
   type: String
-  groupId: ID!
+  group: ID!
   sections: [CreateSectionInput!]!
 }
 

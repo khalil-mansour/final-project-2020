@@ -17,7 +17,7 @@ type Group {
   address: Address! @relation(name: "GroupAddress")
   admin: User! @relation(name: "GroupAdmin")
   users: [UserGroup!]! @relation(name: "GroupUsers", onDelete: CASCADE)
-  list: [List] @relation(name: "GroupLists", onDelete:CASCADE)
+  lists: [List] @relation(name: "GroupLists", onDelete:CASCADE)
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
 }
