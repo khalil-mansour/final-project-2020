@@ -47,11 +47,17 @@ const groupMutation = {
       });
 
       if (exists) {
-        await context.prisma.createUserGroup({
-          user: { connect: { id: user.id } },
-          group: { connect: { id: args.input.groupId } },
-          join_at: new Date().toUTCString(),
+        const userInGroup = await context.prisma.$exists.userGroup({
+          user: { id: user.id },
+          group: { id: args.groupId },
         });
+        if (!userInGroup) {
+          await context.prisma.createUserGroup({
+            user: { connect: { id: user.id } },
+            group: { connect: { id: args.input.groupId } },
+            join_at: new Date().toUTCString(),
+          });
+        }
 
         return await Query.group(root, args.input, context);
       }
