@@ -277,7 +277,21 @@ const transactionMutation = {
   },
 
   // with the onDelete: CASCADE in the datamodel.prisma, the contributions will be deleted as well
-  deleteTransaction: (root, args, context) => context.prisma.deleteTransaction({ id: args.input.transactionId }),
+  async deleteTransaction(root, args, context) {
+    try {
+      const res = await authenticate(context);
+
+      const group = await context.prisma.transaction({ id: args.input.transactionId }).group();
+
+      // make sure that the connected user is allowed to create a new transaction for the specified group
+      if (await userBelongsToGroup(context, res.uid, group.id)) {
+        return context.prisma.deleteTransaction({ id: args.input.transactionId });
+      }
+      throw new Error('The connected user is not allowed to delete this transaction.');
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  },
 
   async updateTransactionContributions(root, args, context) {
     if (inputValidation(args, args.input.contributions.length)) {
