@@ -252,36 +252,36 @@ input UpdateAddressInput {
 }
 
 input CreateTransactionInput {
-  paidBy: ID!
+  paidById: String!
   isEven: Boolean!
   amount: Int!
   description: String!
-  group: ID!
+  groupId: ID!
   contributions: [ContributionInput!]! 
 }
 
 input ContributionInput {
-  user: ID!
+  userId: String!
   percentage: Float
 }
 
 input DeleteTransactionInput {
-  transaction: ID!
+  transactionId: ID!
 }
 
 input UpdateTransactionContributionsInput {
-  transaction: ID!
+  transactionId: ID!
   isEven: Boolean!
   contributions: [ContributionInput!]!
 }
 
 input UpdateTransactionAmountInput {
-  transaction: ID!
+  transactionId: ID!
   amount: Int!
 }
 
 input UpdateTransactionDescriptionInput {
-  transaction: ID!
+  transactionId: ID!
   description: String!
   addressId: ID!
 }

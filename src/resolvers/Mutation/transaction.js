@@ -1,10 +1,11 @@
 const Dinero = require('dinero.js');
+const { authenticate, userBelongsToGroup, usersBelongsToGroup } = require('../../utils.js');
 
 // returns a dictionary indicating the correspondence between a user and the amount of his contribution
 const getSplitDistribution = (splitedDineroAmounts, contributions) => {
   const distribution = {};
   for (let index = 0; index < contributions.length; index++) {
-    distribution[contributions[index].user.id] = splitedDineroAmounts[index];
+    distribution[contributions[index].user.firebaseId] = splitedDineroAmounts[index];
   }
 
   return distribution;
@@ -38,7 +39,7 @@ const getContributionId = async (context, transactionId, userId) => {
         id: transactionId,
       },
       user: {
-        id: userId,
+        firebaseId: userId,
       },
     },
   });
@@ -78,16 +79,16 @@ const createEvenTransaction = (context, transaction) => {
   const contributionAmounts = splitEvenly(transaction.amount, transaction.contributions);
 
   return context.prisma.createTransaction({
-    paidBy: { connect: { id: transaction.paidBy.id } },
+    paidBy: { connect: { firebaseId: transaction.paidBy.firebaseId } },
     amount: transaction.amount,
     isEven: transaction.isEven,
     description: transaction.description,
     group: { connect: { id: transaction.group.id } },
     contributions: {
       create: transaction.contributions.map((contribution) => ({
-        user: { connect: { id: contribution.user.id } },
-        percentage: percentOfTotalAmount(contributionAmounts[contribution.user.id], transaction.amount),
-        amount: contributionAmounts[contribution.user.id].getAmount(),
+        user: { connect: { firebaseId: contribution.user.firebaseId } },
+        percentage: percentOfTotalAmount(contributionAmounts[contribution.user.firebaseId], transaction.amount),
+        amount: contributionAmounts[contribution.user.firebaseId].getAmount(),
       })),
     },
   });
@@ -98,16 +99,16 @@ const createTransactionWithPercentage = (context, transaction) => {
   const contributionAmounts = splitWithPercentage(transaction.amount, transaction.contributions);
 
   return context.prisma.createTransaction({
-    paidBy: { connect: { id: transaction.paidBy.id } },
+    paidBy: { connect: { firebaseId: transaction.paidBy.firebaseId } },
     amount: transaction.amount,
     isEven: transaction.isEven,
     description: transaction.description,
     group: { connect: { id: transaction.group.id } },
     contributions: {
       create: transaction.contributions.map((contribution) => ({
-        user: { connect: { id: contribution.user.id } },
+        user: { connect: { firebaseId: contribution.user.firebaseId } },
         percentage: contribution.percentage,
-        amount: contributionAmounts[contribution.user.id].getAmount(),
+        amount: contributionAmounts[contribution.user.firebaseId].getAmount(),
       })),
     },
   });
@@ -121,7 +122,7 @@ const createEvenContribution = async (context, userId, contributionAmounts, amou
   data: {
     contributions: {
       create: {
-        user: { connect: { id: userId } },
+        user: { connect: { firebaseId: userId } },
         percentage: percentOfTotalAmount(contributionAmounts[userId], amount),
         amount: contributionAmounts[userId].getAmount(),
       },
@@ -145,12 +146,12 @@ const updateEvenContributions = async (context, transaction, amount) => {
   const contributionAmounts = splitEvenly(amount, transaction.contributions);
 
   await transaction.contributions.forEach(async (contribution) => {
-    const contributionId = await getContributionId(context, transaction.id, contribution.user.id);
+    const contributionId = await getContributionId(context, transaction.id, contribution.user.firebaseId);
 
     if (contributionId) {
-      await updateEvenContribution(context, contribution.user.id, contributionAmounts, amount, contributionId);
+      await updateEvenContribution(context, contribution.user.firebaseId, contributionAmounts, amount, contributionId);
     } else {
-      await createEvenContribution(context, contribution.user.id, contributionAmounts, amount, transaction.id);
+      await createEvenContribution(context, contribution.user.firebaseId, contributionAmounts, amount, transaction.id);
     }
   });
 };
@@ -163,9 +164,9 @@ const createContributionWithPercentage = async (context, contribution, contribut
   data: {
     contributions: {
       create: {
-        user: { connect: { id: contribution.user.id } },
+        user: { connect: { firebaseId: contribution.user.firebaseId } },
         percentage: contribution.percentage,
-        amount: contributionAmounts[contribution.user.id].getAmount(),
+        amount: contributionAmounts[contribution.user.firebaseId].getAmount(),
       },
     },
   },
@@ -178,7 +179,7 @@ const updateContributionWithPercentage = async (context, contribution, contribut
   },
   data: {
     percentage: contribution.percentage,
-    amount: contributionAmounts[contribution.user.id].getAmount(),
+    amount: contributionAmounts[contribution.user.firebaseId].getAmount(),
   },
 });
 
@@ -187,7 +188,7 @@ const updateContributionsWithPercentage = async (context, transaction, amount) =
   const contributionAmounts = splitWithPercentage(amount, transaction.contributions);
 
   await transaction.contributions.forEach(async (contribution) => {
-    const contributionId = await getContributionId(context, transaction.id, contribution.user.id);
+    const contributionId = await getContributionId(context, transaction.id, contribution.user.firebaseId);
 
     if (contributionId) {
       await updateContributionWithPercentage(context, contribution, contributionAmounts, contributionId);
@@ -202,13 +203,13 @@ const deleteOldContributions = async (args, context, transaction) => {
   const fragment = `
   fragment ContributionWithUserId on Contribution {
     user {
-      id
+      firebaseId
     }
   }
   `;
   const oldContributions = await context.prisma.transaction({ id: transaction.id }).contributions().$fragment(fragment);
-  const oldContributionUserIds = oldContributions.map((contribution) => contribution.user.id);
-  const newContributionUserIds = transaction.contributions.map((contribution) => contribution.user.id);
+  const oldContributionUserIds = oldContributions.map((contribution) => contribution.user.firebaseId);
+  const newContributionUserIds = transaction.contributions.map((contribution) => contribution.user.firebaseId);
   const contributionToDeleteUserIds = oldContributionUserIds.filter((userId) => !newContributionUserIds.includes(userId));
 
   return context.prisma.updateTransaction({
@@ -225,49 +226,68 @@ const deleteOldContributions = async (args, context, transaction) => {
   });
 };
 
-const transactionMutations = {
-  createTransaction: (root, args, context) => {
-    if (inputValidation(args, args.input.contributions.length)) {
-      const inputTransaction = {
-        paidBy: {
-          id: args.input.paidBy,
-        },
-        isEven: args.input.isEven,
-        amount: args.input.amount,
-        description: args.input.description,
-        group: {
-          id: args.input.group,
-        },
-        contributions: args.input.contributions.map((contribution) => (
-          {
-            user: {
-              id: contribution.user,
-            },
-            percentage: contribution.percentage,
-          }
-        )),
-      };
+const transactionMutation = {
+  async createTransaction(root, args, context) {
+    try {
+      const res = await authenticate(context);
 
-      if (inputTransaction.isEven) {
-        return createEvenTransaction(context, inputTransaction);
+      if (inputValidation(args, args.input.contributions.length)) {
+        const inputTransaction = {
+          paidBy: {
+            firebaseId: args.input.paidById,
+          },
+          isEven: args.input.isEven,
+          amount: args.input.amount,
+          description: args.input.description,
+          group: {
+            id: args.input.groupId,
+          },
+          contributions: args.input.contributions.map((contribution) => (
+            {
+              user: {
+                firebaseId: contribution.userId,
+              },
+              percentage: contribution.percentage,
+            }
+          )),
+        };
+
+        // make sure that the connected user is allowed to create a new transaction for the specified group
+        if (await userBelongsToGroup(context, res.uid, inputTransaction.group.id)) {
+          // make an array of all specified firebaseIds without duplicates
+          const userFirebaseIds = inputTransaction.contributions.map((contribution) => contribution.user.firebaseId);
+          if (userFirebaseIds.indexOf(inputTransaction.paidBy.firebaseId) === -1) userFirebaseIds.push(inputTransaction.paidBy.firebaseId);
+
+          // make sure that every specified users belongs to the same group
+          if (await usersBelongsToGroup(context, userFirebaseIds, inputTransaction.group.id)) {
+            if (inputTransaction.isEven) {
+              return createEvenTransaction(context, inputTransaction);
+            }
+            return createTransactionWithPercentage(context, inputTransaction);
+          }
+          throw new Error('One or more specified users doesn\'t belong to the specified group.');
+        } else {
+          throw new Error('The connected user is not allowed to create a new transaction for the specified group.');
+        }
       }
-      return createTransactionWithPercentage(context, inputTransaction);
+      throw new Error('An error occurred while creating a new transaction.');
+    } catch (error) {
+      throw new Error(error.message);
     }
-    throw new Error('An error occurred while creating a new transaction.');
   },
 
   // with the onDelete: CASCADE in the datamodel.prisma, the contributions will be deleted as well
-  deleteTransaction: (root, args, context) => context.prisma.deleteTransaction({ id: args.input.transaction }),
+  deleteTransaction: (root, args, context) => context.prisma.deleteTransaction({ id: args.input.transactionId }),
 
   async updateTransactionContributions(root, args, context) {
     if (inputValidation(args, args.input.contributions.length)) {
       const inputTransaction = {
-        id: args.input.transaction,
+        id: args.input.transactionId,
         isEven: args.input.isEven,
         contributions: args.input.contributions.map((contribution) => (
           {
             user: {
-              id: contribution.user,
+              firebaseId: contribution.userId,
             },
             percentage: contribution.percentage,
           }
@@ -301,7 +321,7 @@ const transactionMutations = {
     const contributionsCount = await context.prisma.contributionsConnection({
       where: {
         transaction: {
-          id: args.input.transaction,
+          id: args.input.transactionId,
         },
       },
     }).aggregate().count();
@@ -311,7 +331,7 @@ const transactionMutations = {
       contributionsCount,
     )) {
       const inputTransaction = {
-        id: args.input.transaction,
+        id: args.input.transactionId,
         amount: args.input.amount,
       };
 
@@ -321,7 +341,7 @@ const transactionMutations = {
         isEven
         contributions {
           user {
-            id
+            firebaseId
           }
           percentage
         }
@@ -353,7 +373,7 @@ const transactionMutations = {
 
   updateTransactionDescription: (root, args, context) => context.prisma.updateTransaction({
     where: {
-      id: args.input.transaction,
+      id: args.input.transactionId,
     },
     data: {
       description: args.input.description,
@@ -361,4 +381,4 @@ const transactionMutations = {
   }),
 };
 
-module.exports = { transactionMutations };
+module.exports = { transactionMutation };
