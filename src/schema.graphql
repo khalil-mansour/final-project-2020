@@ -166,14 +166,8 @@ type Mutation {
   # update a transaction completely
   updateTransaction(input: UpdateTransactionInput!): Transaction!
 
-  # update a transaction's contributions
-  #updateTransactionContributions(input: UpdateTransactionContributionsInput!): Transaction!
-
-  # update a transaction's total amount
-  #updateTransactionAmount(input: UpdateTransactionAmountInput!): Transaction!
-
   # update a transaction's description
-  #updateTransactionDescription(input: UpdateTransactionDescriptionInput!): Transaction!
+  updateTransactionDescription(input: UpdateTransactionDescriptionInput!): Transaction!
 }
 
 # INPUTS
@@ -281,20 +275,7 @@ input UpdateTransactionInput {
   contributions: [ContributionInput!]!
 }
 
-
-#input UpdateTransactionContributionsInput {
-#  transactionId: ID!
-#  isEven: Boolean!
-#  contributions: [ContributionInput!]!
-#}
-
-#input UpdateTransactionAmountInput {
-#  transactionId: ID!
-#  amount: Int!
-#}
-
-#input UpdateTransactionDescriptionInput {
-#  transactionId: ID!
-#  description: String!
-#  addressId: ID!
-#}
+input UpdateTransactionDescriptionInput {
+  transactionId: ID!
+  description: String!
+}
