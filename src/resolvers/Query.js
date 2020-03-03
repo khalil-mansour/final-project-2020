@@ -62,6 +62,102 @@ const Query = {
   contributions: (root, args, context) => context.prisma.contributions(),
   /* GET single contribution by ID */
   contribution: (root, args, context) => context.prisma.contribution({ id: args.id }),
+
+  /* GET the balances with every person of a group
+    positive balance: the person owe you
+    negative balance: you owe this person */
+  allBalances: async (root, args, context) => {
+    const res = await authenticate(context);
+
+    const fragment = `
+    fragment ContributionWithUserAndTransaction on Contribution {
+      user {
+        firebaseId
+      }
+      transaction {
+        paidBy {
+          firebaseId
+        }
+      }
+      amount
+    }
+    `;
+
+    const concernedContributions = await context.prisma.contributions({
+      where: {
+        AND: [
+          {
+            transaction: {
+              group: {
+                id: args.groupId,
+              },
+            },
+          },
+          {
+            OR: [
+              {
+                user: {
+                  firebaseId: res.uid,
+                },
+              },
+              {
+                transaction: {
+                  paidBy: {
+                    firebaseId: res.uid,
+                  },
+                },
+              },
+            ],
+          },
+        ],
+      },
+    }).$fragment(fragment);
+
+    let totalBalance = 0;
+    const userBalances = {};
+
+    concernedContributions.forEach((contribution) => {
+      const paidById = contribution.transaction.paidBy.firebaseId;
+      const contributorId = contribution.user.firebaseId;
+      // you owe money to someone or someone paid you back
+      if (paidById !== res.uid) {
+        totalBalance -= contribution.amount;
+        userBalances[paidById] = (paidById in userBalances)
+          ? userBalances[paidById] - contribution.amount
+          : contribution.amount * -1;
+      } else if (contributorId !== res.uid) {
+        totalBalance += contribution.amount;
+        userBalances[contributorId] = (contributorId in userBalances)
+          ? userBalances[contributorId] + contribution.amount
+          : contribution.amount;
+      }
+    });
+    // Object.entries convert an object to an array
+    return {
+      totalBalance,
+      userBalances: Promise.all(Object.entries(userBalances).map(async ([userId, balance]) => (
+        {
+          user: await context.prisma.user({ firebaseId: userId }),
+          balance,
+        }
+      ))),
+    };
+  },
+
+  /* GET the balances with every person of a group with unpaid amounts */
+  /* unpaidBalances: (root, args, context) => {
+
+  }, */
+
+  /* GET the balances whit every person of a group that owe you money */
+  /* usersThatOweYou: (root, args, context) => {
+
+  }, */
+
+  /* GET the balances whit every person of a group that you owe money to */
+  /* usersYouOweTo: (root, args, context) => {
+
+  }, */
 };
 
 module.exports = { Query };

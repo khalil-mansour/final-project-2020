@@ -106,6 +106,15 @@ type Query {
   userTransactions(id: ID!): [Transaction]
   # query all transactions of a group with it's id
   groupTransactions(id: ID!): [Transaction]
+
+  # query the balances with every person of a group
+  allBalances(groupId: ID!): QueryAccountStatementsPayload!
+  # query the balances with every person of a group with unpaid amounts
+  #unpaidBalances(groupId: ID!): QueryAccountStatementsPayload!
+  # query the balances whit every person of a group that owe you money
+  #usersThatOweYou(groupId: ID!): QueryAccountStatementsPayload!
+  # query the balances whit every person of a group that you owe money to
+  #usersYouOweTo(groupId: ID!): QueryAccountStatementsPayload!
 }
 
 type Mutation {
@@ -295,4 +304,14 @@ type SubscriptionTransactionPayload {
   node: Transaction!
   updatedFields: [String!]!
   previousValues: Transaction!
+}
+
+type QueryAccountStatementsPayload {
+  totalBalance: Int!
+  userBalances: [UserBalance]
+}
+
+type UserBalance {
+  user: User!
+  balance: Int!
 }
