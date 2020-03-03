@@ -177,6 +177,9 @@ type Mutation {
 
   # update a transaction's description
   updateTransactionDescription(input: UpdateTransactionDescriptionInput!): Transaction!
+
+  # pay back another user
+  payBack(input: PayBackInput!): Transaction!
 }
 
 type Subscription {
@@ -314,4 +317,10 @@ type QueryAccountStatementsPayload {
 type UserBalance {
   user: User!
   balance: Int!
+}
+
+input PayBackInput {
+  payBackToUserId: String!
+  groupId: ID!
+  amount: Int!
 }

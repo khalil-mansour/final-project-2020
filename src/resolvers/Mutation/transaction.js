@@ -56,19 +56,20 @@ const getContributionId = async (context, transactionId, userId) => {
 };
 
 // validate that no field is missing in the input
-const inputValidation = (args, contributionsCount) => {
-  if (args.input.isEven === false) {
-    args.input.contributions.forEach((contribution) => {
+const transactionInputValidation = (inputTransaction) => {
+  if (inputTransaction.isEven === false) {
+    inputTransaction.contributions.forEach((contribution) => {
       if (!contribution.percentage) {
         throw new Error('A percentage value is missing in the mutation\'s input.');
       }
     });
-    if (!contributionPercentagesAddUpToHundred(args.input.contributions)) {
+    if (!contributionPercentagesAddUpToHundred(inputTransaction.contributions)) {
       throw new Error('Percentages doesn\'t add up to a hundred.');
     }
   }
 
-  if (args.input.amount < contributionsCount) {
+  const contributionsCount = inputTransaction.contributions.length;
+  if (inputTransaction.amount < contributionsCount) {
     throw new Error(`The total amount of the transaction is too small to be distributed among ${contributionsCount} people.`);
   }
 
@@ -144,14 +145,50 @@ const getContributionsToDelete = async (context, transaction) => {
   })));
 };
 
+// create a new transaction and its contributions
+const createTransactionFunction = async (context, connectedUserId, parsedInputTransaction) => {
+  // make sure that the connected user is allowed to create a new transaction for the specified group
+  if (await userBelongsToGroup(context, connectedUserId, parsedInputTransaction.group.id)) {
+    // make an array of all specified firebaseIds without duplicates
+    const userFirebaseIds = parsedInputTransaction.contributions.map((contribution) => contribution.user.firebaseId);
+    if (userFirebaseIds.indexOf(parsedInputTransaction.paidBy.firebaseId) === -1) userFirebaseIds.push(parsedInputTransaction.paidBy.firebaseId);
+
+    // make sure that every specified users belongs to the same group
+    if (await usersBelongsToGroup(context, userFirebaseIds, parsedInputTransaction.group.id)) {
+      const contributionAmountsDistribution = (parsedInputTransaction.isEven
+        ? splitEvenly(parsedInputTransaction.amount, parsedInputTransaction.contributions)
+        : splitWithPercentage(parsedInputTransaction.amount, parsedInputTransaction.contributions));
+
+      return context.prisma.createTransaction({
+        paidBy: { connect: { firebaseId: parsedInputTransaction.paidBy.firebaseId } },
+        amount: parsedInputTransaction.amount,
+        isEven: parsedInputTransaction.isEven,
+        description: parsedInputTransaction.description,
+        group: { connect: { id: parsedInputTransaction.group.id } },
+        contributions: {
+          create: parsedInputTransaction.contributions.map((contribution) => ({
+            user: { connect: { firebaseId: contribution.user.firebaseId } },
+            percentage: parsedInputTransaction.isEven
+              ? percentOfTotalAmount(contributionAmountsDistribution[contribution.user.firebaseId], parsedInputTransaction.amount)
+              : contribution.percentage,
+            amount: contributionAmountsDistribution[contribution.user.firebaseId].getAmount(),
+          })),
+        },
+      });
+    }
+    throw new Error('One or more specified users doesn\'t belong to the specified group.');
+  } else {
+    throw new Error('The connected user is not allowed to create a new transaction for the specified group.');
+  }
+};
+
 const transactionMutation = {
   // create a new transaction and its contributions
   async createTransaction(root, args, context) {
     try {
       const res = await authenticate(context);
-
-      if (inputValidation(args, args.input.contributions.length)) {
-        const inputTransaction = {
+      if (transactionInputValidation(args.input)) {
+        const parsedInputTransaction = {
           paidBy: {
             firebaseId: args.input.paidById,
           },
@@ -170,40 +207,7 @@ const transactionMutation = {
             }
           )),
         };
-
-        // make sure that the connected user is allowed to create a new transaction for the specified group
-        if (await userBelongsToGroup(context, res.uid, inputTransaction.group.id)) {
-          // make an array of all specified firebaseIds without duplicates
-          const userFirebaseIds = inputTransaction.contributions.map((contribution) => contribution.user.firebaseId);
-          if (userFirebaseIds.indexOf(inputTransaction.paidBy.firebaseId) === -1) userFirebaseIds.push(inputTransaction.paidBy.firebaseId);
-
-          // make sure that every specified users belongs to the same group
-          if (await usersBelongsToGroup(context, userFirebaseIds, inputTransaction.group.id)) {
-            const contributionAmountsDistribution = (inputTransaction.isEven
-              ? splitEvenly(inputTransaction.amount, inputTransaction.contributions)
-              : splitWithPercentage(inputTransaction.amount, inputTransaction.contributions));
-
-            return context.prisma.createTransaction({
-              paidBy: { connect: { firebaseId: inputTransaction.paidBy.firebaseId } },
-              amount: inputTransaction.amount,
-              isEven: inputTransaction.isEven,
-              description: inputTransaction.description,
-              group: { connect: { id: inputTransaction.group.id } },
-              contributions: {
-                create: inputTransaction.contributions.map((contribution) => ({
-                  user: { connect: { firebaseId: contribution.user.firebaseId } },
-                  percentage: inputTransaction.isEven
-                    ? percentOfTotalAmount(contributionAmountsDistribution[contribution.user.firebaseId], inputTransaction.amount)
-                    : contribution.percentage,
-                  amount: contributionAmountsDistribution[contribution.user.firebaseId].getAmount(),
-                })),
-              },
-            });
-          }
-          throw new Error('One or more specified users doesn\'t belong to the specified group.');
-        } else {
-          throw new Error('The connected user is not allowed to create a new transaction for the specified group.');
-        }
+        return createTransactionFunction(context, res.uid, parsedInputTransaction);
       }
       throw new Error('An error occurred while creating a new transaction.');
     } catch (error) {
@@ -234,8 +238,8 @@ const transactionMutation = {
     try {
       const res = await authenticate(context);
 
-      if (inputValidation(args, args.input.contributions.length)) {
-        const inputTransaction = {
+      if (transactionInputValidation(args.input)) {
+        const parsedInputTransaction = {
           id: args.input.transactionId,
           paidBy: {
             firebaseId: args.input.paidById,
@@ -254,33 +258,33 @@ const transactionMutation = {
         };
 
         // get the group associated to the transaction to update
-        const group = await context.prisma.transaction({ id: inputTransaction.id }).group();
+        const group = await context.prisma.transaction({ id: parsedInputTransaction.id }).group();
 
         // make sure that the connected user is allowed to update a transaction for the specified group
         if (await userBelongsToGroup(context, res.uid, group.id)) {
           // make an array of all specified firebaseIds without duplicates
-          const userFirebaseIds = inputTransaction.contributions.map((contribution) => contribution.user.firebaseId);
-          if (userFirebaseIds.indexOf(inputTransaction.paidBy.firebaseId) === -1) userFirebaseIds.push(inputTransaction.paidBy.firebaseId);
+          const userFirebaseIds = parsedInputTransaction.contributions.map((contribution) => contribution.user.firebaseId);
+          if (userFirebaseIds.indexOf(parsedInputTransaction.paidBy.firebaseId) === -1) userFirebaseIds.push(parsedInputTransaction.paidBy.firebaseId);
 
           // make sure that every specified users belongs to the same group
           if (await usersBelongsToGroup(context, userFirebaseIds, group.id)) {
-            const contributionAmountsDistribution = (inputTransaction.isEven
-              ? splitEvenly(inputTransaction.amount, inputTransaction.contributions)
-              : splitWithPercentage(inputTransaction.amount, inputTransaction.contributions));
+            const contributionAmountsDistribution = (parsedInputTransaction.isEven
+              ? splitEvenly(parsedInputTransaction.amount, parsedInputTransaction.contributions)
+              : splitWithPercentage(parsedInputTransaction.amount, parsedInputTransaction.contributions));
 
-            const contributionsToCreate = await getContributionsToCreate(context, inputTransaction, contributionAmountsDistribution);
-            const contributionsToUpdate = await getContributionsToUpdate(context, inputTransaction, contributionAmountsDistribution);
-            const contributionsToDelete = await getContributionsToDelete(context, inputTransaction);
+            const contributionsToCreate = await getContributionsToCreate(context, parsedInputTransaction, contributionAmountsDistribution);
+            const contributionsToUpdate = await getContributionsToUpdate(context, parsedInputTransaction, contributionAmountsDistribution);
+            const contributionsToDelete = await getContributionsToDelete(context, parsedInputTransaction);
 
             return context.prisma.updateTransaction({
               where: {
-                id: inputTransaction.id,
+                id: parsedInputTransaction.id,
               },
               data: {
-                paidBy: { connect: { firebaseId: inputTransaction.paidBy.firebaseId } },
-                isEven: inputTransaction.isEven,
-                amount: inputTransaction.amount,
-                description: inputTransaction.description,
+                paidBy: { connect: { firebaseId: parsedInputTransaction.paidBy.firebaseId } },
+                isEven: parsedInputTransaction.isEven,
+                amount: parsedInputTransaction.amount,
+                description: parsedInputTransaction.description,
                 contributions: {
                   create: contributionsToCreate,
                   update: contributionsToUpdate,
@@ -319,6 +323,34 @@ const transactionMutation = {
         });
       }
       throw new Error('The connected user is not allowed to update this transaction.');
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  },
+
+  // pay back another user
+  async payBack(root, args, context) {
+    try {
+      const res = await authenticate(context);
+
+      const parsedInputTransaction = {
+        paidBy: {
+          firebaseId: res.uid,
+        },
+        isEven: true,
+        amount: args.input.amount * -1,
+        description: 'Pay back',
+        group: {
+          id: args.input.groupId,
+        },
+        contributions: [{
+          user: {
+            firebaseId: args.input.payBackToUserId,
+          },
+          percentage: 100,
+        }],
+      };
+      return createTransactionFunction(context, res.uid, parsedInputTransaction);
     } catch (error) {
       throw new Error(error.message);
     }
