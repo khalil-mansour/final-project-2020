@@ -338,7 +338,7 @@ const transactionMutation = {
           firebaseId: res.uid,
         },
         isEven: true,
-        amount: args.input.amount * -1,
+        amount: args.input.amount,
         description: 'Pay back',
         group: {
           id: args.input.groupId,
