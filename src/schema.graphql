@@ -110,11 +110,11 @@ type Query {
   # query the balances with every person of a group
   allBalances(groupId: ID!): QueryAccountStatementsPayload!
   # query the balances with every person of a group with unpaid amounts
-  #unpaidBalances(groupId: ID!): QueryAccountStatementsPayload!
+  unpaidBalances(groupId: ID!): QueryAccountStatementsPayload!
   # query the balances whit every person of a group that owe you money
-  #usersThatOweYou(groupId: ID!): QueryAccountStatementsPayload!
+  usersWhoOweYou(groupId: ID!): QueryAccountStatementsPayload!
   # query the balances whit every person of a group that you owe money to
-  #usersYouOweTo(groupId: ID!): QueryAccountStatementsPayload!
+  usersYouOweTo(groupId: ID!): QueryAccountStatementsPayload!
 }
 
 type Mutation {
