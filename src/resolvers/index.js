@@ -12,6 +12,8 @@ const { Contribution } = require('./Contribution');
 const { Invitation } = require('./Invitation');
 const { UserGroup } = require('./UserGroup');
 
+const { transactionSubscription } = require('./Subscription/transaction');
+
 module.exports = {
   Query,
   Mutation: {
@@ -20,6 +22,9 @@ module.exports = {
     ...addressMutation,
     ...invitationMutation,
     ...transactionMutation,
+  },
+  Subscription: {
+    ...transactionSubscription,
   },
   User,
   Group,

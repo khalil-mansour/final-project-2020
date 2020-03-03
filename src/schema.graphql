@@ -170,6 +170,12 @@ type Mutation {
   updateTransactionDescription(input: UpdateTransactionDescriptionInput!): Transaction!
 }
 
+type Subscription {
+
+  # subscription to transaction create, update and delete operations
+  transaction(input: SubscriptionTransactionInput!): SubscriptionTransactionPayload
+}
+
 # INPUTS
 
 input SignUpInput {
@@ -278,4 +284,15 @@ input UpdateTransactionInput {
 input UpdateTransactionDescriptionInput {
   transactionId: ID!
   description: String!
+}
+
+input SubscriptionTransactionInput {
+  groupId: ID!
+}
+
+type SubscriptionTransactionPayload {
+  mutation: String!
+  node: Transaction!
+  updatedFields: [String!]!
+  previousValues: Transaction!
 }
