@@ -59,6 +59,7 @@ type Transaction {
   id: ID! @id
   paidBy: User! @relation(name: "PaidByTransactions")
   amount: Int!
+  isPayback: Boolean!
   isEven: Boolean!
   description: String!
   group: Group! @relation(name: "GroupTransactions")

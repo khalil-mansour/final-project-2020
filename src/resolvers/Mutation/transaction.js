@@ -162,6 +162,7 @@ const createTransactionFunction = async (context, connectedUserId, parsedInputTr
       return context.prisma.createTransaction({
         paidBy: { connect: { firebaseId: parsedInputTransaction.paidBy.firebaseId } },
         amount: parsedInputTransaction.amount,
+        isPayback: parsedInputTransaction.isPayback,
         isEven: parsedInputTransaction.isEven,
         description: parsedInputTransaction.description,
         group: { connect: { id: parsedInputTransaction.group.id } },
@@ -192,6 +193,7 @@ const transactionMutation = {
           paidBy: {
             firebaseId: args.input.paidById,
           },
+          isPayback: false,
           isEven: args.input.isEven,
           amount: args.input.amount,
           description: args.input.description,
@@ -337,6 +339,7 @@ const transactionMutation = {
         paidBy: {
           firebaseId: res.uid,
         },
+        isPayback: true,
         isEven: true,
         amount: args.input.amount,
         description: 'Pay back',

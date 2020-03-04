@@ -51,6 +51,7 @@ type Transaction {
   id: ID!
   paidBy: User!
   amount: Int!
+  isPayback: Boolean!
   isEven: Boolean!
   description: String!
   group: Group!
