@@ -76,10 +76,6 @@ type Query {
   invitations: [Invitation!]!
   # query all userGroups
   userGroups: [UserGroup!]!
-  # query all transactions
-  transactions: [Transaction]
-  # query all contributions
-  contributions: [Contribution]
 
   # query user by id
   user(userId: ID!): User!
@@ -97,24 +93,25 @@ type Query {
   userGroup(userGroupId: ID!): UserGroup!
   # query userGroup
   userGroupByIds(input: UserGroupByIdsInput!): [UserGroup]
-  # query transaction by id
-  transaction(id: ID!): Transaction!
-  # query contribution by id
-  contribution(id: ID!): Contribution
 
-  # query all transactions paid by a user with his id
-  userTransactions(id: ID!): [Transaction]
-  # query all transactions of a group with it's id
-  groupTransactions(id: ID!): [Transaction]
+  # query transaction by id
+  transaction(transactionId: ID!): Transaction!
+
+  # query all transactions paid by a user for a group
+  userPaidTransactionsForGroup(groupId: ID!): [Transaction]!
+  # query all contributions related to a user of a group 
+  groupContributionsForUser(groupId: ID!): [Contribution]!
+  # query all contributions related to the connected user and another user of a group
+  groupContributionsForTwoUsers(input: GroupContributionsForTwoUsersInput!): [Contribution]!
 
   # query the balances with every person of a group
-  allBalances(groupId: ID!): QueryAccountStatementsPayload!
+  allBalances(groupId: ID!): QueryBalancesPayload!
   # query the balances with every person of a group with unpaid amounts
-  unpaidBalances(groupId: ID!): QueryAccountStatementsPayload!
+  unpaidBalances(groupId: ID!): QueryBalancesPayload!
   # query the balances whit every person of a group that owe you money
-  usersWhoOweYou(groupId: ID!): QueryAccountStatementsPayload!
+  usersWhoOweYou(groupId: ID!): QueryBalancesPayload!
   # query the balances whit every person of a group that you owe money to
-  usersYouOweTo(groupId: ID!): QueryAccountStatementsPayload!
+  usersYouOweTo(groupId: ID!): QueryBalancesPayload!
 }
 
 type Mutation {
@@ -304,14 +301,14 @@ input SubscriptionTransactionInput {
 
 type SubscriptionTransactionPayload {
   mutation: String!
-  node: Transaction!
-  updatedFields: [String!]!
-  previousValues: Transaction!
+  node: Transaction
+  updatedFields: [String!]
+  previousValues: Transaction
 }
 
-type QueryAccountStatementsPayload {
+type QueryBalancesPayload {
   totalBalance: Int!
-  userBalances: [UserBalance]
+  userBalances: [UserBalance]!
 }
 
 type UserBalance {
@@ -323,4 +320,9 @@ input PayBackInput {
   payBackToUserId: String!
   groupId: ID!
   amount: Int!
+}
+
+input GroupContributionsForTwoUsersInput {
+  groupId: ID!
+  otherUserId: String!
 }
