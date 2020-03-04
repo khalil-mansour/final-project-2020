@@ -1,4 +1,4 @@
-const { authenticate } = require('../utils.js');
+const { authenticate, userBelongsToGroup } = require('../utils.js');
 
 /* get the balances of the connected user with every person of a group
     positive balance: the person owe you
@@ -146,7 +146,11 @@ const Query = {
   allBalances: async (root, args, context) => {
     try {
       const res = await authenticate(context);
-      return getAllUserBalances(context, args.groupId, res.uid);
+      // make sure that the connected user is allowed to make query for the specified group
+      if (await userBelongsToGroup(context, res.uid, args.groupId)) {
+        return getAllUserBalances(context, args.groupId, res.uid);
+      }
+      throw new Error('The connected user is not allowed to make query for this group.');
     } catch (error) {
       throw new Error(error.message);
     }
@@ -156,12 +160,16 @@ const Query = {
   unpaidBalances: async (root, args, context) => {
     try {
       const res = await authenticate(context);
-      const userBalances = await getAllUserBalances(context, args.groupId, res.uid);
-      const filteredUserBalances = userBalances.userBalances.filter((userBalance) => userBalance.balance !== 0);
-      return {
-        totalBalance: userBalances.totalBalance,
-        userBalances: filteredUserBalances,
-      };
+      // make sure that the connected user is allowed to make query for the specified group
+      if (await userBelongsToGroup(context, res.uid, args.groupId)) {
+        const userBalances = await getAllUserBalances(context, args.groupId, res.uid);
+        const filteredUserBalances = userBalances.userBalances.filter((userBalance) => userBalance.balance !== 0);
+        return {
+          totalBalance: userBalances.totalBalance,
+          userBalances: filteredUserBalances,
+        };
+      }
+      throw new Error('The connected user is not allowed to make query for this group.');
     } catch (error) {
       throw new Error(error.message);
     }
@@ -171,17 +179,21 @@ const Query = {
   usersWhoOweYou: async (root, args, context) => {
     try {
       const res = await authenticate(context);
-      const allUserBalances = await getAllUserBalances(context, args.groupId, res.uid);
-      const filteredUserBalances = allUserBalances.userBalances.filter((userBalance) => userBalance.balance > 0);
-      const filteredTotalBalance = filteredUserBalances.length > 0
-        ? filteredUserBalances
-          .map((filteredUserBalance) => filteredUserBalance.balance)
-          .reduce((total, balance) => total + balance)
-        : 0;
-      return {
-        totalBalance: filteredTotalBalance,
-        userBalances: filteredUserBalances,
-      };
+      // make sure that the connected user is allowed to make query for the specified group
+      if (await userBelongsToGroup(context, res.uid, args.groupId)) {
+        const allUserBalances = await getAllUserBalances(context, args.groupId, res.uid);
+        const filteredUserBalances = allUserBalances.userBalances.filter((userBalance) => userBalance.balance > 0);
+        const filteredTotalBalance = filteredUserBalances.length > 0
+          ? filteredUserBalances
+            .map((filteredUserBalance) => filteredUserBalance.balance)
+            .reduce((total, balance) => total + balance)
+          : 0;
+        return {
+          totalBalance: filteredTotalBalance,
+          userBalances: filteredUserBalances,
+        };
+      }
+      throw new Error('The connected user is not allowed to make query for this group.');
     } catch (error) {
       throw new Error(error.message);
     }
@@ -191,17 +203,21 @@ const Query = {
   usersYouOweTo: async (root, args, context) => {
     try {
       const res = await authenticate(context);
-      const allUserBalances = await getAllUserBalances(context, args.groupId, res.uid);
-      const filteredUserBalances = allUserBalances.userBalances.filter((userBalance) => userBalance.balance < 0);
-      const filteredTotalBalance = filteredUserBalances.length > 0
-        ? filteredUserBalances
-          .map((filteredUserBalance) => filteredUserBalance.balance)
-          .reduce((total, balance) => total + balance)
-        : 0;
-      return {
-        totalBalance: filteredTotalBalance,
-        userBalances: filteredUserBalances,
-      };
+      // make sure that the connected user is allowed to make query for the specified group
+      if (await userBelongsToGroup(context, res.uid, args.groupId)) {
+        const allUserBalances = await getAllUserBalances(context, args.groupId, res.uid);
+        const filteredUserBalances = allUserBalances.userBalances.filter((userBalance) => userBalance.balance < 0);
+        const filteredTotalBalance = filteredUserBalances.length > 0
+          ? filteredUserBalances
+            .map((filteredUserBalance) => filteredUserBalance.balance)
+            .reduce((total, balance) => total + balance)
+          : 0;
+        return {
+          totalBalance: filteredTotalBalance,
+          userBalances: filteredUserBalances,
+        };
+      }
+      throw new Error('The connected user is not allowed to make query for this group.');
     } catch (error) {
       throw new Error(error.message);
     }
