@@ -7,7 +7,7 @@ type UserType {
 
 type User {
   id: ID!
-  userId: String!
+  firebaseId: String!
   name: String!
   lastName: String!
   email: String! 
@@ -33,9 +33,8 @@ type UserGroup {
 type Invitation {
   id: ID!
   from: User!
-  to: User!
   group: Group!
-  status: Int!
+  link: String!
   expiredAt: String!
 }
 
@@ -79,20 +78,27 @@ type Query {
   addresses: [Address!]!
   # query all invitations
   invitations: [Invitation!]!
-  # query all user->group
-  user_groups: [UserGroup!]!
+  # query all userGroups
+  userGroups: [UserGroup!]!
 
   # query user by id
   user(id: ID!): User!
+  
+  login: Boolean!
+  # query user by firebase id (string)
+  userByFirebase(firebaseId: String!): User!
   # query group by id
-  group(id: ID!): Group!
+  group(groupId: ID!): Group!
   # query address by id
-  address(id: ID!): Address!
+  address(addressId: ID!): Address!
   # query invitation by id
-  invitation(id: ID!): Invitation!
-  # query user->group by id
-  user_group(id: ID!): UserGroup!
+  invitation(invitationId: ID!): Invitation!
+  # query userGroup by id
+  userGroup(userGroupId: ID!): UserGroup!
+  # query userGroup
+  userGroupByIds(input: UserGroupByIdsInput!): [UserGroup]
 
+  
   # Chat
 
   # query all chatrooms
@@ -100,6 +106,7 @@ type Query {
 }
 
 type Mutation {
+
   # USER
 
   # create a new user
@@ -113,35 +120,39 @@ type Mutation {
 
 
   # ADDRESS
+
+  # create a new address
   createAddress(input: CreateAddressInput!): Address!
 
+  # edit a new address
+  updateAddress(input: UpdateAddressInput!): Address!
 
   # GROUP
 
   # create a new group
-  createGroup(input: CreateGroupInput!): UserGroup!
+  createGroup(input: CreateGroupInput!): Group!
 
   # leave a group
   leaveGroup(input: LeaveGroupInput!): Group!
 
-  # remove user from group
+  # remove user from group (admin only)
   removeUserFromGroup(input: RemoveUserFromGroupInput!): Group!
 
   # update group name
   updateGroupName(input: UpdateGroupNameInput!): Group!
 
+  # delete group (admin only)
+  deleteGroup(input: DeleteGroupInput!): Group!
+
   # INVITATION
 
   # invite a user to group
-  #createInvitation(input: CreateInvitationInput!): CreateInvitationPayload!
+  createInvitation(input: CreateInvitationInput!): Invitation!
 
   # accept invitation
-  #acceptInvitation(input: AcceptInvitationInput!): AcceptInvitationPayload!
-  
-  # decline invitation
-  #declineInvitation(input: DeclineInvitationInput!): DeclineInvitationPayload!
+  acceptInvitation(input: AcceptInvitationInput!): UserGroup!
 
-  # CHAT
+# CHAT
 
   # create a chatroom
   createChatroom(input: CreateChatroom!): Chatroom,
@@ -166,29 +177,29 @@ type Mutation {
 
   # soft delete a message
   deleteMessage(input: DeleteMessage!): Message,
-
 }
 
 # INPUTS
 
 input SignUpInput {
-  userId: String!
   name: String!
   lastName: String!
   email: String!
-}
-
-input AssignTypeToUserInput {
-  id: ID!
-  type: ID!
+  avatar: String
 }
 
 input UpdateUserInput {
-  id: ID!
-  userId: String!
+  userId: ID!
+  typeId: ID!
   name: String!
   lastName: String!
   email: String!
+  avatat: String
+}
+
+input AssignTypeToUserInput {
+  userId: ID!
+  typeId: ID!
 }
 
 input CreateAddressInput {
@@ -201,29 +212,20 @@ input CreateAddressInput {
 
 input CreateGroupInput {
   name: String!
-  address: ID!
-  admin: ID!
+  addressId: ID!
 }
 
 input RemoveUserFromGroupInput {
-  admin: ID!
-  user: ID!
-  group: ID!
+  userId: ID!
+  groupId: ID!
 }
 
 input LeaveGroupInput {
-  group: ID!
-  user: ID!
+  groupId: ID!
 }
 
-input InviteUserToGroupInput {
-  user: ID!
-  group: ID!
-}
-
-input UpdateGroupNameInput {
-  group: ID!
-  name: String!
+input DeleteGroupInput {
+  groupId: ID!
 }
 
 input CreateChatroom {
@@ -252,4 +254,33 @@ input EditMessage {
 
 input DeleteMessage {
   id: ID!
+}
+
+input AcceptInvitationInput {
+  invitationId: ID!
+}
+
+input UpdateGroupNameInput {
+  groupId: ID!
+  name: String!
+}
+
+input CreateInvitationInput {
+  groupId: ID!
+  link: String!
+  expiredAt: String!
+}
+
+input UserGroupByIdsInput {
+  userId: ID!
+  groupId: ID!
+}
+
+input UpdateAddressInput {
+  addressId: ID!
+  country: String!
+  province: String!
+  city: String!
+  street: String!
+  apartment_unit: Int
 }
