@@ -12,6 +12,8 @@ type User {
   groups: [UserGroup!]!
   transactions: [Transaction]
   contributions: [Contribution]
+  transactionOperationsMade: [TransactionOperationHistoric]
+  transactionOperationsConcerned: [TransactionOperationHistoric]
 }
 
 type Group {
@@ -55,7 +57,10 @@ type Transaction {
   isEven: Boolean!
   description: String!
   group: Group!
-  contributions: [Contribution!]! 
+  contributions: [Contribution!]!
+  operationsHistoric: [TransactionOperationHistoric!]!
+  createdAt: String!
+  updatedAt: String!
 }
 
 type Contribution {
@@ -64,6 +69,24 @@ type Contribution {
   transaction: Transaction!
   percentage: Float!
   amount: Int!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type TransactionOperationHistoric {
+  id: ID!
+  type: TransactionOperationHistoricType!
+  transaction: Transaction
+  transactionDescription: String!
+  operationMadeByUser: User!
+  concernedUsers: [User!]!
+  createdAt: String!
+}
+
+type TransactionOperationHistoricType {
+  id: ID!
+  name: String!
+  transactionOperationsHistoric: [TransactionOperationHistoric]
 }
 
 type Query {
@@ -104,6 +127,8 @@ type Query {
   groupContributionsForUser(groupId: ID!): [Contribution]!
   # query all contributions related to the connected user and another user of a group
   groupContributionsForTwoUsers(input: GroupContributionsForTwoUsersInput!): [Contribution]!
+  # query all the operations made on every transactions related to a user at the moment of these operations for a group
+  groupTransactionsOperationsHistoric(groupId: ID!): [TransactionOperationHistoric]!
 
   # query the balances with every person of a group
   allBalances(groupId: ID!): QueryBalancesPayload!

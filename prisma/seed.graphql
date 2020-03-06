@@ -25,6 +25,41 @@ mutation {
       email: "locataire@admin.com"
     }){
       firebaseId
-    }
-
+    },
+  locataire2: createUser(
+    data: {
+      firebaseId: "locataire2eUB94OOxfCDuCVl7O2",
+      name: "locataire2"
+      lastName: "locataire2"
+      email: "locataire2@admin.com"
+    }){
+      firebaseId
+    },
+  locataire3: createUser(
+    data: {
+      firebaseId: "locataire3eUB94OOxfCDuCVl7O2",
+      name: "locataire3"
+      lastName: "locataire3"
+      email: "locataire3@admin.com"
+    }){
+      firebaseId
+    },
+  transactionOperationHistoricTypeCreate: createTransactionOperationHistoricType(
+    data: {
+      name: "CREATE"
+    }){
+      id
+    },
+  transactionOperationHistoricTypeCreate: createTransactionOperationHistoricType(
+    data: {
+      name: "UPDATE"
+    }){
+      id
+    },
+  transactionOperationHistoricTypeCreate: createTransactionOperationHistoricType(
+    data: {
+      name: "DELETE"
+    }){
+      id
+    },
 }

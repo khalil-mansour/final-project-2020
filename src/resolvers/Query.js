@@ -151,6 +151,7 @@ const Query = {
       // make sure that the connected user is allowed to make query for the specified group
       if (await userBelongsToGroup(context, res.uid, args.groupId)) {
         return context.prisma.transactions({
+          orderBy: 'createdAt_DESC',
           where: {
             group: { id: args.groupId },
             paidBy: { firebaseId: res.uid },
@@ -171,6 +172,7 @@ const Query = {
       // make sure that the connected user is allowed to make query for the specified group
       if (await userBelongsToGroup(context, res.uid, args.groupId)) {
         return context.prisma.contributions({
+          orderBy: 'createdAt_DESC',
           where: {
             AND: [
               {
@@ -196,6 +198,26 @@ const Query = {
                   },
                 ],
               },
+              {
+                NOT: [
+                  {
+                    AND: [
+                      {
+                        user: {
+                          firebaseId: res.uid,
+                        },
+                      },
+                      {
+                        transaction: {
+                          paidBy: {
+                            firebaseId: res.uid,
+                          },
+                        },
+                      },
+                    ],
+                  },
+                ],
+              },
             ],
           },
         });
@@ -215,6 +237,7 @@ const Query = {
       if (await userBelongsToGroup(context, res.uid, args.input.groupId)) {
         if (await userBelongsToGroup(context, args.input.otherUserId, args.input.groupId)) {
           return context.prisma.contributions({
+            orderBy: 'createdAt_DESC',
             where: {
               AND: [
                 {
@@ -265,6 +288,49 @@ const Query = {
           });
         }
         throw new Error('The specified user is not a member of this group.');
+      }
+      throw new Error('The connected user is not allowed to make query for this group.');
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  },
+
+  /* GET all the operations made on every transactions related to a user at the moment of these operations for a group */
+  groupTransactionsOperationsHistoric: async (root, args, context) => {
+    try {
+      const res = await authenticate(context);
+
+      const fragment = `
+      fragment TransactionOperationHistoricWithRelations on TransactionOperationHistoric {
+        id
+        type {
+          id
+          name
+        }
+        transaction {
+          id
+          isPayback
+        }
+        transactionDescription
+        operationMadeByUser {
+          firebaseId
+        }
+        concernedUsers {
+          firebaseId
+        }
+        createdAt
+      }
+      `;
+      // make sure that the connected user is allowed to make query for the specified group
+      if (await userBelongsToGroup(context, res.uid, args.groupId)) {
+        return context.prisma.transactionOperationHistorics({
+          orderBy: 'createdAt_DESC',
+          where: {
+            concernedUsers_some: {
+              firebaseId: res.uid,
+            },
+          },
+        }).$fragment(fragment);
       }
       throw new Error('The connected user is not allowed to make query for this group.');
     } catch (error) {

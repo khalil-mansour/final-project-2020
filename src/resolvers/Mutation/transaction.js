@@ -145,13 +145,32 @@ const getContributionsToDelete = async (context, transaction) => {
   })));
 };
 
+// get a list of the firebaseIds of all the concerned users for an entry in the transaction operations historic
+// return a list of object (ex: [{ firebaseId: "abcd" }, { firebaseId: "efgh" }, ...])
+const getHistoricConcernedUsers = (connectedUserId, paidByUserId, contributions) => {
+  const historicConcernedUsers = contributions.map((contribution) => ({
+    firebaseId: contribution.user.firebaseId,
+  }));
+
+  if (historicConcernedUsers.indexOf({ firebaseId: connectedUserId }) === -1) {
+    historicConcernedUsers.push({ firebaseId: connectedUserId });
+  }
+  if (historicConcernedUsers.indexOf({ firebaseId: paidByUserId }) === -1) {
+    historicConcernedUsers.push({ firebaseId: paidByUserId });
+  }
+
+  return historicConcernedUsers;
+};
+
 // create a new transaction and its contributions
 const createTransactionFunction = async (context, connectedUserId, parsedInputTransaction) => {
   // make sure that the connected user is allowed to create a new transaction for the specified group
   if (await userBelongsToGroup(context, connectedUserId, parsedInputTransaction.group.id)) {
     // make an array of all specified firebaseIds without duplicates
     const userFirebaseIds = parsedInputTransaction.contributions.map((contribution) => contribution.user.firebaseId);
-    if (userFirebaseIds.indexOf(parsedInputTransaction.paidBy.firebaseId) === -1) userFirebaseIds.push(parsedInputTransaction.paidBy.firebaseId);
+    if (userFirebaseIds.indexOf(parsedInputTransaction.paidBy.firebaseId) === -1) {
+      userFirebaseIds.push(parsedInputTransaction.paidBy.firebaseId);
+    }
 
     // make sure that every specified users belongs to the same group
     if (await usersBelongsToGroup(context, userFirebaseIds, parsedInputTransaction.group.id)) {
@@ -174,6 +193,20 @@ const createTransactionFunction = async (context, connectedUserId, parsedInputTr
               : contribution.percentage,
             amount: contributionAmountsDistribution[contribution.user.firebaseId].getAmount(),
           })),
+        },
+        operationsHistoric: {
+          create: {
+            type: { connect: { name: 'CREATE' } },
+            transactionDescription: parsedInputTransaction.description,
+            operationMadeByUser: { connect: { firebaseId: connectedUserId } },
+            concernedUsers: {
+              connect: getHistoricConcernedUsers(
+                connectedUserId,
+                parsedInputTransaction.paidBy.firebaseId,
+                parsedInputTransaction.contributions,
+              ),
+            },
+          },
         },
       });
     }
@@ -222,12 +255,42 @@ const transactionMutation = {
     try {
       const res = await authenticate(context);
 
-      const group = await context.prisma.transaction({ id: args.input.transactionId }).group();
+      const fragment = `
+      fragment TransactionWithGroupPaidByContributions on Transaction {
+        group {
+          id
+        }
+        paidBy {
+          firebaseId
+        }
+        contributions {
+          user {
+            firebaseId
+          }
+        }
+      }
+      `;
+      const transactionToDelete = await context.prisma.transaction({ id: args.input.transactionId }).$fragment(fragment);
 
       // make sure that the connected user is allowed to delete a transaction for the specified group
-      if (await userBelongsToGroup(context, res.uid, group.id)) {
+      if (await userBelongsToGroup(context, res.uid, transactionToDelete.group.id)) {
         // with the onDelete: CASCADE in the datamodel.prisma, the contributions will be deleted as well
-        return context.prisma.deleteTransaction({ id: args.input.transactionId });
+        const deletedTransaction = await context.prisma.deleteTransaction({ id: args.input.transactionId });
+
+        await context.prisma.createTransactionOperationHistoric({
+          type: { connect: { name: 'DELETE' } },
+          transactionDescription: deletedTransaction.description,
+          operationMadeByUser: { connect: { firebaseId: res.uid } },
+          concernedUsers: {
+            connect: getHistoricConcernedUsers(
+              res.uid,
+              transactionToDelete.paidBy.firebaseId,
+              transactionToDelete.contributions,
+            ),
+          },
+        });
+
+        return deletedTransaction;
       }
       throw new Error('The connected user is not allowed to delete this transaction.');
     } catch (error) {
@@ -266,7 +329,9 @@ const transactionMutation = {
         if (await userBelongsToGroup(context, res.uid, group.id)) {
           // make an array of all specified firebaseIds without duplicates
           const userFirebaseIds = parsedInputTransaction.contributions.map((contribution) => contribution.user.firebaseId);
-          if (userFirebaseIds.indexOf(parsedInputTransaction.paidBy.firebaseId) === -1) userFirebaseIds.push(parsedInputTransaction.paidBy.firebaseId);
+          if (userFirebaseIds.indexOf(parsedInputTransaction.paidBy.firebaseId) === -1) {
+            userFirebaseIds.push(parsedInputTransaction.paidBy.firebaseId);
+          }
 
           // make sure that every specified users belongs to the same group
           if (await usersBelongsToGroup(context, userFirebaseIds, group.id)) {
@@ -292,6 +357,20 @@ const transactionMutation = {
                   update: contributionsToUpdate,
                   delete: contributionsToDelete,
                 },
+                operationsHistoric: {
+                  create: {
+                    type: { connect: { name: 'UPDATE' } },
+                    transactionDescription: parsedInputTransaction.description,
+                    operationMadeByUser: { connect: { firebaseId: res.uid } },
+                    concernedUsers: {
+                      connect: getHistoricConcernedUsers(
+                        res.uid,
+                        parsedInputTransaction.paidBy.firebaseId,
+                        parsedInputTransaction.contributions,
+                      ),
+                    },
+                  },
+                },
               },
             });
           }
@@ -315,12 +394,36 @@ const transactionMutation = {
 
       // make sure that the connected user is allowed to update a transaction for the specified group
       if (await userBelongsToGroup(context, res.uid, group.id)) {
+        const fragment = `
+        fragment ContributionWithUserId on Contribution {
+          user {
+            firebaseId
+          }
+        }
+        `;
+        const contributions = await context.prisma.transaction({ id: args.input.transactionId }).contributions().$fragment(fragment);
+        const paidBy = await context.prisma.transaction({ id: args.input.transactionId }).paidBy();
+
         return context.prisma.updateTransaction({
           where: {
             id: args.input.transactionId,
           },
           data: {
             description: args.input.description,
+            operationsHistoric: {
+              create: {
+                type: { connect: { name: 'UPDATE' } },
+                transactionDescription: args.input.description,
+                operationMadeByUser: { connect: { firebaseId: res.uid } },
+                concernedUsers: {
+                  connect: getHistoricConcernedUsers(
+                    res.uid,
+                    paidBy.firebaseId,
+                    contributions,
+                  ),
+                },
+              },
+            },
           },
         });
       }
