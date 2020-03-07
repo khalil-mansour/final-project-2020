@@ -35,11 +35,12 @@ type UserType {
 
 type Address {
   id: ID! @id
-  country: String!
-  province: String!
-  city: String!
-  street: String!
+  country: String
+  province: String
+  city: String
+  street: String
   apartment_unit: Int
+  postal_code: String
 }
 
 type Invitation {

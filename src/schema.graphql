@@ -147,11 +147,12 @@ input AssignTypeToUserInput {
 }
 
 input CreateAddressInput {
-  country: String!
-  province: String!
-  city: String!
-  street: String!
+  country: String
+  province: String
+  city: String
+  street: String
   apartment_unit: Int
+  postal_code: String
 }
 
 input CreateGroupInput {
@@ -202,4 +203,5 @@ input UpdateAddressInput {
   city: String!
   street: String!
   apartment_unit: Int
+  postal_code: String
 }

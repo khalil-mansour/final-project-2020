@@ -39,13 +39,17 @@ const Query = {
   /* Get userGroup by ID */
   userGroup: (root, args, context) => context.prisma.userGroup({ id: args.userGroupId }),
   /* Get userGroup from a user ID */
-  userGroupsByUserId: (root, args, context) => authenticate(context).then(
-    (res) => context.prisma.userGroups({
+  userGroupsByUserId: async (root, args, context) => {
+    const res = await authenticate(context);
+    // fetch user by uid
+    const user = await Query.userByFirebase(root, { firebaseId: res.uid }, context);
+
+    return context.prisma.userGroups({
       where: {
-        user: { id: res.uid },
+        user: { id: user.id },
       },
-    }),
-  ),
+    });
+  },
   /* Get userGroup by user and group IDs */
   userGroupByIds: (root, args, context) => context.prisma.userGroups({
     where: {

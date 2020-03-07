@@ -11,6 +11,7 @@ const addressMutation = {
         city: args.input.city,
         street: args.input.street,
         apartment_unit: args.input.apartment_unit,
+        postal_code: args.input.postal_code,
       });
     } catch (error) {
       throw new Error(error.message);
