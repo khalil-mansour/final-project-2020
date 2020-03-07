@@ -2,10 +2,12 @@
   "env": {
     "commonjs": true,
     "es6": true,
-    "node": true
+    "node": true,
+    "mocha": true
   },
   "extends": [
-    "airbnb-base"
+    "airbnb-base",
+    "plugin:mocha/recommended"
   ],
   "globals": {
     "Atomics": "readonly",
@@ -17,6 +19,7 @@
   "rules": {
     "linebreak-style": ["error", "unix"],
     "max-len": [1, 125, 4],
-    "no-plusplus": 0
+    "no-plusplus": 0,
+    "mocha/no-mocha-arrows": 0
   }
 }
