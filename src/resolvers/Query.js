@@ -1,10 +1,29 @@
 const { authenticate, userBelongsToGroup } = require('../utils.js');
 
+const getFirebaseIdsFromAllUsersInGroup = async (context, groupId) => {
+  const fragmentUserGroup = `
+  fragment UserGroupWithUserFirebaseId on UserGroup {
+    user {
+      firebaseId
+    }
+  }
+  `;
+  const groupUsers = await context.prisma.userGroups({
+    where: {
+      group: {
+        id: groupId,
+      },
+    },
+  }).$fragment(fragmentUserGroup);
+
+  return groupUsers.map((groupUser) => groupUser.user.firebaseId);
+};
+
 /* get the balances of the connected user with every person of a group
     positive balance: the person owe you
     negative balance: you owe this person */
 const getAllUserBalances = async (context, groupId, connectedUserId) => {
-  const fragment = `
+  const fragmentContribution = `
   fragment ContributionWithUserAndTransaction on Contribution {
     user {
       firebaseId
@@ -46,7 +65,7 @@ const getAllUserBalances = async (context, groupId, connectedUserId) => {
         },
       ],
     },
-  }).$fragment(fragment);
+  }).$fragment(fragmentContribution);
 
   let totalBalance = 0;
   const userBalances = {};
@@ -67,6 +86,18 @@ const getAllUserBalances = async (context, groupId, connectedUserId) => {
         : contribution.amount;
     }
   });
+
+  const userIds = Object.keys(userBalances);
+  const allUserIdsOfGroup = await getFirebaseIdsFromAllUsersInGroup(context, groupId);
+  const missingUserIds = allUserIdsOfGroup.filter((id) => !userIds.includes(id) && id !== connectedUserId);
+
+  // add the users of the group who have never been involved in a transaction linked to the connected user
+  // (exept the connected user)
+  missingUserIds.forEach((userId) => {
+    userBalances[userId] = 0;
+  });
+
+
   // Object.entries convert an object to an array
   return {
     totalBalance,
