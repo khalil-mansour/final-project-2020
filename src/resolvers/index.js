@@ -4,7 +4,9 @@ const { addressMutation } = require('./Mutation/address');
 const { invitationMutation } = require('./Mutation/invitation');
 const { transactionMutation } = require('./Mutation/transaction');
 
-const { Query } = require('./Query');
+const { Query } = require('./Query/Query');
+const { transactionQuery } = require('./Query/transaction');
+
 const { User } = require('./User');
 const { Group } = require('./Group');
 const { Transaction } = require('./Transaction');
@@ -15,7 +17,10 @@ const { UserGroup } = require('./UserGroup');
 const { transactionSubscription } = require('./Subscription/transaction');
 
 module.exports = {
-  Query,
+  Query: {
+    ...Query,
+    ...transactionQuery,
+  },
   Mutation: {
     ...userMutation,
     ...groupMutation,
