@@ -26,6 +26,15 @@ generate prisma files:
     - yarn global add prisma
     - prisma generate
 
+test:
+  stage: test
+  before_script:
+    - yarn
+    - yarn global add prisma
+    - prisma generate
+  script:
+    - yarn mocha
+
 lint:
   stage: lint
   allow_failure: true
@@ -35,12 +44,3 @@ lint:
     - prisma generate
   script:
     - yarn eslint src/
-
-test:
-  stage: test
-  before_script:
-    - yarn
-    - yarn global add prisma
-    - prisma generate
-  script:
-    - mocha
