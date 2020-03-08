@@ -1,7 +1,6 @@
-const { authenticate } = require('../utils.js');
+const { authenticate } = require('../../utils.js');
 
 const Query = {
-
   /* verify if the user exist in the database */
   login: async (root, args, context) => {
     try {

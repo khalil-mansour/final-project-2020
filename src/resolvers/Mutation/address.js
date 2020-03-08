@@ -1,6 +1,5 @@
 const { authenticate } = require('../../utils.js');
 
-
 const addressMutation = {
   createAddress: async (root, args, context) => {
     try {
