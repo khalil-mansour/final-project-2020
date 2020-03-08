@@ -3,8 +3,8 @@ image: node:latest
 stages:
   - install
   - generate
-  - lint
   - test
+  - lint
   
 cache:
   paths:
