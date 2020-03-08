@@ -8,6 +8,8 @@ const Query = {
       const res = await authenticate(context);
       return context.prisma.$exists.user({ firebaseId: res.uid });
     } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
       return error;
     }
   },
