@@ -1,4 +1,4 @@
-const { authenticate } = require('../utils.js');
+const { authenticate } = require('../../utils.js');
 
 const Query = {
 

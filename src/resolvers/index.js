@@ -6,7 +6,9 @@ const { listMutation } = require('./Mutation/list');
 const { listSectionMutation } = require('./Mutation/listSection');
 const { listLineMutation } = require('./Mutation/listLine');
 
-const { Query } = require('./Query');
+const { Query } = require('./Query/Query');
+const { ListQuery } = require('./Query/List');
+
 const { User } = require('./User');
 const { Group } = require('./Group');
 const { Invitation } = require('./Invitation');
@@ -16,7 +18,10 @@ const { ListSection } = require('./ListSection');
 const { ListLine } = require('./ListLine');
 
 module.exports = {
-  Query,
+  Query: {
+    ...Query,
+    ...ListQuery,
+  },
   Mutation: {
     ...userMutation,
     ...groupMutation,

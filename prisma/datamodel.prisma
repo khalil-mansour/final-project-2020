@@ -28,6 +28,7 @@ type List{
   description: String
   type: String
   group: Group! @relation(name: "GroupLists")
+  isTemplate: Boolean
   sections: [ListSection!]! @relation(name: "ListSections", onDelete: CASCADE)
 }
 
