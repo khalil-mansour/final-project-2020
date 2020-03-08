@@ -85,7 +85,7 @@ const groupMutation = {
     try {
       const res = await authenticate(context);
       // fetch user by uid
-      const user = await Query.userByFirebase(root, res.uid, context);
+      const user = await Query.userByFirebase(root, { firebaseId: res.uid }, context);
       // check if user is in group
       const exists = await context.prisma.$exists.userGroup({
         user: { id: user.id },
@@ -93,6 +93,48 @@ const groupMutation = {
       });
       // if user in group, update group
       if (exists) {
+        return await context.prisma.updateGroup({
+          data: {
+            name: args.input.name,
+          },
+          where: {
+            id: args.input.groupId,
+          },
+        });
+      }
+      // else throw new error : user not in group
+      throw new Error('User not in group');
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  },
+
+  updateGroupInfo: async (root, args, context) => {
+    try {
+      const res = await authenticate(context);
+      // fetch user by uid
+      const user = await Query.userByFirebase(root, { firebaseId: res.uid }, context);
+      // check if user is in group
+      const exists = await context.prisma.$exists.userGroup({
+        user: { id: user.id },
+        group: { id: args.input.groupId },
+      });
+
+      // if user in group, update group
+      if (exists) {
+        await context.prisma.updateAddress({
+          data: {
+            country: args.input.country,
+            province: args.input.province,
+            city: args.input.city,
+            street: args.input.street,
+            apartment_unit: args.input.apartment_unit,
+            postal_code: args.input.postal_code,
+          },
+          where: {
+            id: args.input.groupId,
+          },
+        });
         return await context.prisma.updateGroup({
           data: {
             name: args.input.name,
