@@ -3,6 +3,8 @@ const { groupMutation } = require('./Mutation/group');
 const { addressMutation } = require('./Mutation/address');
 const { invitationMutation } = require('./Mutation/invitation');
 const { listMutation } = require('./Mutation/list');
+const { listSectionMutation } = require('./Mutation/listSection');
+const { listLineMutation } = require('./Mutation/listLine');
 
 const { Query } = require('./Query');
 const { User } = require('./User');
@@ -21,6 +23,8 @@ module.exports = {
     ...addressMutation,
     ...invitationMutation,
     ...listMutation,
+    ...listSectionMutation,
+    ...listLineMutation,
   },
   User,
   Group,

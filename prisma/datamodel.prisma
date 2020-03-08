@@ -41,7 +41,7 @@ type ListSection {
 
 type ListLine {
   id: ID! @id
-  section: ListSection! @relation(name: "SectionLines", onDelete: CASCADE)
+  section: ListSection! @relation(name: "SectionLines")
   text: String!
   quantity: Int
   checked: Boolean

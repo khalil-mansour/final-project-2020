@@ -28,5 +28,15 @@ const listMutation = {
       throw new Error(error.message);
     }
   },
+  deleteList: async (root, args, context) => {
+    try {
+      const mutations = args.input.sections.map((list) => context.prisma.deleteList({ id: list }));
+      return Promise.all(mutations).then(() => true).catch((error) => error.message);
+    } catch (error) {
+      console.log(error);
+      throw new Error(error.message);
+    }
+  },
 };
+
 module.exports = { listMutation };

@@ -154,8 +154,23 @@ type Mutation {
   #List
   
   #create list
-
   createList(input: CreateListInput!): List!
+  #delete lsit
+  deleteList(input: DeleteListInput!): Boolean
+
+  #create section 
+  createListSections(input: CreateListSectionsInput!): Boolean
+  #update sections
+  updateListSections(input: CreateListSectionsInput!): Boolean
+  #delete sections
+  deleteListSections(input: DeleteListSectionsInput!): Boolean
+
+  #create lines
+  createListLines(input: CreateListLinesInput!): Boolean
+  #update lines
+  updateListLines(input: CreateListLinesInput!): Boolean
+  #delete lines
+  deleteListLines(input: DeleteListLinesInput!): Boolean
 
 }
 
@@ -245,14 +260,38 @@ input CreateListInput {
   sections: [CreateSectionInput!]!
 }
 
+input DeleteListInput{
+  lists: [ID!]!
+}
+
 input CreateSectionInput {
+  sectionId: ID
   title: String!
   lines: [CreateListLineInput!]!
+  list: ID
   mainSection: Boolean
 }
 
+input CreateListSectionsInput {
+  sections: [CreateSectionInput]!
+}
+
 input CreateListLineInput {
+  listLineId: ID
   text: String!
   quantity: Int
+  section: ID
   checked: Boolean
+}
+
+input DeleteListSectionsInput {
+ sections: [ID!]!
+}
+
+input CreateListLinesInput {
+  lines: [CreateListLineInput!]!
+}
+
+input DeleteListLinesInput {
+  lines: [ID!]!
 }
