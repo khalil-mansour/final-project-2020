@@ -123,5 +123,11 @@ The structure is pretty simple here.
     - schema.graphql
 ```
 
+### Test locally
+Run the following line to properly test the graphQL schema structure:
+```shell
+    yarn mocha
+```
+
 # 🧪 Building and running tests locally 🧪
 #### Build

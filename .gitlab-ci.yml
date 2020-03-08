@@ -4,6 +4,7 @@ stages:
   - install
   - generate
   - lint
+  - test
   
 cache:
   paths:
@@ -34,3 +35,12 @@ lint:
     - prisma generate
   script:
     - yarn eslint src/
+
+test:
+  stage: test
+  before_script:
+    - yarn
+    - yarn global add prisma
+    - prisma generate
+  script:
+    - mocha
