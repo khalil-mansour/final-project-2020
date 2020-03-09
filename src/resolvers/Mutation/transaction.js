@@ -252,7 +252,7 @@ const transactionMutation = {
     }
   },
 
-  // delete a transaction and its contributions
+  // delete a transaction
   async deleteTransaction(root, args, context) {
     try {
       const res = await authenticate(context);
@@ -270,6 +270,7 @@ const transactionMutation = {
             firebaseId
           }
         }
+        isDeleted
         description
       }
       `;
@@ -277,30 +278,91 @@ const transactionMutation = {
 
       // make sure that the connected user is allowed to delete a transaction for the specified group
       if (await userBelongsToGroup(context, res.uid, transactionToDelete.group.id)) {
-        return context.prisma.updateTransaction({
-          where: {
-            id: args.input.transactionId,
-          },
-          data: {
-            isDeleted: true,
-            operationsHistoric: {
-              create: {
-                type: { connect: { name: 'DELETE' } },
-                transactionDescription: transactionToDelete.description,
-                operationMadeByUser: { connect: { firebaseId: res.uid } },
-                concernedUsers: {
-                  connect: getHistoricConcernedUsers(
-                    res.uid,
-                    transactionToDelete.paidBy.firebaseId,
-                    transactionToDelete.contributions,
-                  ),
+        if (!transactionToDelete.isDeleted) {
+          return context.prisma.updateTransaction({
+            where: {
+              id: args.input.transactionId,
+            },
+            data: {
+              isDeleted: true,
+              operationsHistoric: {
+                create: {
+                  type: { connect: { name: 'DELETE' } },
+                  transactionDescription: transactionToDelete.description,
+                  operationMadeByUser: { connect: { firebaseId: res.uid } },
+                  concernedUsers: {
+                    connect: getHistoricConcernedUsers(
+                      res.uid,
+                      transactionToDelete.paidBy.firebaseId,
+                      transactionToDelete.contributions,
+                    ),
+                  },
                 },
               },
             },
-          },
-        });
+          });
+        }
+        throw new Error('Unable to delete an already deleted transaction.');
       }
       throw new Error('The connected user is not allowed to delete this transaction.');
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  },
+
+  // restore a deleted transaction
+  async restoreTransaction(root, args, context) {
+    try {
+      const res = await authenticate(context);
+
+      const fragment = `
+      fragment TransactionWithGroupPaidByContributions on Transaction {
+        group {
+          id
+        }
+        paidBy {
+          firebaseId
+        }
+        contributions {
+          user {
+            firebaseId
+          }
+        }
+        isDeleted
+        description
+      }
+      `;
+      const transactionToRestore = await context.prisma.transaction({ id: args.input.transactionId }).$fragment(fragment);
+
+      // make sure that the connected user is allowed to restore a transaction for the specified group
+      if (await userBelongsToGroup(context, res.uid, transactionToRestore.group.id)) {
+        if (transactionToRestore.isDeleted) {
+          return context.prisma.updateTransaction({
+            where: {
+              id: args.input.transactionId,
+            },
+            data: {
+              isDeleted: false,
+              operationsHistoric: {
+                create: {
+                  type: { connect: { name: 'RESTORE' } },
+                  transactionDescription: transactionToRestore.description,
+                  operationMadeByUser: { connect: { firebaseId: res.uid } },
+                  concernedUsers: {
+                    connect: getHistoricConcernedUsers(
+                      res.uid,
+                      transactionToRestore.paidBy.firebaseId,
+                      transactionToRestore.contributions,
+                    ),
+                  },
+                },
+              },
+            },
+          });
+        }
+        throw new Error('Unable to restore a transaction that has not been deleted.');
+      }
+      throw new Error('The connected user is not allowed to restore this transaction.');
     } catch (error) {
       throw new Error(error.message);
     }
@@ -383,7 +445,7 @@ const transactionMutation = {
                 },
               });
             }
-            throw new Error('Impossible to update a deleted transaction.');
+            throw new Error('Unable to update a deleted transaction.');
           }
           throw new Error('One or more specified users doesn\'t belong to the group related to the transaction.');
         } else {
@@ -439,7 +501,7 @@ const transactionMutation = {
             },
           });
         }
-        throw new Error('Impossible to update a deleted transaction.');
+        throw new Error('Unable to update a deleted transaction.');
       }
       throw new Error('The connected user is not allowed to update this transaction.');
     } catch (error) {

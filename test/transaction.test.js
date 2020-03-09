@@ -380,6 +380,41 @@ describe('Transaction', () => {
     tester.test(true, mutation);
   });
 
+  it('restore a deleted transaction', () => {
+    const mutation = `
+      mutation RestoreTransaction {
+        restoreTransaction (
+          input: {
+            transactionId: "ck7dmwqus00n10815hnf4bd2i"
+          }
+        )
+        {
+          id
+          paidBy {
+            id
+          }
+          amount
+          isPayback
+          isEven
+          description
+          group {
+            id
+          }
+          contributions {
+            id
+          }
+          operationsHistoric {
+            id
+          }
+          createdAt
+          updatedAt
+        }
+      }
+    `;
+
+    tester.test(true, mutation);
+  });
+
   it('update a transaction completely', () => {
     const mutation = `
       mutation UpdateTransaction {

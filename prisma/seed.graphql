@@ -62,4 +62,10 @@ mutation {
     }){
       id
     },
+  transactionOperationHistoricTypeCreate: createTransactionOperationHistoricType(
+    data: {
+      name: "RESTORE"
+    }){
+      id
+    },
 }

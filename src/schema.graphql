@@ -196,6 +196,9 @@ type Mutation {
   # delete a transaction
   deleteTransaction(input: DeleteTransactionInput!): Transaction!
 
+  # restore a deleted transaction
+  restoreTransaction(input: RestoreTransactionInput!): Transaction!
+
   # update a transaction completely
   updateTransaction(input: UpdateTransactionInput!): Transaction!
 
@@ -305,6 +308,10 @@ input ContributionInput {
 }
 
 input DeleteTransactionInput {
+  transactionId: ID!
+}
+
+input RestoreTransactionInput {
   transactionId: ID!
 }
 
