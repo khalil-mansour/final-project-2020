@@ -45,6 +45,7 @@ const getAllUserBalances = async (context, groupId, connectedUserId) => {
             group: {
               id: groupId,
             },
+            isDeleted: false,
           },
         },
         {
@@ -140,6 +141,7 @@ const transactionQuery = {
           where: {
             group: { id: args.groupId },
             paidBy: { firebaseId: res.uid },
+            isDeleted: false,
           },
         });
       }
@@ -165,6 +167,7 @@ const transactionQuery = {
                   group: {
                     id: args.groupId,
                   },
+                  isDeleted: false,
                 },
               },
               {
@@ -230,6 +233,7 @@ const transactionQuery = {
                     group: {
                       id: args.input.groupId,
                     },
+                    isDeleted: false,
                   },
                 },
                 {

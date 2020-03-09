@@ -53,6 +53,7 @@ type Transaction {
   id: ID!
   paidBy: User!
   amount: Int!
+  isDeleted: Boolean!
   isPayback: Boolean!
   isEven: Boolean!
   description: String!
