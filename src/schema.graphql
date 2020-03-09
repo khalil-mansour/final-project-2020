@@ -156,6 +156,8 @@ type Mutation {
   
   #create list
   createList(input: CreateListInput!): List!
+  #update list
+  updateList(input: CreateListInput!): List!
   #delete lsit
   deleteList(input: DeleteListInput!): Boolean
 
@@ -254,6 +256,7 @@ input UpdateAddressInput {
 }
 
 input CreateListInput {
+  listId: ID
   title: String!
   description: String
   type: String

@@ -4,8 +4,6 @@ const listQuery = {
   listByGroup: async (root, args, context) => {
     try {
       const res = await authenticate(context);
-
-
       // make sure that the connected user is allowed to make query for the specified group
       if (await userBelongsToGroup(context, res.uid, args.groupId)) {
         return context.prisma.lists({ where: { group: args.groupId } });
