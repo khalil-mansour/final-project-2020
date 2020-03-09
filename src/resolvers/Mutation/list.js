@@ -1,17 +1,4 @@
 const { authenticate } = require('../../utils.js');
-const { listSectionMutation } = require('./listSection.js');
-
-function getLinesTo(sections, type) {
-  let lines;
-  sections.forEach((section) => {
-    if (type === 'create') {
-      lines = section.lines.filter((line) => (line.id == null));
-    } else {
-      lines = section.lines.filter((line) => (line.id != null));
-    }
-  });
-  return lines;
-}
 
 function getSectionsTo(sections, type) {
   let sectionArray;
@@ -32,6 +19,7 @@ const listMutation = {
         group: { connect: { id: args.input.group } },
         description: args.input.description,
         type: args.input.type,
+        isTemplate: args.input.isTemplate,
         sections: {
           create: args.input.sections.map((section) => ({
             title: section.title,
@@ -65,35 +53,23 @@ const listMutation = {
       const res = await authenticate(context);
       const sectionsToUpdate = getSectionsTo(args.input.sections, 'update');
       const sectionsToCreate = getSectionsTo(args.input.sections, 'create');
-      const linesToUpdate = getLinesTo(args.input.sections, 'update');
-      const linesToCreate = getLinesTo(args.input.sections, 'create');
 
       return context.prisma.updateList({
         where: { id: args.input.listId },
         data: {
           title: args.input.title,
-          group: { connect: { id: args.input.group } },
           description: args.input.description,
           type: args.input.type,
+          isTemplate: args.input.isTemplate,
           sections: {
             create: sectionsToCreate.map((section) => ({
               title: section.title,
               mainSection: section.mainSection,
               lines: {
-                create: linesToCreate.map((line) => ({
+                create: section.lines.map((line) => ({
                   text: line.text,
                   quantity: line.quantity,
                   checked: line.checked,
-                })),
-                update: linesToUpdate.map((line) => ({
-                  data: {
-                    text: line.text,
-                    quantity: line.quantity,
-                    checked: line.checked,
-                  },
-                  where: {
-                    id: line.id,
-                  },
                 })),
               },
             })),
@@ -102,12 +78,12 @@ const listMutation = {
                 title: section.title,
                 mainSection: section.mainSection,
                 lines: {
-                  create: linesToCreate.map((line) => ({
+                  create: section.lines.filter((line) => line.id === null).map((line) => ({
                     text: line.text,
                     quantity: line.quantity,
                     checked: line.checked,
                   })),
-                  update: linesToUpdate.map((line) => ({
+                  update: section.lines.filter((line) => line.id != null).map((line) => ({
                     data: {
                       text: line.text,
                       quantity: line.quantity,
