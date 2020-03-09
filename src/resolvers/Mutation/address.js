@@ -33,7 +33,7 @@ const addressMutation = {
           postal_code: args.input.apartment_unit,
         },
         where: {
-          id: args.input.groupId,
+          id: user.id,
         },
       });
     } catch (error) {
