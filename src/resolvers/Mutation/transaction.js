@@ -406,44 +406,47 @@ const transactionMutation = {
           // make sure that every specified users belongs to the same group
           if (await usersBelongsToGroup(context, userFirebaseIds, group.id)) {
             if (!(await context.prisma.transaction({ id: parsedInputTransaction.id }).isDeleted())) {
-              const contributionAmountsDistribution = (parsedInputTransaction.isEven
-                ? splitEvenly(parsedInputTransaction.amount, parsedInputTransaction.contributions)
-                : splitWithPercentage(parsedInputTransaction.amount, parsedInputTransaction.contributions));
+              if (!(await context.prisma.transaction({ id: parsedInputTransaction.id }).isPayback())) {
+                const contributionAmountsDistribution = (parsedInputTransaction.isEven
+                  ? splitEvenly(parsedInputTransaction.amount, parsedInputTransaction.contributions)
+                  : splitWithPercentage(parsedInputTransaction.amount, parsedInputTransaction.contributions));
 
-              const contributionsToCreate = await getContributionsToCreate(context, parsedInputTransaction, contributionAmountsDistribution);
-              const contributionsToUpdate = await getContributionsToUpdate(context, parsedInputTransaction, contributionAmountsDistribution);
-              const contributionsToDelete = await getContributionsToDelete(context, parsedInputTransaction);
+                const contributionsToCreate = await getContributionsToCreate(context, parsedInputTransaction, contributionAmountsDistribution);
+                const contributionsToUpdate = await getContributionsToUpdate(context, parsedInputTransaction, contributionAmountsDistribution);
+                const contributionsToDelete = await getContributionsToDelete(context, parsedInputTransaction);
 
-              return context.prisma.updateTransaction({
-                where: {
-                  id: parsedInputTransaction.id,
-                },
-                data: {
-                  paidBy: { connect: { firebaseId: parsedInputTransaction.paidBy.firebaseId } },
-                  isEven: parsedInputTransaction.isEven,
-                  amount: parsedInputTransaction.amount,
-                  description: parsedInputTransaction.description,
-                  contributions: {
-                    create: contributionsToCreate,
-                    update: contributionsToUpdate,
-                    delete: contributionsToDelete,
+                return context.prisma.updateTransaction({
+                  where: {
+                    id: parsedInputTransaction.id,
                   },
-                  operationsHistoric: {
-                    create: {
-                      type: { connect: { name: 'UPDATE' } },
-                      transactionDescription: parsedInputTransaction.description,
-                      operationMadeByUser: { connect: { firebaseId: res.uid } },
-                      concernedUsers: {
-                        connect: getHistoricConcernedUsers(
-                          res.uid,
-                          parsedInputTransaction.paidBy.firebaseId,
-                          parsedInputTransaction.contributions,
-                        ),
+                  data: {
+                    paidBy: { connect: { firebaseId: parsedInputTransaction.paidBy.firebaseId } },
+                    isEven: parsedInputTransaction.isEven,
+                    amount: parsedInputTransaction.amount,
+                    description: parsedInputTransaction.description,
+                    contributions: {
+                      create: contributionsToCreate,
+                      update: contributionsToUpdate,
+                      delete: contributionsToDelete,
+                    },
+                    operationsHistoric: {
+                      create: {
+                        type: { connect: { name: 'UPDATE' } },
+                        transactionDescription: parsedInputTransaction.description,
+                        operationMadeByUser: { connect: { firebaseId: res.uid } },
+                        concernedUsers: {
+                          connect: getHistoricConcernedUsers(
+                            res.uid,
+                            parsedInputTransaction.paidBy.firebaseId,
+                            parsedInputTransaction.contributions,
+                          ),
+                        },
                       },
                     },
                   },
-                },
-              });
+                });
+              }
+              throw new Error('The specified transaction is a payback. A generic transaction is needed.');
             }
             throw new Error('Unable to update a deleted transaction.');
           }
@@ -468,38 +471,41 @@ const transactionMutation = {
       // make sure that the connected user is allowed to update a transaction for the specified group
       if (await userBelongsToGroup(context, res.uid, group.id)) {
         if (!(await context.prisma.transaction({ id: args.input.transactionId }).isDeleted())) {
-          const fragment = `
-          fragment ContributionWithUserId on Contribution {
-            user {
-              firebaseId
+          if (!(await context.prisma.transaction({ id: args.input.transactionId }).isPayback())) {
+            const fragment = `
+            fragment ContributionWithUserId on Contribution {
+              user {
+                firebaseId
+              }
             }
-          }
-          `;
-          const contributions = await context.prisma.transaction({ id: args.input.transactionId }).contributions().$fragment(fragment);
-          const paidBy = await context.prisma.transaction({ id: args.input.transactionId }).paidBy();
+            `;
+            const contributions = await context.prisma.transaction({ id: args.input.transactionId }).contributions().$fragment(fragment);
+            const paidBy = await context.prisma.transaction({ id: args.input.transactionId }).paidBy();
 
-          return context.prisma.updateTransaction({
-            where: {
-              id: args.input.transactionId,
-            },
-            data: {
-              description: args.input.description,
-              operationsHistoric: {
-                create: {
-                  type: { connect: { name: 'UPDATE' } },
-                  transactionDescription: args.input.description,
-                  operationMadeByUser: { connect: { firebaseId: res.uid } },
-                  concernedUsers: {
-                    connect: getHistoricConcernedUsers(
-                      res.uid,
-                      paidBy.firebaseId,
-                      contributions,
-                    ),
+            return context.prisma.updateTransaction({
+              where: {
+                id: args.input.transactionId,
+              },
+              data: {
+                description: args.input.description,
+                operationsHistoric: {
+                  create: {
+                    type: { connect: { name: 'UPDATE' } },
+                    transactionDescription: args.input.description,
+                    operationMadeByUser: { connect: { firebaseId: res.uid } },
+                    concernedUsers: {
+                      connect: getHistoricConcernedUsers(
+                        res.uid,
+                        paidBy.firebaseId,
+                        contributions,
+                      ),
+                    },
                   },
                 },
               },
-            },
-          });
+            });
+          }
+          throw new Error('The specified transaction is a payback. A generic transaction is needed.');
         }
         throw new Error('Unable to update a deleted transaction.');
       }
@@ -549,53 +555,56 @@ const transactionMutation = {
       // make sure that the connected user is allowed to update a transaction for the specified group
       if (await userBelongsToGroup(context, res.uid, group.id)) {
         if (!(await context.prisma.transaction({ id: args.input.transactionId }).isDeleted())) {
-          const fragment = `
-          fragment ContributionWithUserId on Contribution {
-            id
-            user {
-              firebaseId
+          if (await context.prisma.transaction({ id: args.input.transactionId }).isPayback()) {
+            const fragment = `
+            fragment ContributionWithUserId on Contribution {
+              id
+              user {
+                firebaseId
+              }
             }
-          }
-          `;
-          const contributions = await context.prisma.transaction({ id: args.input.transactionId }).contributions().$fragment(fragment);
-          const paidBy = await context.prisma.transaction({ id: args.input.transactionId }).paidBy();
+            `;
+            const contributions = await context.prisma.transaction({ id: args.input.transactionId }).contributions().$fragment(fragment);
+            const paidBy = await context.prisma.transaction({ id: args.input.transactionId }).paidBy();
 
-          if (contributions.length !== 1) {
-            throw new Error('The result of the query is inconsistent. A payback should be destined to only one user.');
-          }
+            if (contributions.length !== 1) {
+              throw new Error('The result of the query is inconsistent. A payback should be destined to only one user.');
+            }
 
-          return context.prisma.updateTransaction({
-            where: {
-              id: args.input.transactionId,
-            },
-            data: {
-              amount: args.input.amount,
-              contributions: {
-                update: {
-                  where: {
-                    id: contributions[0].id,
+            return context.prisma.updateTransaction({
+              where: {
+                id: args.input.transactionId,
+              },
+              data: {
+                amount: args.input.amount,
+                contributions: {
+                  update: {
+                    where: {
+                      id: contributions[0].id,
+                    },
+                    data: {
+                      amount: args.input.amount,
+                    },
                   },
-                  data: {
-                    amount: args.input.amount,
+                },
+                operationsHistoric: {
+                  create: {
+                    type: { connect: { name: 'UPDATE' } },
+                    transactionDescription: await context.prisma.transaction({ id: args.input.transactionId }).description(),
+                    operationMadeByUser: { connect: { firebaseId: res.uid } },
+                    concernedUsers: {
+                      connect: getHistoricConcernedUsers(
+                        res.uid,
+                        paidBy.firebaseId,
+                        contributions,
+                      ),
+                    },
                   },
                 },
               },
-              operationsHistoric: {
-                create: {
-                  type: { connect: { name: 'UPDATE' } },
-                  transactionDescription: await context.prisma.transaction({ id: args.input.transactionId }).description(),
-                  operationMadeByUser: { connect: { firebaseId: res.uid } },
-                  concernedUsers: {
-                    connect: getHistoricConcernedUsers(
-                      res.uid,
-                      paidBy.firebaseId,
-                      contributions,
-                    ),
-                  },
-                },
-              },
-            },
-          });
+            });
+          }
+          throw new Error('The specified transaction is not a payback.');
         }
         throw new Error('Unable to update a deleted transaction.');
       }
