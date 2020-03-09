@@ -75,6 +75,9 @@ type Query {
   userGroupByIds(input: UserGroupByIdsInput!): [UserGroup]
   #query userGroup by user id
   userGroupsByUserId: [UserGroup]!
+
+  # query transaction by id
+  transaction(transactionId: ID!): String!
 }
 
 type Mutation {
