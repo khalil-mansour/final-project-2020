@@ -76,6 +76,13 @@ const transactionInputValidation = (inputTransaction) => {
   return true;
 };
 
+const paybackInputValidation = (input) => {
+  if (input.amount <= 0) {
+    throw new Error('The payback amount can\'t be negative or equal to zero.');
+  }
+  return true;
+};
+
 // Get the array of contributions to create. This array should be put in a nested prisma create.
 const getContributionsToCreate = async (context, transaction, contributionAmountsDistribution) => {
   // whit the map, the code can be executed in parallel
@@ -246,7 +253,7 @@ const transactionMutation = {
         };
         return createTransactionFunction(context, res.uid, parsedInputTransaction);
       }
-      throw new Error('An error occurred while creating a new transaction.');
+      throw new Error('An error occurred while creating a new transaction. Invalid input.');
     } catch (error) {
       throw new Error(error.message);
     }
@@ -466,7 +473,7 @@ const transactionMutation = {
         }
         throw new Error('The specified transaction doesn\'t exists.');
       }
-      throw new Error('An error occurred while updating the specified transaction.');
+      throw new Error('An error occurred while updating the specified transaction. Invalid input.');
     } catch (error) {
       throw new Error(error.message);
     }
@@ -534,26 +541,29 @@ const transactionMutation = {
     try {
       const res = await authenticate(context);
 
-      const parsedInputTransaction = {
-        paidBy: {
-          firebaseId: res.uid,
-        },
-        isDeleted: false,
-        isPayback: true,
-        isEven: true,
-        amount: args.input.amount,
-        description: 'Pay back',
-        group: {
-          id: args.input.groupId,
-        },
-        contributions: [{
-          user: {
-            firebaseId: args.input.payBackToUserId,
+      if (paybackInputValidation(args.input)) {
+        const parsedInputTransaction = {
+          paidBy: {
+            firebaseId: res.uid,
           },
-          percentage: 100,
-        }],
-      };
-      return createTransactionFunction(context, res.uid, parsedInputTransaction);
+          isDeleted: false,
+          isPayback: true,
+          isEven: true,
+          amount: args.input.amount,
+          description: 'Pay back',
+          group: {
+            id: args.input.groupId,
+          },
+          contributions: [{
+            user: {
+              firebaseId: args.input.payBackToUserId,
+            },
+            percentage: 100,
+          }],
+        };
+        return createTransactionFunction(context, res.uid, parsedInputTransaction);
+      }
+      throw new Error('An error occurred while creating a new transaction. Invalid input.');
     } catch (error) {
       throw new Error(error.message);
     }
@@ -564,68 +574,71 @@ const transactionMutation = {
     try {
       const res = await authenticate(context);
 
-      if (await context.prisma.$exists.transaction({ id: args.input.transactionId })) {
-        const group = await context.prisma.transaction({ id: args.input.transactionId }).group();
+      if (paybackInputValidation(args.input)) {
+        if (await context.prisma.$exists.transaction({ id: args.input.transactionId })) {
+          const group = await context.prisma.transaction({ id: args.input.transactionId }).group();
 
-        // make sure that the connected user is allowed to update a transaction for the specified group
-        if (await userBelongsToGroup(context, res.uid, group.id)) {
-          if (!(await context.prisma.transaction({ id: args.input.transactionId }).isDeleted())) {
-            if (await context.prisma.transaction({ id: args.input.transactionId }).isPayback()) {
-              const fragment = `
-              fragment ContributionWithUserId on Contribution {
-                id
-                user {
-                  firebaseId
+          // make sure that the connected user is allowed to update a transaction for the specified group
+          if (await userBelongsToGroup(context, res.uid, group.id)) {
+            if (!(await context.prisma.transaction({ id: args.input.transactionId }).isDeleted())) {
+              if (await context.prisma.transaction({ id: args.input.transactionId }).isPayback()) {
+                const fragment = `
+                fragment ContributionWithUserId on Contribution {
+                  id
+                  user {
+                    firebaseId
+                  }
                 }
-              }
-              `;
-              const contributions = await context.prisma.transaction({ id: args.input.transactionId }).contributions().$fragment(fragment);
-              const paidBy = await context.prisma.transaction({ id: args.input.transactionId }).paidBy();
+                `;
+                const contributions = await context.prisma.transaction({ id: args.input.transactionId }).contributions().$fragment(fragment);
+                const paidBy = await context.prisma.transaction({ id: args.input.transactionId }).paidBy();
 
-              if (contributions.length !== 1) {
-                throw new Error('The result of the query is inconsistent. A payback should be destined to only one user.');
-              }
+                if (contributions.length !== 1) {
+                  throw new Error('The result of the query is inconsistent. A payback should be destined to only one user.');
+                }
 
-              return context.prisma.updateTransaction({
-                where: {
-                  id: args.input.transactionId,
-                },
-                data: {
-                  amount: args.input.amount,
-                  contributions: {
-                    update: {
-                      where: {
-                        id: contributions[0].id,
+                return context.prisma.updateTransaction({
+                  where: {
+                    id: args.input.transactionId,
+                  },
+                  data: {
+                    amount: args.input.amount,
+                    contributions: {
+                      update: {
+                        where: {
+                          id: contributions[0].id,
+                        },
+                        data: {
+                          amount: args.input.amount,
+                        },
                       },
-                      data: {
-                        amount: args.input.amount,
+                    },
+                    operationsHistoric: {
+                      create: {
+                        type: { connect: { name: 'UPDATE' } },
+                        transactionDescription: await context.prisma.transaction({ id: args.input.transactionId }).description(),
+                        operationMadeByUser: { connect: { firebaseId: res.uid } },
+                        concernedUsers: {
+                          connect: getHistoricConcernedUsers(
+                            res.uid,
+                            paidBy.firebaseId,
+                            contributions,
+                          ),
+                        },
                       },
                     },
                   },
-                  operationsHistoric: {
-                    create: {
-                      type: { connect: { name: 'UPDATE' } },
-                      transactionDescription: await context.prisma.transaction({ id: args.input.transactionId }).description(),
-                      operationMadeByUser: { connect: { firebaseId: res.uid } },
-                      concernedUsers: {
-                        connect: getHistoricConcernedUsers(
-                          res.uid,
-                          paidBy.firebaseId,
-                          contributions,
-                        ),
-                      },
-                    },
-                  },
-                },
-              });
+                });
+              }
+              throw new Error('The specified transaction is not a payback.');
             }
-            throw new Error('The specified transaction is not a payback.');
+            throw new Error('Unable to update a deleted transaction.');
           }
-          throw new Error('Unable to update a deleted transaction.');
+          throw new Error('The connected user is not allowed to update this transaction.');
         }
-        throw new Error('The connected user is not allowed to update this transaction.');
+        throw new Error('The specified transaction doesn\'t exists.');
       }
-      throw new Error('The specified transaction doesn\'t exists.');
+      throw new Error('An error occurred while updating the specified transaction. Invalid input.');
     } catch (error) {
       throw new Error(error.message);
     }
