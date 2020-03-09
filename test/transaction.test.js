@@ -536,4 +536,40 @@ describe('Transaction', () => {
 
     tester.test(true, mutation);
   });
+
+  it('update the amount of a payback', () => {
+    const mutation = `
+      mutation UpdatePaybackAmount {
+        updatePaybackAmount (
+          input: {
+            transactionId:"ck7f99cyd000x0715pdnpmw39"
+            amount: 424242
+          }
+        )
+        {
+          id
+          paidBy {
+            id
+          }
+          amount
+          isPayback
+          isEven
+          description
+          group {
+            id
+          }
+          contributions {
+            id
+          }
+          operationsHistoric {
+            id
+          }
+          createdAt
+          updatedAt
+        }
+      }
+    `;
+
+    tester.test(true, mutation);
+  });
 });

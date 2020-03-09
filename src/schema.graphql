@@ -207,6 +207,9 @@ type Mutation {
 
   # pay back another user
   payBack(input: PayBackInput!): Transaction!
+
+  # update the amount of a payback
+  updatePaybackAmount(input: UpdatePaybackAmountInput!): Transaction!
 }
 
 type Subscription {
@@ -359,4 +362,9 @@ input PayBackInput {
 input GroupContributionsForTwoUsersInput {
   groupId: ID!
   otherUserId: String!
+}
+
+input UpdatePaybackAmountInput {
+  transactionId: ID!
+  amount: Int!
 }

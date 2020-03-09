@@ -538,6 +538,72 @@ const transactionMutation = {
       throw new Error(error.message);
     }
   },
+
+  // update the amount of a payback
+  async updatePaybackAmount(root, args, context) {
+    try {
+      const res = await authenticate(context);
+
+      const group = await context.prisma.transaction({ id: args.input.transactionId }).group();
+
+      // make sure that the connected user is allowed to update a transaction for the specified group
+      if (await userBelongsToGroup(context, res.uid, group.id)) {
+        if (!(await context.prisma.transaction({ id: args.input.transactionId }).isDeleted())) {
+          const fragment = `
+          fragment ContributionWithUserId on Contribution {
+            id
+            user {
+              firebaseId
+            }
+          }
+          `;
+          const contributions = await context.prisma.transaction({ id: args.input.transactionId }).contributions().$fragment(fragment);
+          const paidBy = await context.prisma.transaction({ id: args.input.transactionId }).paidBy();
+
+          if (contributions.length !== 1) {
+            throw new Error('The result of the query is inconsistent. A payback should be destined to only one user.');
+          }
+
+          return context.prisma.updateTransaction({
+            where: {
+              id: args.input.transactionId,
+            },
+            data: {
+              amount: args.input.amount,
+              contributions: {
+                update: {
+                  where: {
+                    id: contributions[0].id,
+                  },
+                  data: {
+                    amount: args.input.amount,
+                  },
+                },
+              },
+              operationsHistoric: {
+                create: {
+                  type: { connect: { name: 'UPDATE' } },
+                  transactionDescription: await context.prisma.transaction({ id: args.input.transactionId }).description(),
+                  operationMadeByUser: { connect: { firebaseId: res.uid } },
+                  concernedUsers: {
+                    connect: getHistoricConcernedUsers(
+                      res.uid,
+                      paidBy.firebaseId,
+                      contributions,
+                    ),
+                  },
+                },
+              },
+            },
+          });
+        }
+        throw new Error('Unable to update a deleted transaction.');
+      }
+      throw new Error('The connected user is not allowed to update this transaction.');
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  },
 };
 
 module.exports = { transactionMutation };
