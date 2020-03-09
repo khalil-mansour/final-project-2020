@@ -39,7 +39,7 @@ type Address {
   province: String
   city: String
   street: String
-  apartment_unit: Int
+  apartment_unit: String
   postal_code: String
 }
 

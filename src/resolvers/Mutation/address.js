@@ -1,5 +1,5 @@
 const { authenticate } = require('../../utils.js');
-const { Query } = require('../Query.js');
+const { Query } = require('../Query/Query');
 
 const addressMutation = {
   createAddress: async (root, args, context) => {

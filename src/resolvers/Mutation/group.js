@@ -19,31 +19,23 @@ const groupMutation = {
       // fetch user by uid
       const user = await Query.userByFirebase(root, { firebaseId: res.uid }, context);
 
-      const address = await context.prisma.createAddress({
-        country: '',
-        province: '',
-        city: '',
-        street: '',
-        apartment_unit: 0,
-        postal_code: '',
-      });
-
-      // create the group
-      const createdGroup = await context.prisma.createGroup({
-        name: args.input.name,
-        admin: { connect: { id: user.id } },
-        address: { connect: { id: address.id } },
-      });
-
-      console.log(address);
-
-      // create the userGroup with current user
-      await context.prisma.createUserGroup({
-        user: { connect: { id: user.id } },
-        group: { connect: { id: createdGroup.id } },
-        join_at: new Date().toUTCString(),
-      });
-      return createdGroup;
+      return await context.prisma.createUserGroup(
+        {
+          user: { connect: { id: user.id } },
+          group: {
+            create: {
+              name: args.input.name,
+              admin: { connect: { id: user.id } },
+              address: {
+                create: {
+                  country: '', province: '', city: '', street: '', apartment_unit: '', postal_code: '',
+                },
+              },
+            },
+          },
+          join_at: new Date().toUTCString(),
+        },
+      );
     } catch (error) {
       throw new Error(error.message);
     }

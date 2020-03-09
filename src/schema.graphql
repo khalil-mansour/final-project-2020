@@ -41,7 +41,7 @@ type Address {
   province: String!
   city: String!
   street: String!
-  apartment_unit: Int
+  apartment_unit: String
   postal_code: String!
 }
 
@@ -158,7 +158,7 @@ input CreateAddressInput {
   province: String
   city: String
   street: String
-  apartment_unit: Int
+  apartment_unit: String
   postal_code: String
 }
 
@@ -199,7 +199,7 @@ input UpdateGroupInfoInput {
   province: String!
   city: String!
   street: String!
-  apartment_unit: Int
+  apartment_unit: String
   postal_code: String!
 }
 
@@ -220,6 +220,6 @@ input UpdateAddressInput {
   province: String!
   city: String!
   street: String!
-  apartment_unit: Int
+  apartment_unit: String
   postal_code: String!
 }
