@@ -74,6 +74,7 @@ const listMutation = {
               },
             })),
             update: sectionsToUpdate.map((section) => ({
+              where: { id: section.id },
               data: {
                 title: section.title,
                 mainSection: section.mainSection,
