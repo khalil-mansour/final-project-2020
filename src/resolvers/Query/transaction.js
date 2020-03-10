@@ -98,7 +98,6 @@ const getAllUserBalances = async (context, groupId, connectedUserId) => {
     userBalances[userId] = 0;
   });
 
-
   // Object.entries convert an object to an array
   return {
     totalBalance,
@@ -317,6 +316,11 @@ const transactionQuery = {
           where: {
             concernedUsers_some: {
               firebaseId: res.uid,
+            },
+            transaction: {
+              group: {
+                id: args.groupId,
+              },
             },
           },
         }).$fragment(fragment);
