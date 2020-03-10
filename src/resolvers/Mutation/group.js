@@ -54,7 +54,7 @@ const groupMutation = {
       if (exists) {
         const userInGroup = await context.prisma.$exists.userGroup({
           user: { id: user.id },
-          group: { id: args.groupId },
+          group: { id: args.input.groupId },
         });
         if (!userInGroup) {
           await context.prisma.createUserGroup({
@@ -172,7 +172,15 @@ const groupMutation = {
     try {
       const res = await authenticate(context);
       // fetch current user by uid
-      const user = await Query.userByFirebase(root, res.uid, context);
+      const user = await Query.userByFirebase(root, { firebaseId: res.uid }, context);
+      // fetch target user by uid
+      const targetUser = await Query.userByFirebase(
+        root,
+        {
+          firebaseId: args.input.userId,
+        },
+        context,
+      );
       // fetch group by id
       const group = await Query.group(root, args.input, context);
       // fetch admin
@@ -181,11 +189,17 @@ const groupMutation = {
       if (user.id === admin.id) {
         // check if target user is in group
         const exists = await context.prisma.$exists.userGroup({
-          user: { id: args.input.userId },
+          user: { id: targetUser.id },
           group: { id: args.input.groupId },
         });
+
         if (exists) {
-          const userGroup = await Query.userGroupByIds(root, args, context);
+          const userGroup = await Query.userGroupByIds(root, {
+            input: {
+              userId: targetUser.id,
+              groupId: args.input.groupId,
+            },
+          }, context);
           // get id of userGroup
           const userGroupId = userGroup[0].id;
           // delete userGroup
