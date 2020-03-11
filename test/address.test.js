@@ -15,42 +15,36 @@ describe('Address', () => {
 
   it('fetch all addresses', () => {
     const query = `{
-      query {
-        addresses {
-          id
-          country
-          province
-          city
-          street
-          apartment_unit
-        }
-      }
+      addresses {
+        id
+        country
+        province
+        city
+        street
+        apartment_unit
+      }      
     }`;
     tester.test(true, query);
   });
 
   it('fail for non-existant field', () => {
-    const query =  `{
-      query {
-        addresses {
-          id
-          FALSEFIELD
-        }
-      }
+    const query = `{
+      addresses {
+        id
+        FALSEFIELD
+      }      
     }`;
     tester.test(false, query);
   });
 
   it('fetch single address', () => {
     const query = `{
-      query {
-        address(addressId: "testID") {
-          id
-          country
-          province
-          city
-        }
-      }
+      address(addressId: "testID") {
+        id
+        country
+        province
+        city
+      }      
     }`;
     tester.test(true, query);
   });
@@ -58,8 +52,8 @@ describe('Address', () => {
   // MUTATIONS
 
   it('create address', () => {
-    const mutation = `{
-      mutation {
+    const mutation = `
+      mutation CreateAddress {
         createAddress(input:{
           country: "Canada"
           province:"QC"
@@ -74,14 +68,13 @@ describe('Address', () => {
           street
           apartment_unit
         }
-      }
-    }`;
+      }`;
     tester.test(true, mutation);
   });
 
   it('update address', () => {
-    const mutation = `{
-      mutation {
+    const mutation = `
+      mutation UpdateAddress {
         updateAddress(input:{
           addressId: "some test id"
           country: "USA"
@@ -95,9 +88,7 @@ describe('Address', () => {
           city
           street
         }
-      }
-    }`;
+      }`;
     tester.test(true, mutation);
   });
-  
 });
