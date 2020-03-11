@@ -15,25 +15,23 @@ describe('Invitation', () => {
 
   it('fetch all invitations', () => {
     const query = `{
-      query {
-        invitations {
+      invitations {
+        id
+        from {
           id
-          from {
-            id
-          }
-          group {
-            id
-          }
-          link
-          expiredAt
         }
-      }
+        group {
+          id
+        }
+        link
+        expiredAt
+      }      
     }`;
     tester.test(true, query);
   });
 
   it('fail for non-existant field', () => {
-    const query =  `{
+    const query = `{
       query {
         invitations {
           id
@@ -46,19 +44,17 @@ describe('Invitation', () => {
 
   it('fetch single invitation', () => {
     const query = `{
-      query {
-        invitation(invitationId: "testID") {
+      invitation(invitationId: "testID") {
+        id
+        from {
           id
-          from {
-            id
-          }
-          group {
-            id
-          }
-          link
-          expiredAt
         }
-      }
+        group {
+          id
+        }
+        link
+        expiredAt
+      }      
     }`;
     tester.test(true, query);
   });
@@ -66,8 +62,8 @@ describe('Invitation', () => {
   // MUTATIONS
 
   it('create invitation', () => {
-    const mutation = `{
-      mutation {
+    const mutation = `
+      mutation CreateInvitation {
         createInvitation(input: {
           groupId: "ck73us7zr00670783zs910jna"
           link: "www.firebasetest.com"
@@ -83,23 +79,20 @@ describe('Invitation', () => {
           }
           expiredAt
         }
-      }
-    }`;
+      }`;
     tester.test(true, mutation);
   });
 
   it('accept invitation', () => {
-    const mutation = `{
-      mutation {
+    const mutation = `
+      mutation AcceptInvitation {
         acceptInvitation(input: {
           invitationId: "ck6t39r0200iy07155ebg2gpb"
         }) {
           id
           join_at
         }
-      }
-    }`;
+      }`;
     tester.test(true, mutation);
   });
-  
 });

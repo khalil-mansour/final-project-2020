@@ -54,7 +54,7 @@ describe('Group', () => {
         FALSEFIELD
       }
     }`;
-    tester.test(true, query);
+    tester.test(false, query);
   });
 
   it('fetch a group by ID', () => {
@@ -80,35 +80,33 @@ describe('Group', () => {
   // MUTATIONS
 
   it('create a new group', () => {
-    const mutation = `{
-      mutation {
+    const mutation = `
+      mutation CreateGroup {
         createGroup(input:{
           name: "test"
           addressId: "ck73uisy4005m0783ldqb9jon"
         }) {
           name
         }
-      }
-    }`;
+      }`;
     tester.test(true, mutation);
   });
 
   it('delete group', () => {
-    const mutation = `{
-      mutation {
+    const mutation = `
+      mutation DeleteGroup {
         deleteGroup(input :{
-          id: "ck6ssmzax003w07156fpw2fab"
+          groupId: "ck6ssmzax003w07156fpw2fab"
         }) {
           id
         }
-      }
-    }`;
+      }`;
     tester.test(true, mutation);
   });
 
   it('remove user from group', () => {
-    const mutation = `{
-      mutation {
+    const mutation = `
+      mutation RemoveUser {
         removeUserFromGroup(input: {
           userId: "ck6t35ouz00hm0715i5fezr8s"
           groupId: "ck6t2ccfl00eq0715deygqr0a"
@@ -119,19 +117,17 @@ describe('Group', () => {
             id
           }
         }
-      }
-    }`;
+      }`;
     tester.test(true, mutation);
   });
 
   it('leave group', () => {
-    const mutation = `{
-      mutation {
+    const mutation = `
+      mutation LeaveGroup {
         leaveGroup(input: { groupId: "ck6t2ccfl00eq0715deygqr0a" }) {
           name
         }
-      }
-    }`;
+      }`;
     tester.test(true, mutation);
   });
 
