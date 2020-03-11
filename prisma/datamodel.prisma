@@ -6,6 +6,7 @@ type User {
   lastName: String!
   avatar: String
   email: String! @unique
+  createdTransactions: [Transaction] @relation(name: "CreatedByTransactions")
   transactions: [Transaction] @relation(name: "PaidByTransactions")
   contributions: [Contribution] @relation(name: "UserContributions")
   groups: [UserGroup!]! @relation(name: "UserGroups", onDelete: CASCADE)
@@ -59,6 +60,7 @@ type Invitation {
 
 type Transaction {
   id: ID! @id
+  createdBy: User! @relation(name: "CreatedByTransactions")
   paidBy: User! @relation(name: "PaidByTransactions")
   amount: Int!
   isDeleted: Boolean!

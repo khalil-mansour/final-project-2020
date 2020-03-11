@@ -10,6 +10,7 @@ type User {
   lastName: String!
   email: String! 
   groups: [UserGroup!]!
+  createdTransactions: [Transaction]
   transactions: [Transaction]
   contributions: [Contribution]
   transactionOperationsMade: [TransactionOperationHistoric]
@@ -51,6 +52,7 @@ type Address {
 
 type Transaction {
   id: ID!
+  createdBy: User!
   paidBy: User!
   amount: Int!
   isDeleted: Boolean!
@@ -124,6 +126,8 @@ type Query {
 
   # query all transactions paid by a user for a group
   userPaidTransactionsForGroup(groupId: ID!): [Transaction]!
+  # query all transactions related to a user of a group 
+  groupTransactionsForUser(groupId: ID!): [GroupTransactionsForUserPayload]!
   # query all contributions related to a user of a group 
   groupContributionsForUser(groupId: ID!): [Contribution]!
   # query all contributions related to the connected user and another user of a group
@@ -367,4 +371,9 @@ input GroupContributionsForTwoUsersInput {
 input UpdatePaybackAmountInput {
   transactionId: ID!
   amount: Int!
+}
+
+type GroupTransactionsForUserPayload {
+  transactionBalanceAmount: Int!
+  transaction: Transaction!
 }

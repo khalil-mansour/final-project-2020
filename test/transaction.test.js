@@ -90,6 +90,45 @@ describe('Transaction', () => {
     tester.test(false, query);
   });
 
+  it('fetch all transactions related to a user of a group by group ID', () => {
+    const query = `{
+      groupTransactionsForUser(groupId: "1") {
+        transactionBalanceAmount
+        transaction {
+          id
+          amount
+          description
+          isPayback
+          paidBy {
+            firebaseId
+            name
+            lastName
+          }
+          contributions {
+            user {
+              firebaseId
+            }
+            amount
+          }
+          updatedAt
+        }
+      }
+    }`;
+
+    tester.test(true, query);
+  });
+
+  it('fetch all transactions related to a user of a group by group ID with invalid field', () => {
+    const query = `{
+      groupTransactionsForUser(groupId: "1") {
+        notValidField
+        id
+      }
+    }`;
+
+    tester.test(false, query);
+  });
+
   it('fetch all contributions related to a user of a group by group ID', () => {
     const query = `{
       groupContributionsForUser(groupId: "1") {

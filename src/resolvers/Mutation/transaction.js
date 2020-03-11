@@ -186,6 +186,7 @@ const createTransactionFunction = async (context, connectedUserId, parsedInputTr
         : splitWithPercentage(parsedInputTransaction.amount, parsedInputTransaction.contributions));
 
       return context.prisma.createTransaction({
+        createdBy: { connect: { firebaseId: connectedUserId } },
         paidBy: { connect: { firebaseId: parsedInputTransaction.paidBy.firebaseId } },
         amount: parsedInputTransaction.amount,
         isDeleted: parsedInputTransaction.isDeleted,

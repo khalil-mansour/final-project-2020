@@ -9,7 +9,7 @@ const transactionSubscription = {
         // make sure that the connected user is allowed to subscribe to the transactions of the specified group
         if (await userBelongsToGroup(context, res.uid, args.input.groupId)) {
           return context.prisma.$subscribe.transaction({
-            mutation_in: ['CREATED', 'UPDATED', 'DELETED'],
+            mutation_in: ['CREATED', 'UPDATED'],
             node: {
               group: {
                 id: args.input.groupId,

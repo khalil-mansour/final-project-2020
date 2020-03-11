@@ -150,6 +150,82 @@ const transactionQuery = {
     }
   },
 
+  /* GET all transactions related to a user of a group */
+  groupTransactionsForUser: async (root, args, context) => {
+    try {
+      const res = await authenticate(context);
+
+      // make sure that the connected user is allowed to make query for the specified group
+      if (await userBelongsToGroup(context, res.uid, args.groupId)) {
+        const fragment = `
+        fragment TransactionWithContributionsAndUsers on Transaction {
+          id
+          amount
+          description
+          isPayback
+          paidBy {
+            firebaseId
+          }
+          contributions {
+            user {
+              firebaseId
+            }
+            amount
+          }
+          updatedAt
+        }
+        `;
+
+        const transactions = await context.prisma.transactions({
+          orderBy: 'createdAt_DESC',
+          where: {
+            AND: [
+              {
+                group: {
+                  id: args.groupId,
+                },
+                isDeleted: false,
+              },
+              {
+                OR: [
+                  {
+                    contributions_some: {
+                      user: {
+                        firebaseId: res.uid,
+                      },
+                    },
+                  },
+                  {
+                    paidBy: {
+                      firebaseId: res.uid,
+                    },
+                  },
+                  {
+                    createdBy: {
+                      firebaseId: res.uid,
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        }).$fragment(fragment);
+        return transactions.map((transaction) => ({
+          transactionBalanceAmount: transaction.paidBy.firebaseId === res.uid
+            ? transaction.contributions
+              .filter((contribution) => contribution.user.firebaseId !== res.uid)
+              .map((contribution) => contribution.amount)
+              .reduce((total, balance) => total + balance)
+            : transaction.contributions.find((contribution) => contribution.user.firebaseId === res.uid).amount * -1,
+          transaction,
+        }));
+      }
+      throw new Error('The connected user is not allowed to make query for this group.');
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  },
+
   /* GET all contributions related to a user of a group */
   groupContributionsForUser: async (root, args, context) => {
     try {
