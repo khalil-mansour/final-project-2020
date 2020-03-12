@@ -24,7 +24,7 @@ type Group {
 
 type List{
   id: ID! @id
-  title: String!
+  title: String
   description: String
   type: String
   group: Group! @relation(name: "GroupLists")
@@ -34,7 +34,7 @@ type List{
 
 type ListSection {
   id: ID! @id
-  title: String!
+  title: String
   list: List! @relation(name: "ListSections")
   lines: [ListLine] @relation(name: "SectionLines", onDelete: CASCADE)
   mainSection: Boolean

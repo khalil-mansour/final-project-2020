@@ -1,7 +1,7 @@
 const { authenticate, userBelongsToGroup } = require('../../utils.js');
 
 const listQuery = {
-  listByGroup: async (root, args, context) => {
+  listsByGroup: async (root, args, context) => {
     try {
       const res = await authenticate(context);
       // make sure that the connected user is allowed to make query for the specified group
@@ -16,7 +16,7 @@ const listQuery = {
   list: async (root, args, context) => {
     try {
       const res = await authenticate(context);
-      return context.prisma.list({ id: args.listId });
+      return context.prisma.list({ id: args.id });
     } catch (error) {
       throw new Error(error.message);
     }

@@ -35,7 +35,7 @@ const listLineMutation = {
           checked: line.checked,
         },
         where: {
-          id: line.listLineId,
+          id: line.id,
         },
       }));
       return Promise.all(mutations).then(() => true).catch((error) => error.message);
