@@ -10,7 +10,7 @@ firebaseAdmin.initializeApp({
 });
 
 function authenticate(context) {
-  if (process.env.DEV_FLAG) {
+  if (process.env.DEV_FLAG === 'true') {
     return new Promise((resolve) => {
       resolve({ uid: config.simulated_firebase_id });
     });

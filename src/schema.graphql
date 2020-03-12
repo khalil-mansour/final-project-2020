@@ -8,7 +8,7 @@ type User {
   firebaseId: String!
   name: String!
   lastName: String!
-  email: String! 
+  email: String!
   groups: [UserGroup!]!
 }
 
@@ -68,7 +68,8 @@ type Address {
   province: String!
   city: String!
   street: String!
-  apartment_unit: Int
+  apartment_unit: String
+  postal_code: String!
 }
 
 type Query {
@@ -85,7 +86,6 @@ type Query {
 
   # query user by id
   user(id: ID!): User!
-  
   login: Boolean!
   # query user by firebase id (string)
   userByFirebase(firebaseId: String!): User!
@@ -103,10 +103,14 @@ type Query {
   listsByGroup(groupId: ID!): [List]
   #query list from id
   list(listId: ID!): List!
+  #query userGroup by user id
+  userGroupsByUserId: [UserGroup]!
+
+  # query transaction by id
+  transaction(transactionId: ID!): String!
 }
 
 type Mutation {
-
   # USER
 
   # create a new user
@@ -117,7 +121,6 @@ type Mutation {
 
   # edit a user
   updateUser(input: UpdateUserInput!): User!
-
 
   # ADDRESS
 
@@ -132,6 +135,9 @@ type Mutation {
   # create a new group
   createGroup(input: CreateGroupInput!): Group!
 
+  # joinGroup
+  joinGroup(input: JoinGroupInput!): Group!
+
   # leave a group
   leaveGroup(input: LeaveGroupInput!): Group!
 
@@ -140,6 +146,9 @@ type Mutation {
 
   # update group name
   updateGroupName(input: UpdateGroupNameInput!): Group!
+
+  # update group information
+  updateGroupInfo(input: UpdateGroupInfoInput!): Group!
 
   # delete group (admin only)
   deleteGroup(input: DeleteGroupInput!): Group!
@@ -153,7 +162,7 @@ type Mutation {
   acceptInvitation(input: AcceptInvitationInput!): UserGroup!
 
   #List
-  
+
   #create list
   createList(input: CreateListInput!): List!
   #update list
@@ -161,7 +170,7 @@ type Mutation {
   #delete lsit
   deleteList(input: DeleteListInput!): Boolean
 
-  #create section 
+  #create section
   createListSections(input: CreateListSectionsInput!): Boolean
   #update sections
   updateListSections(input: CreateListSectionsInput!): Boolean
@@ -174,12 +183,18 @@ type Mutation {
   updateListLines(input: CreateListLinesInput!): Boolean
   #delete lines
   deleteListLines(input: DeleteListLinesInput!): Boolean
-
 }
 
 # INPUTS
 
 input SignUpInput {
+  name: String!
+  lastName: String!
+  email: String!
+  avatar: String
+}
+
+input UpdateUserInput {
   name: String!
   lastName: String!
   email: String!
@@ -201,20 +216,24 @@ input AssignTypeToUserInput {
 }
 
 input CreateAddressInput {
-  country: String!
-  province: String!
-  city: String!
-  street: String!
-  apartment_unit: Int
+  country: String
+  province: String
+  city: String
+  street: String
+  apartment_unit: String
+  postal_code: String
 }
 
 input CreateGroupInput {
   name: String!
-  addressId: ID!
 }
 
 input RemoveUserFromGroupInput {
   userId: ID!
+  groupId: ID!
+}
+
+input JoinGroupInput {
   groupId: ID!
 }
 
@@ -235,6 +254,17 @@ input UpdateGroupNameInput {
   name: String!
 }
 
+input UpdateGroupInfoInput {
+  groupId: ID!
+  name: String!
+  country: String!
+  province: String!
+  city: String!
+  street: String!
+  apartment_unit: String
+  postal_code: String!
+}
+
 input CreateInvitationInput {
   groupId: ID!
   link: String!
@@ -252,7 +282,8 @@ input UpdateAddressInput {
   province: String!
   city: String!
   street: String!
-  apartment_unit: Int
+  apartment_unit: String
+  postal_code: String!
 }
 
 input CreateListInput {
@@ -274,7 +305,7 @@ input UpdateListInput {
   sections: [CreateSectionInput!]!
 }
 
-input DeleteListInput{
+input DeleteListInput {
   lists: [ID!]!
 }
 
@@ -299,7 +330,7 @@ input CreateListLineInput {
 }
 
 input DeleteListSectionsInput {
- sections: [ID!]!
+  sections: [ID!]!
 }
 
 input CreateListLinesInput {

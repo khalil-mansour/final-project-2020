@@ -8,6 +8,7 @@ const { listLineMutation } = require('./Mutation/listLine');
 
 const { Query } = require('./Query/Query');
 const { ListQuery } = require('./Query/List');
+const { transactionQuery } = require('./Query/transaction');
 
 const { User } = require('./User');
 const { Group } = require('./Group');
@@ -21,6 +22,7 @@ module.exports = {
   Query: {
     ...Query,
     ...ListQuery,
+    ...transactionQuery,
   },
   Mutation: {
     ...userMutation,
