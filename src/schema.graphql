@@ -201,15 +201,6 @@ input UpdateUserInput {
   avatar: String
 }
 
-input UpdateUserInput {
-  userId: ID!
-  typeId: ID!
-  name: String!
-  lastName: String!
-  email: String!
-  avatat: String
-}
-
 input AssignTypeToUserInput {
   userId: ID!
   typeId: ID!
