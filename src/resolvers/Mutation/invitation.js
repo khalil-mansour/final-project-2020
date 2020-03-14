@@ -46,7 +46,7 @@ const invitationMutation = {
         return context.prisma.createUserGroup({
           user: { connect: { id: user.id } },
           group: { connect: { id: group.id } },
-          join_at: new Date().toUTCString(),
+          joinAt: new Date().toUTCString(),
         });
       }
       throw new Error('User is already a member of the group');

@@ -16,24 +16,27 @@ const groupMutation = {
   createGroup: async (root, args, context) => {
     try {
       const res = await authenticate(context);
-      // fetch user by uid
-      const user = await Query.userByFirebase(root, { firebaseId: res.uid }, context);
 
       return await context.prisma.createUserGroup(
         {
-          user: { connect: { id: user.id } },
+          user: { connect: { firebaseId: res.uid } },
           group: {
             create: {
               name: args.input.name,
-              admin: { connect: { id: user.id } },
+              admin: { connect: { firebaseId: res.uid } },
               address: {
                 create: {
-                  country: '', province: '', city: '', street: '', apartment_unit: '', postal_code: '',
+                  country: args.input.address.country,
+                  province: args.input.address.province,
+                  city: args.input.address.city,
+                  street: args.input.address.street,
+                  apartmentUnit: args.input.address.apartmentUnit,
+                  postalCode: args.input.address.postalCode,
                 },
               },
             },
           },
-          join_at: new Date().toUTCString(),
+          joinAt: new Date().toUTCString(),
         },
       );
     } catch (error) {
@@ -60,7 +63,7 @@ const groupMutation = {
           await context.prisma.createUserGroup({
             user: { connect: { id: user.id } },
             group: { connect: { id: args.input.groupId } },
-            join_at: new Date().toUTCString(),
+            joinAt: new Date().toUTCString(),
           });
         }
 
@@ -120,8 +123,8 @@ const groupMutation = {
             province: args.input.province,
             city: args.input.city,
             street: args.input.street,
-            apartment_unit: args.input.apartment_unit,
-            postal_code: args.input.postal_code,
+            apartmentUnit: args.input.apartmentUnit,
+            postalCode: args.input.postalCode,
           },
           where: {
             id: args.input.groupId,
