@@ -4,7 +4,7 @@ mutation {
       firebaseId: "G4ZaG49WfabtVgzbUYnELosxlqL2",
       name: "admin"
       lastName: "admin"
-      email: "admin@admin.ca"
+      email: "admin@admin.com"
     }){
       firebaseId
     },

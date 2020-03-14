@@ -19,7 +19,7 @@ type User {
 type Group {
   id: ID! @id
   name: String!
-  address: Address! @relation(name: "GroupAddress")
+  address: Address @relation(name: "GroupAddress")
   admin: User! @relation(name: "GroupAdmin")
   transactions: [Transaction] @relation(name: "GroupTransactions")
   users: [UserGroup!]! @relation(name: "GroupUsers", onDelete: CASCADE)
@@ -41,11 +41,12 @@ type UserType {
 
 type Address {
   id: ID! @id
-  country: String!
-  province: String!
-  city: String!
-  street: String!
-  apartment_unit: Int
+  country: String
+  province: String
+  city: String
+  street: String
+  apartment_unit: String
+  postal_code: String
 }
 
 type Invitation {

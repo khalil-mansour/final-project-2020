@@ -8,7 +8,7 @@ type User {
   firebaseId: String!
   name: String!
   lastName: String!
-  email: String! 
+  email: String!
   groups: [UserGroup!]!
   createdTransactions: [Transaction]
   transactions: [Transaction]
@@ -47,7 +47,8 @@ type Address {
   province: String!
   city: String!
   street: String!
-  apartment_unit: Int
+  apartment_unit: String
+  postal_code: String!
 }
 
 type Transaction {
@@ -120,6 +121,8 @@ type Query {
   userGroup(userGroupId: ID!): UserGroup!
   # query userGroup
   userGroupByIds(input: UserGroupByIdsInput!): [UserGroup]
+  #query userGroup by user id
+  userGroupsByUserId: [UserGroup]!
 
   # query transaction by id
   transaction(transactionId: ID!): Transaction!
@@ -146,7 +149,6 @@ type Query {
 }
 
 type Mutation {
-
   # USER
 
   # create a new user
@@ -157,7 +159,6 @@ type Mutation {
 
   # edit a user
   updateUser(input: UpdateUserInput!): User!
-
 
   # ADDRESS
 
@@ -172,6 +173,9 @@ type Mutation {
   # create a new group
   createGroup(input: CreateGroupInput!): Group!
 
+  # joinGroup
+  joinGroup(input: JoinGroupInput!): Group!
+
   # leave a group
   leaveGroup(input: LeaveGroupInput!): Group!
 
@@ -180,6 +184,9 @@ type Mutation {
 
   # update group name
   updateGroupName(input: UpdateGroupNameInput!): Group!
+
+  # update group information
+  updateGroupInfo(input: UpdateGroupInfoInput!): Group!
 
   # delete group (admin only)
   deleteGroup(input: DeleteGroupInput!): Group!
@@ -232,12 +239,10 @@ input SignUpInput {
 }
 
 input UpdateUserInput {
-  userId: ID!
-  typeId: ID!
   name: String!
   lastName: String!
   email: String!
-  avatat: String
+  avatar: String
 }
 
 input AssignTypeToUserInput {
@@ -246,20 +251,24 @@ input AssignTypeToUserInput {
 }
 
 input CreateAddressInput {
-  country: String!
-  province: String!
-  city: String!
-  street: String!
-  apartment_unit: Int
+  country: String
+  province: String
+  city: String
+  street: String
+  apartment_unit: String
+  postal_code: String
 }
 
 input CreateGroupInput {
   name: String!
-  addressId: ID!
 }
 
 input RemoveUserFromGroupInput {
   userId: ID!
+  groupId: ID!
+}
+
+input JoinGroupInput {
   groupId: ID!
 }
 
@@ -280,6 +289,17 @@ input UpdateGroupNameInput {
   name: String!
 }
 
+input UpdateGroupInfoInput {
+  groupId: ID!
+  name: String!
+  country: String!
+  province: String!
+  city: String!
+  street: String!
+  apartment_unit: String
+  postal_code: String!
+}
+
 input CreateInvitationInput {
   groupId: ID!
   link: String!
@@ -297,7 +317,8 @@ input UpdateAddressInput {
   province: String!
   city: String!
   street: String!
-  apartment_unit: Int
+  apartment_unit: String
+  postal_code: String!
 }
 
 input CreateTransactionInput {
