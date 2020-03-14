@@ -153,6 +153,16 @@ input AssignTypeToUserInput {
 
 input CreateGroupInput {
   name: String!
+  address: AddressInput!
+}
+
+input AddressInput {
+  country: String!
+  province: String!
+  city: String!
+  street: String!
+  apartmentUnit: String
+  postalCode: String!
 }
 
 input RemoveUserFromGroupInput {
@@ -184,12 +194,7 @@ input UpdateGroupNameInput {
 input UpdateGroupInfoInput {
   groupId: ID!
   name: String!
-  country: String!
-  province: String!
-  city: String!
-  street: String!
-  apartmentUnit: String
-  postalCode: String!
+  address: AddressInput!
 }
 
 input CreateInvitationInput {

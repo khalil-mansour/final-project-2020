@@ -107,32 +107,27 @@ const groupMutation = {
   updateGroupInfo: async (root, args, context) => {
     try {
       const res = await authenticate(context);
-      // fetch user by uid
-      const user = await Query.userByFirebase(root, { firebaseId: res.uid }, context);
       // check if user is in group
       const exists = await context.prisma.$exists.userGroup({
-        user: { id: user.id },
+        user: { firebaseId: res.uid },
         group: { id: args.input.groupId },
       });
 
       // if user in group, update group
       if (exists) {
-        await context.prisma.updateAddress({
-          data: {
-            country: args.input.country,
-            province: args.input.province,
-            city: args.input.city,
-            street: args.input.street,
-            apartmentUnit: args.input.apartmentUnit,
-            postalCode: args.input.postalCode,
-          },
-          where: {
-            id: args.input.groupId,
-          },
-        });
-        return await context.prisma.updateGroup({
+        return context.prisma.updateGroup({
           data: {
             name: args.input.name,
+            address: {
+              update: {
+                country: args.input.address.country,
+                province: args.input.address.province,
+                city: args.input.address.city,
+                street: args.input.address.street,
+                apartmentUnit: args.input.address.apartmentUnit,
+                postalCode: args.input.address.postalCode,
+              },
+            },
           },
           where: {
             id: args.input.groupId,
