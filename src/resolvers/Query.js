@@ -47,6 +47,44 @@ const Query = {
       group: { id: args.input.groupId },
     },
   }),
+
+  /* Chat */
+  userChatroom: (root, args, context) => context.prisma.userChatroom({ id: args.userChatroomId }),
+
+  getChatroomOfUser: (root, args, context) => {
+    const whereClause = {};
+    whereClause.user = { id: args.input.id };
+    if (args.input.getInactive) { whereClause.leftDate = null; }
+
+    return context.prisma.userChatrooms({
+      where: whereClause,
+    });
+  },
+
+  getUserInChatroom: (root, args, context) => {
+    const whereClause = {};
+    whereClause.chatroom = { id: args.input.id };
+    if (args.input.getInactive) { whereClause.leftDate = null; }
+
+    return context.prisma.userChatrooms({
+      where: whereClause,
+    });
+  },
+
+  chatroom: (root, args, context) => context.prisma.chatroom({ id: args.chatroomId }),
+
+  message: (root, args, context) => context.prisma.message({ id: args.messageId }),
+
+  allMessageByChatroomId: (root, args, context) => context.prisma.messages({
+    where: {
+      chatroom: {
+        id: args.chatroomId,
+      },
+    },
+    first: args.input.numberOfMessages,
+    skip: args.input.skip,
+  }),
+
 };
 
 module.exports = { Query };

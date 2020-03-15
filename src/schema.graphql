@@ -101,6 +101,24 @@ type Query {
   
   # Chat
 
+  # query a userChatroom by ID
+  userChatroom(userChatroomId: ID!): UserChatroom!
+
+  # query all userChatroom by userId
+  getChatroomOfUser(input: GetChatroomInfoInput): [UserChatroom!]!
+
+  # query all userChatroom by chatroomId
+  getUserInChatroom(input: GetChatroomInfoInput): [UserChatroom!]!
+
+  # query a chatroom by ID
+  chatroom(chatroomId: ID!): Chatroom!
+
+  #query a message by ID
+  message(messageId: ID!): Message!
+
+  # query all message in a chatroom
+  allMessageByChatroomId(input: GetMessagesInput!): [Message!]!
+
   # query all chatrooms
   chatrooms: [Chatroom]!
 }
@@ -155,28 +173,30 @@ type Mutation {
 # CHAT
 
   # create a chatroom
-  createChatroom(input: CreateChatroom!): Chatroom,
+  createChatroom(input: CreateChatroomInput!): Chatroom,
 
   # archive a chatroom
-  deactivateChatroom(input: UpdateChatroom): Chatroom,
+  deactivateChatroom(input: UpdateChatroomInput): Chatroom,
 
   # unarchive a chatroom
-  activateChatroom(input: UpdateChatroom!): Chatroom,
+  activateChatroom(input: UpdateChatroomInput!): Chatroom,
 
   # join a chatroom
-  joinChatroom(input: JoinLeaveChatroom!): UserChatroom,
+  joinChatroom(input: JoinLeaveChatroomInput!): UserChatroom,
 
   # leave a chatroom
-  leaveChatroom(input: JoinLeaveChatroom!): Chatroom,
+  leaveChatroom(input: JoinLeaveChatroomInput!): UserChatroom,
 
   # send a message to a chatroom
-  sendMessage(input: SendMessage!): Message,
+  sendMessage(input: SendMessageInput!): Message,
 
   # edit a message
-  editMessage(input: EditMessage!): Message,
+  editMessage(input: EditMessageInput!): Message,
 
   # soft delete a message
-  deleteMessage(input: DeleteMessage!): Message,
+  deleteMessage(input: DeleteMessageInput!): Message,
+
+
 }
 
 # INPUTS
@@ -228,32 +248,43 @@ input DeleteGroupInput {
   groupId: ID!
 }
 
-input CreateChatroom {
+input CreateChatroomInput {
   name: String!
 }
 
-input UpdateChatroom {
+input UpdateChatroomInput {
   id: ID!
 }
 
-input JoinLeaveChatroom {
+input JoinLeaveChatroomInput {
   userId: ID!
   chatroomId: ID!
 }
 
-input SendMessage {
+input SendMessageInput {
   content: String!
   userId: ID!
   chatroomId: ID!
 }
 
-input EditMessage {
+input EditMessageInput {
   content: String!
   id: ID!
 }
 
-input DeleteMessage {
+input DeleteMessageInput {
   id: ID!
+}
+
+input GetChatroomInfoInput {
+  id: ID!
+  getInactive: Boolean!
+}
+
+input GetMessagesInput {
+  chatroomId: ID!
+  numberOfMessages: Int!
+  skip: Int!
 }
 
 input AcceptInvitationInput {

@@ -8,7 +8,7 @@ firebaseAdmin.initializeApp({
   credential: firebaseAdmin.credential.cert(serviceAccount),
   databaseURL: 'https://roommate-93dcd.firebaseio.com',
 });
-
+console.log(process.env.DEV_FLAG);
 function authenticate(context) {
   if (process.env.DEV_FLAG) {
     return new Promise((resolve) => {

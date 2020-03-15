@@ -61,7 +61,6 @@ const chat = {
   leaveChatroom: async (root, args, context) => {
     const dateTime = new Date().toISOString();
     const chatroom = await getUserChatroomById(args, context);
-    console.log(dateTime);
 
     return context.prisma.updateUserChatroom({
       data: {
