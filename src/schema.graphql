@@ -24,7 +24,7 @@ type UserGroup {
   id: ID!
   user: User!
   group: Group!
-  join_at: String!
+  createdAt: String!
 }
 
 type Invitation {
@@ -41,8 +41,9 @@ type Address {
   province: String!
   city: String!
   street: String!
-  apartment_unit: String
-  postal_code: String!
+  apartmentUnit: String
+  postalCode: String!
+  group: Group!
 }
 
 type Query {
@@ -94,10 +95,7 @@ type Mutation {
 
   # ADDRESS
 
-  # create a new address
-  createAddress(input: CreateAddressInput!): Address!
-
-  # edit a new address
+  # edit an existing address
   updateAddress(input: UpdateAddressInput!): Address!
 
   # GROUP
@@ -153,15 +151,6 @@ input AssignTypeToUserInput {
   typeId: ID!
 }
 
-input CreateAddressInput {
-  country: String
-  province: String
-  city: String
-  street: String
-  apartment_unit: String
-  postal_code: String
-}
-
 input CreateGroupInput {
   name: String!
 }
@@ -195,12 +184,16 @@ input UpdateGroupNameInput {
 input UpdateGroupInfoInput {
   groupId: ID!
   name: String!
+  address: AddressInput!
+}
+
+input AddressInput {
   country: String!
   province: String!
   city: String!
   street: String!
-  apartment_unit: String
-  postal_code: String!
+  apartmentUnit: String
+  postalCode: String!
 }
 
 input CreateInvitationInput {
@@ -220,6 +213,6 @@ input UpdateAddressInput {
   province: String!
   city: String!
   street: String!
-  apartment_unit: String
-  postal_code: String!
+  apartmentUnit: String
+  postalCode: String!
 }
