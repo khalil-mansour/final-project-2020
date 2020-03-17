@@ -354,6 +354,22 @@ input SubscriptionTransactionInput {
   groupId: ID!
 }
 
+input PayBackInput {
+  payBackToUserId: String!
+  groupId: ID!
+  amount: Int!
+}
+
+input GroupContributionsForTwoUsersInput {
+  groupId: ID!
+  otherUserId: String!
+}
+
+input UpdatePaybackAmountInput {
+  transactionId: ID!
+  amount: Int!
+}
+
 type SubscriptionTransactionPayload {
   mutation: String!
   node: Transaction
@@ -369,22 +385,6 @@ type QueryBalancesPayload {
 type UserBalance {
   user: User!
   balance: Int!
-}
-
-input PayBackInput {
-  payBackToUserId: String!
-  groupId: ID!
-  amount: Int!
-}
-
-input GroupContributionsForTwoUsersInput {
-  groupId: ID!
-  otherUserId: String!
-}
-
-input UpdatePaybackAmountInput {
-  transactionId: ID!
-  amount: Int!
 }
 
 type GroupTransactionsForUserPayload {
