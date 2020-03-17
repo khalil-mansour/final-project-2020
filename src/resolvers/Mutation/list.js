@@ -1,39 +1,25 @@
 const { authenticate } = require('../../utils.js');
 
-function getSectionsTo(sections, type) {
-  let sectionArray;
-  if (type === 'create') {
-    sectionArray = sections.filter((section) => (section.id === null || section.id === undefined));
-  } else {
-    sectionArray = sections.filter((section) => (section.id !== null));
-  }
-  return sectionArray;
-}
-
-function getLinesToDelete(section, oldList) {
-  let linesToDelete = [];
-  const currentSection = oldList.sections.find((x) => x.id === section.id);
+const getLinesToDelete = (section, oldList) => {
+  const currentSection = oldList.sections.find((oldSection) => oldSection.id === section.id);
   if (currentSection) {
-    linesToDelete = currentSection.lines.filter(
+    return currentSection.lines.filter(
       (currLine) => !section.lines.find((line) => line.id === currLine.id),
     ).map((lineToDelete) => lineToDelete.id);
   }
-  return linesToDelete;
+  return [];
 }
 
-function getSectionsToDelete(list, oldList) {
-  let sectionsToDelete = [];
-  sectionsToDelete = oldList.sections.filter(
+const getSectionsToDelete = (list, oldList) => {
+  return oldList.sections.filter(
     (currSection) => !list.sections.find((section) => section.id === currSection.id),
   ).map((sectionToDelete) => sectionToDelete.id);
-  return sectionsToDelete;
 }
 
 const listMutation = {
   createList: async (root, args, context) => {
     try {
       const res = await authenticate(context);
-      if (res) {
         return context.prisma.createList({
           title: args.input.title,
           group: { connect: { id: args.input.group } },
@@ -54,25 +40,34 @@ const listMutation = {
             })),
           },
         });
-      }
     } catch (error) {
-      console.log(error);
       throw new Error(error.message);
     }
   },
-  deleteList: async (root, args, context) => {
+  deleteLists: async (root, args, context) => {
     try {
-      const mutations = args.input.lists.map((listId) => context.prisma.deleteList({ id: listId }));
-      return Promise.all(mutations).then(() => true).catch((error) => error.message);
+      const res = await authenticate(context);
+      const firstListId = (args.input.lists.length > 0) ? args.input.lists[0] : []
+      console.log(firstListId)
+      const groupFromList = await context.prisma.list({id: firstListId}).group()
+      console.log(groupFromList)
+
+      const result = await context.prisma.updateGroup({
+        where: {id: groupFromList.id},
+        data: {
+          lists: {
+            delete: args.input.lists.map((list) => ({ id: list}))
+          }
+        }
+      })
+      return !!result
     } catch (error) {
-      console.log(error);
       throw new Error(error.message);
     }
   },
   updateList: async (root, args, context) => {
     try {
       const res = await authenticate(context);
-      if (res) {
         const fragment = `
         fragment ListWithSections on List {
         sections {
@@ -84,8 +79,8 @@ const listMutation = {
       }
       `;
         const currentList = await context.prisma.list({ id: args.input.id }).$fragment(fragment);
-        const sectionsToUpdate = getSectionsTo(args.input.sections, 'update');
-        const sectionsToCreate = getSectionsTo(args.input.sections, 'create');
+        const sectionsToUpdate = sectionArray = sections.filter((section) => (section.id !== null));
+        const sectionsToCreate = sections.filter((section) => (section.id === null || section.id === undefined));
 
         return context.prisma.updateList({
           where: { id: args.input.id },
@@ -139,9 +134,7 @@ const listMutation = {
             },
           },
         });
-      }
     } catch (error) {
-      console.log(error);
       throw new Error(error.message);
     }
   },

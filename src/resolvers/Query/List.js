@@ -8,7 +8,7 @@ const listQuery = {
       if (await userBelongsToGroup(context, res.uid, args.groupId)) {
         return context.prisma.lists({ where: { group: args.groupId } });
       }
-      throw new Error('The connected user is not allowed to query this transaction.');
+      throw new Error('The connected user is not allowed to query the lists for this group');
     } catch (error) {
       throw new Error(error.message);
     }
@@ -16,7 +16,11 @@ const listQuery = {
   list: async (root, args, context) => {
     try {
       const res = await authenticate(context);
-      return context.prisma.list({ id: args.id });
+      // make sure that the connected user is allowed to make query for the specified group
+      if (await userBelongsToGroup(context, res.uid, args.groupId)) {
+        return context.prisma.list({ id: args.listId });
+      }
+      throw new Error('The connected user is not allowed to query the list');
     } catch (error) {
       throw new Error(error.message);
     }

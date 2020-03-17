@@ -42,7 +42,7 @@ type List {
   description: String
   type: String
   group: Group!
-  isTemplate: Boolean
+  isTemplate: Boolean!
   sections: [ListSection!]!
 }
 
@@ -51,7 +51,7 @@ type ListSection {
   list: List!
   title: String
   lines: [ListLine]
-  mainSection: Boolean
+  mainSection: Boolean!
 }
 
 type ListLine {
@@ -59,7 +59,7 @@ type ListLine {
   section: ListSection!
   text: String!
   quantity: Int
-  checked: Boolean
+  checked: Boolean!
 }
 
 type Address {
@@ -168,21 +168,8 @@ type Mutation {
   #update list
   updateList(input: UpdateListInput!): List!
   #delete lsit
-  deleteList(input: DeleteListInput!): Boolean
+  deleteLists(input: DeleteListsInput!): Boolean
 
-  #create section
-  createListSections(input: CreateListSectionsInput!): Boolean
-  #update sections
-  updateListSections(input: CreateListSectionsInput!): Boolean
-  #delete sections
-  deleteListSections(input: DeleteListSectionsInput!): Boolean
-
-  #create lines
-  createListLines(input: CreateListLinesInput!): Boolean
-  #update lines
-  updateListLines(input: CreateListLinesInput!): Boolean
-  #delete lines
-  deleteListLines(input: DeleteListLinesInput!): Boolean
 }
 
 # INPUTS
@@ -284,7 +271,7 @@ input CreateListInput {
   type: String
   group: ID!
   isTemplate: Boolean
-  sections: [CreateSectionInput!]!
+  sections: [SectionInput!]!
 }
 
 input UpdateListInput {
@@ -293,14 +280,14 @@ input UpdateListInput {
   description: String
   type: String
   isTemplate: Boolean
-  sections: [CreateSectionInput!]!
+  sections: [SectionInput!]!
 }
 
-input DeleteListInput {
+input DeleteListsInput {
   lists: [ID!]!
 }
 
-input CreateSectionInput {
+input SectionInput {
   id: ID
   title: String
   lines: [CreateListLineInput!]!
@@ -309,7 +296,7 @@ input CreateSectionInput {
 }
 
 input CreateListSectionsInput {
-  sections: [CreateSectionInput]!
+  sections: [SectionInput]!
 }
 
 input CreateListLineInput {
@@ -318,16 +305,4 @@ input CreateListLineInput {
   quantity: Int
   section: ID
   checked: Boolean
-}
-
-input DeleteListSectionsInput {
-  sections: [ID!]!
-}
-
-input CreateListLinesInput {
-  lines: [CreateListLineInput!]!
-}
-
-input DeleteListLinesInput {
-  lines: [ID!]!
 }
