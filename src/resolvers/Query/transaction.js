@@ -210,15 +210,30 @@ const transactionQuery = {
             ],
           },
         }).$fragment(fragment);
-        return transactions.map((transaction) => ({
-          transactionBalanceAmount: transaction.paidBy.firebaseId === res.uid
-            ? transaction.contributions
-              .filter((contribution) => contribution.user.firebaseId !== res.uid)
-              .map((contribution) => contribution.amount)
-              .reduce((total, balance) => total + balance)
-            : transaction.contributions.find((contribution) => contribution.user.firebaseId === res.uid).amount * -1,
-          transaction,
-        }));
+        return transactions.map((transaction) => {
+          if (transaction.paidBy.firebaseId === res.uid) {
+            const filteredContributions = transaction.contributions
+              .filter((contribution) => contribution.user.firebaseId !== res.uid);
+
+            if (filteredContributions > 0) {
+              return {
+                transactionBalanceAmount: filteredContributions
+                  .map((contribution) => contribution.amount)
+                  .reduce((total, balance) => total + balance),
+                transaction,
+              };
+            }
+            return {
+              transactionBalanceAmount: 0,
+              transaction,
+            };
+          }
+          return {
+            transactionBalanceAmount: transaction.contributions
+              .find((contribution) => contribution.user.firebaseId === res.uid).amount * -1,
+            transaction,
+          };
+        });
       }
       throw new Error('The connected user is not allowed to make query for this group.');
     } catch (error) {

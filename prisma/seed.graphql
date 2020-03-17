@@ -50,19 +50,19 @@ mutation {
     }){
       id
     },
-  transactionOperationHistoricTypeCreate: createTransactionOperationHistoricType(
+  transactionOperationHistoricTypeUpdate: createTransactionOperationHistoricType(
     data: {
       name: "UPDATE"
     }){
       id
     },
-  transactionOperationHistoricTypeCreate: createTransactionOperationHistoricType(
+  transactionOperationHistoricTypeDelete: createTransactionOperationHistoricType(
     data: {
       name: "DELETE"
     }){
       id
     },
-  transactionOperationHistoricTypeCreate: createTransactionOperationHistoricType(
+  transactionOperationHistoricTypeRestore: createTransactionOperationHistoricType(
     data: {
       name: "RESTORE"
     }){
