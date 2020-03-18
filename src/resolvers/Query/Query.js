@@ -43,11 +43,9 @@ const Query = {
   userGroupsByUserId: async (root, args, context) => {
     const res = await authenticate(context);
     // fetch user by uid
-    const user = await Query.userByFirebase(root, { firebaseId: res.uid }, context);
-
     return context.prisma.userGroups({
       where: {
-        user: { id: user.id },
+        user: { firebaseId: res.uid },
       },
     });
   },

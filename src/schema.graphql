@@ -9,6 +9,7 @@ type User {
   name: String!
   lastName: String!
   email: String!
+  avatar: String
   groups: [UserGroup!]!
 }
 
