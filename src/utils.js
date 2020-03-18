@@ -36,13 +36,14 @@ const usersBelongsToGroup = async (context, userFirebaseIds, groupId) => {
     },
   }).aggregate().count();
 
-  if (validUserGroupBelongingsCount !== userFirebaseIds.length) {
-    return false;
-  }
-  return true;
+  return validUserGroupBelongingsCount === userFirebaseIds.length;
 };
 
 // Validate that a single user belongs to a group
-const userBelongsToGroup = async (context, userFirebaseId, groupId) => usersBelongsToGroup(context, [userFirebaseId], groupId);
+const userBelongsToGroup = async (
+  context,
+  userFirebaseId,
+  groupId,
+) => usersBelongsToGroup(context, [userFirebaseId], groupId);
 
 module.exports = { authenticate, userBelongsToGroup, usersBelongsToGroup };
