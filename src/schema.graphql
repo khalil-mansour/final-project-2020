@@ -18,6 +18,7 @@ type Group {
   address: Address!
   admin: User!
   users: [UserGroup!]!
+  lists: [List]
 }
 
 type UserGroup {
@@ -33,6 +34,32 @@ type Invitation {
   group: Group!
   link: String!
   expiredAt: String!
+}
+
+type List {
+  id: ID!
+  title: String
+  description: String
+  type: String
+  group: Group!
+  isTemplate: Boolean!
+  sections: [ListSection!]!
+}
+
+type ListSection {
+  id: ID!
+  list: List!
+  title: String
+  lines: [ListLine]
+  mainSection: Boolean!
+}
+
+type ListLine {
+  id: ID!
+  section: ListSection!
+  text: String!
+  quantity: Int
+  checked: Boolean!
 }
 
 type Address {
@@ -60,7 +87,6 @@ type Query {
 
   # query user by id
   user(id: ID!): User!
-
   login: Boolean!
   # query user by firebase id (string)
   userByFirebase(firebaseId: String!): User!
@@ -74,6 +100,10 @@ type Query {
   userGroup(userGroupId: ID!): UserGroup!
   # query userGroup
   userGroupByIds(input: UserGroupByIdsInput!): [UserGroup]
+  #query lists for a group
+  listsByGroup(groupId: ID!): [List]
+  #query list from id
+  list(listId: ID!): List!
   #query userGroup by user id
   userGroupsByUserId: [UserGroup]!
 
@@ -128,6 +158,16 @@ type Mutation {
 
   # accept invitation
   acceptInvitation(input: AcceptInvitationInput!): UserGroup!
+
+  #List
+
+  #create list
+  createList(input: CreateListInput!): List!
+  #update list
+  updateList(input: UpdateListInput!): List!
+  #delete lsit
+  deleteLists(input: DeleteListsInput!): Boolean
+
 }
 
 # INPUTS
@@ -215,4 +255,47 @@ input UpdateAddressInput {
   street: String!
   apartmentUnit: String
   postalCode: String!
+}
+
+input CreateListInput {
+  id: ID
+  title: String
+  description: String
+  type: String
+  group: ID!
+  isTemplate: Boolean
+  sections: [SectionInput!]!
+}
+
+input UpdateListInput {
+  id: ID
+  title: String
+  description: String
+  type: String
+  isTemplate: Boolean
+  sections: [SectionInput!]!
+}
+
+input DeleteListsInput {
+  lists: [ID!]!
+}
+
+input SectionInput {
+  id: ID
+  title: String
+  lines: [CreateListLineInput!]!
+  list: ID
+  mainSection: Boolean
+}
+
+input CreateListSectionsInput {
+  sections: [SectionInput]!
+}
+
+input CreateListLineInput {
+  id: ID
+  text: String!
+  quantity: Int
+  section: ID
+  checked: Boolean
 }
