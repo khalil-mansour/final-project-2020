@@ -119,10 +119,11 @@ const transactionQuery = {
       const group = await context.prisma.transaction({ id: args.transactionId }).group();
 
       // make sure that the connected user is allowed to make query for the specified group
-      if (await userBelongsToGroup(context, res.uid, group.id)) {
-        return context.prisma.transaction({ id: args.transactionId });
+      if (!(await userBelongsToGroup(context, res.uid, group.id))) {
+        throw new Error('The connected user is not allowed to query this transaction.');
       }
-      throw new Error('The connected user is not allowed to query this transaction.');
+
+      return context.prisma.transaction({ id: args.transactionId });
     } catch (error) {
       throw new Error(error.message);
     }
@@ -134,17 +135,18 @@ const transactionQuery = {
       const res = await authenticate(context);
 
       // make sure that the connected user is allowed to make query for the specified group
-      if (await userBelongsToGroup(context, res.uid, args.groupId)) {
-        return context.prisma.transactions({
-          orderBy: 'createdAt_DESC',
-          where: {
-            group: { id: args.groupId },
-            paidBy: { firebaseId: res.uid },
-            isDeleted: false,
-          },
-        });
+      if (!(await userBelongsToGroup(context, res.uid, args.groupId))) {
+        throw new Error('The connected user is not allowed to make query for this group.');
       }
-      throw new Error('The connected user is not allowed to make query for this group.');
+
+      return context.prisma.transactions({
+        orderBy: 'createdAt_DESC',
+        where: {
+          group: { id: args.groupId },
+          paidBy: { firebaseId: res.uid },
+          isDeleted: false,
+        },
+      });
     } catch (error) {
       throw new Error(error.message);
     }
@@ -156,86 +158,88 @@ const transactionQuery = {
       const res = await authenticate(context);
 
       // make sure that the connected user is allowed to make query for the specified group
-      if (await userBelongsToGroup(context, res.uid, args.groupId)) {
-        const fragment = `
-        fragment TransactionWithContributionsAndUsers on Transaction {
-          id
-          amount
-          description
-          isPayback
-          paidBy {
+      if (!(await userBelongsToGroup(context, res.uid, args.groupId))) {
+        throw new Error('The connected user is not allowed to make query for this group.');
+      }
+
+      const fragment = `
+      fragment TransactionWithContributionsAndUsers on Transaction {
+        id
+        amount
+        description
+        isPayback
+        paidBy {
+          firebaseId
+        }
+        contributions {
+          user {
             firebaseId
           }
-          contributions {
-            user {
-              firebaseId
-            }
-            amount
-          }
-          updatedAt
+          amount
         }
-        `;
+        updatedAt
+      }
+      `;
 
-        const transactions = await context.prisma.transactions({
-          orderBy: 'createdAt_DESC',
-          where: {
-            AND: [
-              {
-                group: {
-                  id: args.groupId,
+      const transactions = await context.prisma.transactions({
+        orderBy: 'createdAt_DESC',
+        where: {
+          AND: [
+            {
+              group: {
+                id: args.groupId,
+              },
+              isDeleted: false,
+            },
+            {
+              OR: [
+                {
+                  contributions_some: {
+                    user: {
+                      firebaseId: res.uid,
+                    },
+                  },
                 },
-                isDeleted: false,
-              },
-              {
-                OR: [
-                  {
-                    contributions_some: {
-                      user: {
-                        firebaseId: res.uid,
-                      },
-                    },
+                {
+                  paidBy: {
+                    firebaseId: res.uid,
                   },
-                  {
-                    paidBy: {
-                      firebaseId: res.uid,
-                    },
+                },
+                {
+                  createdBy: {
+                    firebaseId: res.uid,
                   },
-                  {
-                    createdBy: {
-                      firebaseId: res.uid,
-                    },
-                  },
-                ],
-              },
-            ],
-          },
-        }).$fragment(fragment);
-        return transactions.map((transaction) => {
-          if (transaction.paidBy.firebaseId === res.uid) {
-            const filteredContributions = transaction.contributions
-              .filter((contribution) => contribution.user.firebaseId !== res.uid);
+                },
+              ],
+            },
+          ],
+        },
+      }).$fragment(fragment);
 
-            if (filteredContributions > 0) {
-              return {
-                transactionBalanceAmount: filteredContributions
-                  .map((contribution) => contribution.amount)
-                  .reduce((total, balance) => total + balance),
-                transaction,
-              };
-            }
+      return transactions.map((transaction) => {
+        if (transaction.paidBy.firebaseId === res.uid) {
+          const filteredContributions = transaction.contributions
+            .filter((contribution) => contribution.user.firebaseId !== res.uid);
+
+          if (filteredContributions > 0) {
             return {
-              transactionBalanceAmount: 0,
+              transactionBalanceAmount: filteredContributions
+                .map((contribution) => contribution.amount)
+                .reduce((total, balance) => total + balance),
               transaction,
             };
           }
           return {
-            transactionBalanceAmount: transaction.contributions
-              .find((contribution) => contribution.user.firebaseId === res.uid).amount * -1,
+            transactionBalanceAmount: 0,
             transaction,
           };
-        });
-      }
-      throw new Error('The connected user is not allowed to make query for this group.');
+        }
+        return {
+          transactionBalanceAmount: transaction.contributions
+            .find((contribution) => contribution.user.firebaseId === res.uid).amount * -1,
+          transaction,
+        };
+      });
     } catch (error) {
       throw new Error(error.message);
     }
@@ -247,60 +251,61 @@ const transactionQuery = {
       const res = await authenticate(context);
 
       // make sure that the connected user is allowed to make query for the specified group
-      if (await userBelongsToGroup(context, res.uid, args.groupId)) {
-        return context.prisma.contributions({
-          orderBy: 'createdAt_DESC',
-          where: {
-            AND: [
-              {
-                transaction: {
-                  group: {
-                    id: args.groupId,
-                  },
-                  isDeleted: false,
+      if (!(await userBelongsToGroup(context, res.uid, args.groupId))) {
+        throw new Error('The connected user is not allowed to make query for this group.');
+      }
+
+      return context.prisma.contributions({
+        orderBy: 'createdAt_DESC',
+        where: {
+          AND: [
+            {
+              transaction: {
+                group: {
+                  id: args.groupId,
                 },
+                isDeleted: false,
               },
-              {
-                OR: [
-                  {
-                    user: {
+            },
+            {
+              OR: [
+                {
+                  user: {
+                    firebaseId: res.uid,
+                  },
+                },
+                {
+                  transaction: {
+                    paidBy: {
                       firebaseId: res.uid,
                     },
                   },
-                  {
-                    transaction: {
-                      paidBy: {
+                },
+              ],
+            },
+            {
+              NOT: [
+                {
+                  AND: [
+                    {
+                      user: {
                         firebaseId: res.uid,
                       },
                     },
-                  },
-                ],
-              },
-              {
-                NOT: [
-                  {
-                    AND: [
-                      {
-                        user: {
+                    {
+                      transaction: {
+                        paidBy: {
                           firebaseId: res.uid,
                         },
                       },
-                      {
-                        transaction: {
-                          paidBy: {
-                            firebaseId: res.uid,
-                          },
-                        },
-                      },
-                    ],
-                  },
-                ],
-              },
-            ],
-          },
-        });
-      }
-      throw new Error('The connected user is not allowed to make query for this group.');
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      });
     } catch (error) {
       throw new Error(error.message);
     }
@@ -312,63 +317,64 @@ const transactionQuery = {
       const res = await authenticate(context);
 
       // make sure that the connected user is allowed to make query for the specified group
-      if (await userBelongsToGroup(context, res.uid, args.input.groupId)) {
-        if (await userBelongsToGroup(context, args.input.otherUserId, args.input.groupId)) {
-          return context.prisma.contributions({
-            orderBy: 'createdAt_DESC',
-            where: {
-              AND: [
+      if (!(await userBelongsToGroup(context, res.uid, args.input.groupId))) {
+        throw new Error('The connected user is not allowed to make query for this group.');
+      }
+      if (!(await userBelongsToGroup(context, args.input.otherUserId, args.input.groupId))) {
+        throw new Error('The specified user is not a member of this group.');
+      }
+
+      return context.prisma.contributions({
+        orderBy: 'createdAt_DESC',
+        where: {
+          AND: [
+            {
+              transaction: {
+                group: {
+                  id: args.input.groupId,
+                },
+                isDeleted: false,
+              },
+            },
+            {
+              OR: [
                 {
-                  transaction: {
-                    group: {
-                      id: args.input.groupId,
+                  AND: [
+                    {
+                      user: {
+                        firebaseId: res.uid,
+                      },
                     },
-                    isDeleted: false,
-                  },
+                    {
+                      transaction: {
+                        paidBy: {
+                          firebaseId: args.input.otherUserId,
+                        },
+                      },
+                    },
+                  ],
                 },
                 {
-                  OR: [
+                  AND: [
                     {
-                      AND: [
-                        {
-                          user: {
-                            firebaseId: res.uid,
-                          },
-                        },
-                        {
-                          transaction: {
-                            paidBy: {
-                              firebaseId: args.input.otherUserId,
-                            },
-                          },
-                        },
-                      ],
+                      user: {
+                        firebaseId: args.input.otherUserId,
+                      },
                     },
                     {
-                      AND: [
-                        {
-                          user: {
-                            firebaseId: args.input.otherUserId,
-                          },
+                      transaction: {
+                        paidBy: {
+                          firebaseId: res.uid,
                         },
-                        {
-                          transaction: {
-                            paidBy: {
-                              firebaseId: res.uid,
-                            },
-                          },
-                        },
-                      ],
+                      },
                     },
                   ],
                 },
               ],
             },
-          });
-        }
-        throw new Error('The specified user is not a member of this group.');
-      }
-      throw new Error('The connected user is not allowed to make query for this group.');
+          ],
+        },
+      });
     } catch (error) {
       throw new Error(error.message);
     }
@@ -378,6 +384,11 @@ const transactionQuery = {
   groupTransactionsOperationsHistoric: async (root, args, context) => {
     try {
       const res = await authenticate(context);
+
+      // make sure that the connected user is allowed to make query for the specified group
+      if (!(await userBelongsToGroup(context, res.uid, args.groupId))) {
+        throw new Error('The connected user is not allowed to make query for this group.');
+      }
 
       const fragment = `
       fragment TransactionOperationHistoricWithRelations on TransactionOperationHistoric {
@@ -400,23 +411,20 @@ const transactionQuery = {
         createdAt
       }
       `;
-      // make sure that the connected user is allowed to make query for the specified group
-      if (await userBelongsToGroup(context, res.uid, args.groupId)) {
-        return context.prisma.transactionOperationHistorics({
-          orderBy: 'createdAt_DESC',
-          where: {
-            concernedUsers_some: {
-              firebaseId: res.uid,
-            },
-            transaction: {
-              group: {
-                id: args.groupId,
-              },
+
+      return context.prisma.transactionOperationHistorics({
+        orderBy: 'createdAt_DESC',
+        where: {
+          concernedUsers_some: {
+            firebaseId: res.uid,
+          },
+          transaction: {
+            group: {
+              id: args.groupId,
             },
           },
-        }).$fragment(fragment);
-      }
-      throw new Error('The connected user is not allowed to make query for this group.');
+        },
+      }).$fragment(fragment);
     } catch (error) {
       throw new Error(error.message);
     }
@@ -426,11 +434,13 @@ const transactionQuery = {
   allBalances: async (root, args, context) => {
     try {
       const res = await authenticate(context);
+
       // make sure that the connected user is allowed to make query for the specified group
-      if (await userBelongsToGroup(context, res.uid, args.groupId)) {
-        return getAllUserBalances(context, args.groupId, res.uid);
+      if (!(await userBelongsToGroup(context, res.uid, args.groupId))) {
+        throw new Error('The connected user is not allowed to make query for this group.');
       }
-      throw new Error('The connected user is not allowed to make query for this group.');
+
+      return getAllUserBalances(context, args.groupId, res.uid);
     } catch (error) {
       throw new Error(error.message);
     }
@@ -440,16 +450,18 @@ const transactionQuery = {
   unpaidBalances: async (root, args, context) => {
     try {
       const res = await authenticate(context);
+
       // make sure that the connected user is allowed to make query for the specified group
-      if (await userBelongsToGroup(context, res.uid, args.groupId)) {
-        const userBalances = await getAllUserBalances(context, args.groupId, res.uid);
-        const filteredUserBalances = userBalances.userBalances.filter((userBalance) => userBalance.balance !== 0);
-        return {
-          totalBalance: userBalances.totalBalance,
-          userBalances: filteredUserBalances,
-        };
+      if (!(await userBelongsToGroup(context, res.uid, args.groupId))) {
+        throw new Error('The connected user is not allowed to make query for this group.');
       }
-      throw new Error('The connected user is not allowed to make query for this group.');
+
+      const userBalances = await getAllUserBalances(context, args.groupId, res.uid);
+      const filteredUserBalances = userBalances.userBalances.filter((userBalance) => userBalance.balance !== 0);
+      return {
+        totalBalance: userBalances.totalBalance,
+        userBalances: filteredUserBalances,
+      };
     } catch (error) {
       throw new Error(error.message);
     }
@@ -459,21 +471,24 @@ const transactionQuery = {
   usersWhoOweYou: async (root, args, context) => {
     try {
       const res = await authenticate(context);
+
       // make sure that the connected user is allowed to make query for the specified group
-      if (await userBelongsToGroup(context, res.uid, args.groupId)) {
-        const allUserBalances = await getAllUserBalances(context, args.groupId, res.uid);
-        const filteredUserBalances = allUserBalances.userBalances.filter((userBalance) => userBalance.balance > 0);
-        const filteredTotalBalance = filteredUserBalances.length > 0
-          ? filteredUserBalances
-            .map((filteredUserBalance) => filteredUserBalance.balance)
-            .reduce((total, balance) => total + balance)
-          : 0;
-        return {
-          totalBalance: filteredTotalBalance,
-          userBalances: filteredUserBalances,
-        };
+      if (!(await userBelongsToGroup(context, res.uid, args.groupId))) {
+        throw new Error('The connected user is not allowed to make query for this group.');
       }
-      throw new Error('The connected user is not allowed to make query for this group.');
+
+      const allUserBalances = await getAllUserBalances(context, args.groupId, res.uid);
+      const filteredUserBalances = allUserBalances.userBalances.filter((userBalance) => userBalance.balance > 0);
+      const filteredTotalBalance = filteredUserBalances.length > 0
+        ? filteredUserBalances
+          .map((filteredUserBalance) => filteredUserBalance.balance)
+          .reduce((total, balance) => total + balance)
+        : 0;
+
+      return {
+        totalBalance: filteredTotalBalance,
+        userBalances: filteredUserBalances,
+      };
     } catch (error) {
       throw new Error(error.message);
     }
@@ -483,21 +498,24 @@ const transactionQuery = {
   usersYouOweTo: async (root, args, context) => {
     try {
       const res = await authenticate(context);
+
       // make sure that the connected user is allowed to make query for the specified group
-      if (await userBelongsToGroup(context, res.uid, args.groupId)) {
-        const allUserBalances = await getAllUserBalances(context, args.groupId, res.uid);
-        const filteredUserBalances = allUserBalances.userBalances.filter((userBalance) => userBalance.balance < 0);
-        const filteredTotalBalance = filteredUserBalances.length > 0
-          ? filteredUserBalances
-            .map((filteredUserBalance) => filteredUserBalance.balance)
-            .reduce((total, balance) => total + balance)
-          : 0;
-        return {
-          totalBalance: filteredTotalBalance,
-          userBalances: filteredUserBalances,
-        };
+      if (!(await userBelongsToGroup(context, res.uid, args.groupId))) {
+        throw new Error('The connected user is not allowed to make query for this group.');
       }
-      throw new Error('The connected user is not allowed to make query for this group.');
+
+      const allUserBalances = await getAllUserBalances(context, args.groupId, res.uid);
+      const filteredUserBalances = allUserBalances.userBalances.filter((userBalance) => userBalance.balance < 0);
+      const filteredTotalBalance = filteredUserBalances.length > 0
+        ? filteredUserBalances
+          .map((filteredUserBalance) => filteredUserBalance.balance)
+          .reduce((total, balance) => total + balance)
+        : 0;
+
+      return {
+        totalBalance: filteredTotalBalance,
+        userBalances: filteredUserBalances,
+      };
     } catch (error) {
       throw new Error(error.message);
     }
