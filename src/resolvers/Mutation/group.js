@@ -16,24 +16,26 @@ const groupMutation = {
   createGroup: async (root, args, context) => {
     try {
       const res = await authenticate(context);
-      // fetch user by uid
-      const user = await Query.userByFirebase(root, { firebaseId: res.uid }, context);
 
-      return await context.prisma.createUserGroup(
+      return await context.prisma.createGroup(
         {
-          user: { connect: { id: user.id } },
-          group: {
+          users: {
             create: {
-              name: args.input.name,
-              admin: { connect: { id: user.id } },
-              address: {
-                create: {
-                  country: '', province: '', city: '', street: '', apartment_unit: '', postal_code: '',
-                },
-              },
+              user: { connect: { firebaseId: res.uid } },
             },
           },
-          join_at: new Date().toUTCString(),
+          name: args.input.name,
+          admin: { connect: { firebaseId: res.uid } },
+          address: {
+            create: {
+              country: '',
+              province: '',
+              city: '',
+              street: '',
+              apartmentUnit: '',
+              postalCode: '',
+            },
+          },
         },
       );
     } catch (error) {
@@ -60,7 +62,6 @@ const groupMutation = {
           await context.prisma.createUserGroup({
             user: { connect: { id: user.id } },
             group: { connect: { id: args.input.groupId } },
-            join_at: new Date().toUTCString(),
           });
         }
 
@@ -104,32 +105,27 @@ const groupMutation = {
   updateGroupInfo: async (root, args, context) => {
     try {
       const res = await authenticate(context);
-      // fetch user by uid
-      const user = await Query.userByFirebase(root, { firebaseId: res.uid }, context);
       // check if user is in group
       const exists = await context.prisma.$exists.userGroup({
-        user: { id: user.id },
+        user: { firebaseId: res.uid },
         group: { id: args.input.groupId },
       });
 
       // if user in group, update group
       if (exists) {
-        await context.prisma.updateAddress({
-          data: {
-            country: args.input.country,
-            province: args.input.province,
-            city: args.input.city,
-            street: args.input.street,
-            apartment_unit: args.input.apartment_unit,
-            postal_code: args.input.postal_code,
-          },
-          where: {
-            id: args.input.groupId,
-          },
-        });
-        return await context.prisma.updateGroup({
+        return context.prisma.updateGroup({
           data: {
             name: args.input.name,
+            address: {
+              update: {
+                country: args.input.address.country,
+                province: args.input.address.province,
+                city: args.input.address.city,
+                street: args.input.address.street,
+                apartmentUnit: args.input.address.apartmentUnit,
+                postalCode: args.input.address.postalCode,
+              },
+            },
           },
           where: {
             id: args.input.groupId,
