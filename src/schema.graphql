@@ -165,8 +165,8 @@ type Query {
   groupTransactionsForUser(groupId: ID!): [GroupTransactionsForUserPayload]!
   # query all contributions related to a user of a group 
   groupContributionsForUser(groupId: ID!): [Contribution]!
-  # query all contributions related to the connected user and another user of a group
-  groupContributionsForTwoUsers(input: GroupContributionsForTwoUsersInput!): [Contribution]!
+  # query all transactions related to the connected user and another user of a group
+  groupTransactionsForTwoUsers(input: GroupTransactionsForTwoUsersInput!): [GroupTransactionsForUserPayload]!
   # query all the operations made on every transactions related to a user at the moment of these operations for a group
   groupTransactionsOperationsHistoric(groupId: ID!): [TransactionOperationHistoric]!
 
@@ -400,7 +400,7 @@ input PayBackInput {
   amount: Int!
 }
 
-input GroupContributionsForTwoUsersInput {
+input GroupTransactionsForTwoUsersInput {
   groupId: ID!
   otherUserId: String!
 }

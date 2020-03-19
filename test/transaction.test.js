@@ -160,31 +160,39 @@ describe('Transaction', () => {
     tester.test(false, query);
   });
 
-  it('fetch all contributions related to the connected user and another user of a group by group ID and user ID', () => {
+  it('fetch all transactions related to the connected user and another user of a group by group ID and user ID', () => {
     const query = `{
-      groupContributionsForTwoUsers(input: { groupId: "1", otherUserId: "1" }) {
-        id
-        user {
-          id
-        }
+      groupTransactionsForTwoUsers(input: { groupId: "1", otherUserId: "1" }) {
+        transactionBalanceAmount
         transaction {
           id
+          amount
+          description
+          isPayback
+          paidBy {
+            firebaseId
+            name
+            lastName
+          }
+          contributions {
+            user {
+              firebaseId
+            }
+            amount
+          }
+          updatedAt
         }
-        percentage
-        amount
-        createdAt
-        updatedAt
       }
     }`;
 
     tester.test(true, query);
   });
 
-  it('fetch all contributions related to the connected user and another user of a group by group ID and user ID with invalid field', () => {
+  it('fetch all transactions related to the connected user and another user of a group by group ID and user ID with invalid field', () => {
     const query = `{
-      groupContributionsForTwoUsers(input: { groupId: "1", otherUserId: "1" }) {
+      groupTransactionsForTwoUsers(input: { groupId: "1", otherUserId: "1" }) {
         notValidField
-        id
+        transactionBalanceAmount
       }
     }`;
 

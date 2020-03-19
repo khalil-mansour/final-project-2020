@@ -331,8 +331,8 @@ const transactionQuery = {
     }
   },
 
-  /* GET all contributions related to the connected user and another user of a group */
-  groupContributionsForTwoUsers: async (root, args, context) => {
+  /* GET all transactions related to the connected user and another user of a group */
+  groupTransactionsForTwoUsers: async (root, args, context) => {
     try {
       const res = await authenticate(context);
 
@@ -344,32 +344,49 @@ const transactionQuery = {
         throw new Error('The specified user is not a member of this group.');
       }
 
-      return context.prisma.contributions({
+      const fragment = `
+      fragment TransactionWithContributionsAndUsers on Transaction {
+        id
+        amount
+        description
+        isPayback
+        paidBy {
+          firebaseId
+        }
+        contributions {
+          user {
+            firebaseId
+          }
+          amount
+        }
+        updatedAt
+      }
+      `;
+
+      const transactions = await context.prisma.transactions({
         orderBy: 'createdAt_DESC',
         where: {
           AND: [
             {
-              transaction: {
-                group: {
-                  id: args.input.groupId,
-                },
-                isDeleted: false,
+              group: {
+                id: args.input.groupId,
               },
+              isDeleted: false,
             },
             {
               OR: [
                 {
                   AND: [
                     {
-                      user: {
-                        firebaseId: res.uid,
+                      contributions_some: {
+                        user: {
+                          firebaseId: res.uid,
+                        },
                       },
                     },
                     {
-                      transaction: {
-                        paidBy: {
-                          firebaseId: args.input.otherUserId,
-                        },
+                      paidBy: {
+                        firebaseId: args.input.otherUserId,
                       },
                     },
                   ],
@@ -377,15 +394,15 @@ const transactionQuery = {
                 {
                   AND: [
                     {
-                      user: {
-                        firebaseId: args.input.otherUserId,
+                      contributions_some: {
+                        user: {
+                          firebaseId: args.input.otherUserId,
+                        },
                       },
                     },
                     {
-                      transaction: {
-                        paidBy: {
-                          firebaseId: res.uid,
-                        },
+                      paidBy: {
+                        firebaseId: res.uid,
                       },
                     },
                   ],
@@ -394,7 +411,12 @@ const transactionQuery = {
             },
           ],
         },
-      });
+      }).$fragment(fragment);
+
+      return transactions.map((transaction) => ({
+        transactionBalanceAmount: getTransactionBalanceAmount(transaction, res.uid),
+        transaction,
+      }));
     } catch (error) {
       throw new Error(error.message);
     }
