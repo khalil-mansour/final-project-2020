@@ -54,25 +54,25 @@ describe('Transaction', () => {
   it('fetch all transactions paid by a user for a group by group ID', () => {
     const query = `{
       userPaidTransactionsForGroup(groupId: "1") {
-        id
-        paidBy {
+        transactionBalanceAmount
+        transaction {
           id
+          amount
+          description
+          isPayback
+          paidBy {
+            firebaseId
+            name
+            lastName
+          }
+          contributions {
+            user {
+              firebaseId
+            }
+            amount
+          }
+          updatedAt
         }
-        amount
-        isPayback
-        isEven
-        description
-        group {
-          id
-        }
-        contributions {
-          id
-        }
-        operationsHistoric {
-          id
-        }
-        createdAt
-        updatedAt
       }
     }`;
 
@@ -83,7 +83,7 @@ describe('Transaction', () => {
     const query = `{
       userPaidTransactionsForGroup(groupId: "1") {
         notValidField
-        id
+        transactionBalanceAmount
       }
     }`;
 

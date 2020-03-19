@@ -160,7 +160,7 @@ type Query {
   transaction(transactionId: ID!): Transaction!
 
   # query all transactions paid by a user for a group
-  userPaidTransactionsForGroup(groupId: ID!): [Transaction]!
+  userPaidTransactionsForGroup(groupId: ID!): [GroupTransactionsForUserPayload]!
   # query all transactions related to a user of a group 
   groupTransactionsForUser(groupId: ID!): [GroupTransactionsForUserPayload]!
   # query all contributions related to a user of a group 

@@ -110,6 +110,22 @@ const getAllUserBalances = async (context, groupId, connectedUserId) => {
   };
 };
 
+const getTransactionBalanceAmount = (transaction, userId) => {
+  if (transaction.paidBy.firebaseId === userId) {
+    const filteredContributions = transaction.contributions
+      .filter((contribution) => contribution.user.firebaseId !== userId);
+
+    if (filteredContributions.length > 0) {
+      return filteredContributions
+        .map((contribution) => contribution.amount)
+        .reduce((total, balance) => total + balance);
+    }
+    return 0;
+  }
+  return transaction.contributions
+    .find((contribution) => contribution.user.firebaseId === userId).amount * -1;
+};
+
 const transactionQuery = {
   /* GET single transaction by ID */
   transaction: async (root, args, context) => {
@@ -139,14 +155,38 @@ const transactionQuery = {
         throw new Error('The connected user is not allowed to make query for this group.');
       }
 
-      return context.prisma.transactions({
+      const fragment = `
+      fragment TransactionWithContributionsAndUsers on Transaction {
+        id
+        amount
+        description
+        isPayback
+        paidBy {
+          firebaseId
+        }
+        contributions {
+          user {
+            firebaseId
+          }
+          amount
+        }
+        updatedAt
+      }
+      `;
+
+      const transactions = await context.prisma.transactions({
         orderBy: 'createdAt_DESC',
         where: {
           group: { id: args.groupId },
           paidBy: { firebaseId: res.uid },
           isDeleted: false,
         },
-      });
+      }).$fragment(fragment);
+
+      return transactions.map((transaction) => ({
+        transactionBalanceAmount: getTransactionBalanceAmount(transaction, res.uid),
+        transaction,
+      }));
     } catch (error) {
       throw new Error(error.message);
     }
@@ -216,30 +256,10 @@ const transactionQuery = {
         },
       }).$fragment(fragment);
 
-      return transactions.map((transaction) => {
-        if (transaction.paidBy.firebaseId === res.uid) {
-          const filteredContributions = transaction.contributions
-            .filter((contribution) => contribution.user.firebaseId !== res.uid);
-
-          if (filteredContributions > 0) {
-            return {
-              transactionBalanceAmount: filteredContributions
-                .map((contribution) => contribution.amount)
-                .reduce((total, balance) => total + balance),
-              transaction,
-            };
-          }
-          return {
-            transactionBalanceAmount: 0,
-            transaction,
-          };
-        }
-        return {
-          transactionBalanceAmount: transaction.contributions
-            .find((contribution) => contribution.user.firebaseId === res.uid).amount * -1,
-          transaction,
-        };
-      });
+      return transactions.map((transaction) => ({
+        transactionBalanceAmount: getTransactionBalanceAmount(transaction, res.uid),
+        transaction,
+      }));
     } catch (error) {
       throw new Error(error.message);
     }
