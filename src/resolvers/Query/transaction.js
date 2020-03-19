@@ -394,19 +394,27 @@ const transactionQuery = {
       fragment TransactionOperationHistoricWithRelations on TransactionOperationHistoric {
         id
         type {
-          id
           name
         }
         transaction {
           id
           isPayback
+          contributions {
+            id
+            user {
+              id
+              firebaseId
+              name
+              lastName
+            }
+          }
         }
         transactionDescription
         operationMadeByUser {
+          id
           firebaseId
-        }
-        concernedUsers {
-          firebaseId
+          name
+          lastName
         }
         createdAt
       }
