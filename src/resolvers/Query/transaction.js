@@ -139,7 +139,36 @@ const transactionQuery = {
         throw new Error('The connected user is not allowed to query this transaction.');
       }
 
-      return context.prisma.transaction({ id: args.transactionId });
+      const fragment = `
+      fragment TransactionWithContributionsAndUsers on Transaction {
+        id
+        amount
+        description
+        isPayback
+        createdBy {
+          firebaseId
+          name
+          lastName
+        }
+        paidBy {
+          firebaseId
+          name
+          lastName
+        }
+        contributions {
+          user {
+            firebaseId
+            name
+            lastName
+          }
+          amount
+        }
+        createdAt
+        updatedAt
+      }
+      `;
+
+      return context.prisma.transaction({ id: args.transactionId }).$fragment(fragment);
     } catch (error) {
       throw new Error(error.message);
     }
