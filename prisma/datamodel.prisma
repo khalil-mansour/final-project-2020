@@ -52,12 +52,13 @@ type UserGroup {
   id: ID! @id
   user: User! @unique @relation(name: "UserGroups")
   group: Group! @unique @relation(name: "GroupUsers")
+  role: UserType! @unique @relation(name: "UserGroupType")
   createdAt: DateTime! @createdAt
 }
 
 type UserType {
   id: ID! @id
-  type: String!
+  type: String! @unique
 }
 
 type Address {
@@ -73,10 +74,8 @@ type Address {
 
 type Invitation {
   id: ID! @id
-  from: User! @relation(name: "InvitationUser")
   group: Group! @relation(name: "InvitationGroup")
-  link: String!
-  expiredAt: String!
+  role: UserType! @relation(name: "InvitationRole")
+  code: String! @unique
   createdAt: DateTime! @createdAt
-  updatedAt: DateTime! @updatedAt
 }

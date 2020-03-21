@@ -21,9 +21,14 @@ const Query = {
   userByFirebase: (root, args, context) => context.prisma.user({ firebaseId: args.firebaseId }),
 
   /* GET all groups */
-  groups: (parent, args, context) => context.prisma.groups(),
+  groups: (root, args, context) => context.prisma.groups(),
   /* GET group by id */
   group: (root, args, context) => context.prisma.group({ id: args.groupId }),
+
+  /* GET all userTypes */
+  userTypes: (root, args, context) => context.prisma.userTypes(),
+  /* GET userType by id */
+  userType: (root, args, context) => context.prisma.userType({ id: args.userTypeId }),
 
   /* GET all addresses */
   addresses: (root, args, context) => context.prisma.addresses(),
@@ -34,6 +39,15 @@ const Query = {
   invitations: (root, args, context) => context.prisma.invitations(),
   /* GET single invitation by ID */
   invitation: (root, args, context) => context.prisma.invitation({ id: args.invitationId }),
+  
+  /* GET last invitation for group */
+  lastInvitation: (root, args, context) => context.prisma.invitations({
+    where: {
+      group: { id: args.groupId },
+      role: { type: args.role },
+    },
+    last: 1,
+  }),
 
   /* Get all userGroups */
   userGroups: (root, args, context) => context.prisma.userGroups(),

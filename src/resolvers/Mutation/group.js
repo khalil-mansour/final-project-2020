@@ -1,6 +1,7 @@
 const { authenticate } = require('../../utils.js');
 const { Query } = require('../Query/Query.js');
 const { Group } = require('../Group');
+const { invitationMutation } = require('../Mutation/invitation.js');
 
 async function getUserGroup(user, group, context) {
   const userGroup = await context.prisma.userGroups({
@@ -16,12 +17,12 @@ const groupMutation = {
   createGroup: async (root, args, context) => {
     try {
       const res = await authenticate(context);
-
-      return await context.prisma.createGroup(
+      const group = await context.prisma.createGroup(
         {
           users: {
             create: {
               user: { connect: { firebaseId: res.uid } },
+              role: { connect: { type: args.input.role } },
             },
           },
           name: args.input.name,
@@ -38,6 +39,31 @@ const groupMutation = {
           },
         },
       );
+
+      // create initial landlord invitation for group
+      await invitationMutation.createInvitation(
+        root,
+        {  
+          input: {
+            groupId: group.id,
+            role: "landlord", 
+          },
+        }, 
+        context);
+
+      // create initial tenant invitation for group
+      await invitationMutation.createInvitation(
+        root,
+        {  
+          input: {
+            groupId: group.id,
+            role: "tenant", 
+          },
+        }, 
+        context);      
+      
+      return group;
+
     } catch (error) {
       throw new Error(error.message);
     }
@@ -46,29 +72,45 @@ const groupMutation = {
   joinGroup: async (root, args, context) => {
     try {
       const res = await authenticate(context);
-      // fetch user by uid
-      const user = await Query.userByFirebase(root, { firebaseId: res.uid }, context);
 
-      const exists = await context.prisma.$exists.group({
-        id: args.input.groupId,
-      });
+      // check if group exists for code
+      const exists = await context.prisma.invitation({ code: args.input.code }).group();
 
       if (exists) {
+        // check if user already in group
         const userInGroup = await context.prisma.$exists.userGroup({
-          user: { id: user.id },
-          group: { id: args.input.groupId },
+          user: { firebaseId: res.uid },
+          group: { id: exists.id },
         });
         if (!userInGroup) {
-          await context.prisma.createUserGroup({
-            user: { connect: { id: user.id } },
-            group: { connect: { id: args.input.groupId } },
-          });
+          // fetch invitation by code
+          const invitation = await context.prisma.invitation({ code: args.input.code });
+          // fetch role
+          const role = await context.prisma.invitation({ code: args.input.code }).role();
+          // check if invitation code is valid (latest)
+          const latest = await Query.lastInvitation(
+            root,
+            {
+              groupId: exists.id,
+              role: role.type,
+            },
+            context
+          );
+          
+          if (invitation.id === latest[0].id) {
+            return await context.prisma.createUserGroup({
+              user: { connect: { firebaseId: res.uid } },
+              group: { connect: { id: exists.id } },
+              role: { connect: { type: role.type } },
+            });          
+          }
+          else {
+            throw new Error("This invitation code is no longer valid !");
+          }          
         }
-
-        return await Query.group(root, args.input, context);
+        throw new Error("User already in group !");
       }
-
-      throw new Error("Group doesn't exist!");
+      throw new Error("Group doesn't exist or invalid code !");
     } catch (error) {
       throw new Error(error.message);
     }
