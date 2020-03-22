@@ -107,7 +107,6 @@ const groupMutation = {
       const res = await authenticate(context);
       // check if user is in group
       const exists = await context.prisma.$exists.userGroup({
-        user: { firebaseId: res.uid },
         group: { id: args.input.groupId },
       });
 
