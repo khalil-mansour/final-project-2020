@@ -122,8 +122,14 @@ const getTransactionBalanceAmount = (transaction, userId) => {
     }
     return 0;
   }
-  return transaction.contributions
-    .find((contribution) => contribution.user.firebaseId === userId).amount * -1;
+  else {
+    const contribution = transaction.contributions
+      .find((contribution) => contribution.user.firebaseId === userId);
+  
+    return contribution
+        ? contribution.amount * -1
+        : 0 ;
+  }
 };
 
 const transactionQuery = {
@@ -246,6 +252,7 @@ const transactionQuery = {
           }
           amount
         }
+        createdAt
         updatedAt
       }
       `;
