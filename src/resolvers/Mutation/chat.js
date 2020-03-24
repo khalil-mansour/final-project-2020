@@ -10,7 +10,7 @@ const getUserChatroomById = async (args, context) => {
     },
   });
   if (chatrooms.length > 1) {
-    throw new Error('A user cannot join a Chatroom multiple times');
+    throw new Error('A user join a Chatroom multiple times. something is wrong');
   } else {
     return chatrooms[0];
   }
@@ -40,26 +40,31 @@ const chat = {
     },
   }),
   // Enter a chatroom
-  joinChatroom: (root, args, context) => context.prisma.createUserChatroom(
-    {
-      user: {
-        connect:
+  joinChatroom: async (root, args, context) => {
+    const chatroom = await getUserChatroomById(args, context);
+    if (chatroom) {
+      throw new Error('A user cannot join a Chatroom multiple times');
+    }
+    return context.prisma.createUserChatroom(
+      {
+        user: {
+          connect:
         {
           id: args.input.userId,
         },
-      },
-      chatroom: {
-        connect:
+        },
+        chatroom: {
+          connect:
         {
           id: args.input.chatroomId,
         },
+        },
       },
-    },
-  ),
-
+    );
+  },
   // Leave a chatroom
   leaveChatroom: async (root, args, context) => {
-    const dateTime = new Date().toISOString();
+    const dateTime = new Date().toUTCString();
     const chatroom = await getUserChatroomById(args, context);
 
     return context.prisma.updateUserChatroom({
@@ -96,7 +101,7 @@ const chat = {
   }),
   // Delete a message
   deleteMessage: (root, args, context) => {
-    const date = new Date().toISOString();
+    const date = new Date().toUTCString();
     return context.prisma.updateMessage({
       data: {
         deletedAt: date,

@@ -29,13 +29,24 @@ const invitationMutation = {
 
   acceptInvitation: async (root, args, context) => {
     try {
+      const fragment = `
+      fragment invitationWithGroup on Group {
+        id
+        name
+        chatroom { id }
+      }`;
       const res = await authenticate(context);
       // fetch user by uid
+      res.uid = 'tT8tv8UXt2MSJiXoO5GoWFBfU0v2';
       const user = await Query.userByFirebase(root, res.uid, context);
       // fetch invitation by id
       const invitation = await Query.invitation(root, args.input, context);
       // fetch group linked to invitation
-      const group = await Invitation.group(invitation, res, context);
+      const invitationGroup = await Invitation.group(invitation, res, context);
+      const group = await context.prisma.group({
+        id: invitationGroup.id,
+      }).$fragment(fragment);
+
       // check if user already in group
       const exists = await context.prisma.$exists.userGroup({
         user: { id: user.id },
@@ -43,6 +54,13 @@ const invitationMutation = {
       });
 
       if (!exists) {
+        await context.prisma.createUserChatroom(
+          {
+            user: { connect: { id: user.id } },
+            chatroom: { connect: { id: group.chatroom.id } },
+          },
+        );
+
         return context.prisma.createUserGroup({
           user: { connect: { id: user.id } },
           group: { connect: { id: group.id } },

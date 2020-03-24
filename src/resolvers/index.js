@@ -15,6 +15,8 @@ const { UserChatroom } = require('./UserChatroom');
 const { Invitation } = require('./Invitation');
 const { UserGroup } = require('./UserGroup');
 
+const { chatSubscription } = require('./Subscription/chat');
+
 module.exports = {
   Query,
   Mutation: {
@@ -23,6 +25,9 @@ module.exports = {
     ...addressMutation,
     ...chat,
     ...invitationMutation,
+  },
+  Subscription: {
+    ...chatSubscription,
   },
   User,
   Group,

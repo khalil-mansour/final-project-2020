@@ -9,6 +9,8 @@ const Group = {
   /* GET group users */
   users: (parent, args, context) => context.prisma.group({ id: parent.id }).users(),
 
+  chatroom: (parent, args, context) => context.prisma.group({ id: parent.id }).chatroom(),
+
 };
 
 module.exports = { Group };

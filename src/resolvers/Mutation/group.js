@@ -19,18 +19,37 @@ const groupMutation = {
       // fetch user by uid
       const user = await Query.userByFirebase(root, res.uid, context);
 
+      const fragment = `
+      fragment groupWithChatroom on Group {
+        id
+        name
+        chatroom { id }
+      }`;
+
       // create the group
       const createdGroup = await context.prisma.createGroup({
         name: args.input.name,
         address: { connect: { id: args.input.addressId } },
         admin: { connect: { id: user.id } },
-      });
+        chatroom: {
+          create: {
+            name: `${args.input.name} chat`,
+          },
+        },
+      }).$fragment(fragment);
       // create the userGroup with current user
       await context.prisma.createUserGroup({
         user: { connect: { id: user.id } },
         group: { connect: { id: createdGroup.id } },
         join_at: new Date().toUTCString(),
       });
+      // Join the chatroom of the group
+      await context.prisma.createUserChatroom(
+        {
+          user: { connect: { id: user.id } },
+          chatroom: { connect: { id: createdGroup.chatroom.id } },
+        },
+      );
       return createdGroup;
     } catch (error) {
       throw new Error(error.message);

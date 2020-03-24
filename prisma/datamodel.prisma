@@ -18,6 +18,7 @@ type Group {
   address: Address! @relation(name: "GroupAddress")
   admin: User! @relation(name: "GroupAdmin")
   users: [UserGroup!]! @relation(name: "GroupUsers", onDelete: CASCADE)
+  chatroom: Chatroom! @relation(name: "GroupChatroom", link: "INLINE", onDelete: SET_NULL)
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
 }
@@ -58,6 +59,7 @@ type Chatroom {
   name: String!
   isArchived: Boolean @default(value: false)
   userChatroom: [UserChatroom!]! @relation(name: "ChatroomUserChatroom")
+  group: Group! @relation(name: "GroupChatroom")
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
 }

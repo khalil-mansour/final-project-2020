@@ -20,6 +20,7 @@ type Group {
   name: String!
   address: Address!
   admin: User!
+  chatroom: Chatroom!
   users: [UserGroup!]!
 }
 
@@ -65,6 +66,7 @@ type UserChatroom {
 type Message {
   id: ID!
   content: String!
+  deletedAt: DateTime
   user: User!
   chatroom: Chatroom!
 }
@@ -195,7 +197,17 @@ type Mutation {
 
   # soft delete a message
   deleteMessage(input: DeleteMessageInput!): Message,
+}
 
+type Subscription {
+  message(input: SubscriptionMessageInput!): SubscriptionMessagePayload
+}
+
+type SubscriptionMessagePayload {
+  mutation: String!
+  node: Message!
+  updatedFields: [String!]
+  previousValues: Message
 
 }
 
@@ -285,6 +297,10 @@ input GetMessagesInput {
   chatroomId: ID!
   numberOfMessages: Int!
   skip: Int!
+}
+
+input SubscriptionMessageInput {
+  chatroomId: ID!
 }
 
 input AcceptInvitationInput {
