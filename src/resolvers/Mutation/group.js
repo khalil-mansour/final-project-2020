@@ -225,6 +225,10 @@ const groupMutation = {
       const admin = await Group.admin(group, null, context);
       // check if current user is admin
       if (user.id === admin.id) {
+        // check if target is admin himself
+        if (targetUser.id === admin.id) {
+          throw new Error('The target user can\t be the admin of the group.');
+        }
         // check if target user is in group
         const exists = await context.prisma.$exists.userGroup({
           user: { id: targetUser.id },
@@ -256,11 +260,17 @@ const groupMutation = {
     try {
       const res = await authenticate(context);
       // fetch user by uid
-      const user = await Query.userByFirebase(root, res.uid, context);
+      const user = await Query.userByFirebase(root, {firebaseId: res.uid }, context);
+      console.log(user.firebaseId);
+
       // fetch group by id
       const group = await Query.group(root, args.input, context);
+      console.log(group.id);
+
       // fetch admin
       const admin = await Group.admin(group, null, context);
+      console.log(admin.id);
+      
       // check if user is admin of group
       if (admin.id === user.id) {
         return await context.prisma.deleteGroup({ id: group.id });

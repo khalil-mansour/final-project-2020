@@ -18,6 +18,7 @@ type Group {
   address: Address!
   admin: User!
   users: [UserGroup!]!
+  invitations: [Invitation]
   lists: [List]
 }
 
@@ -177,6 +178,11 @@ type Mutation {
 
 }
 
+type Subscription {
+
+  group(input: SubscriptionGroupInput!): SubscriptionGroupPayload!
+}
+
 # INPUTS
 
 input SignUpInput {
@@ -305,4 +311,17 @@ input CreateListLineInput {
   quantity: Int
   section: ID
   checked: Boolean
+}
+
+input SubscriptionGroupInput {
+  groupId: ID!
+}
+
+# PAYLOADS
+
+type SubscriptionGroupPayload {
+  mutation: String!
+  node: Group
+  updatedFields: [String!]
+  previousValues: Group
 }

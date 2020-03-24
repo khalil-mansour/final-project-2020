@@ -18,6 +18,7 @@ type Group {
   admin: User! @relation(name: "GroupAdmin")
   users: [UserGroup!]! @relation(name: "GroupUsers", onDelete: CASCADE)
   lists: [List] @relation(name: "GroupLists", onDelete:CASCADE)
+  invitations: [Invitation] @relation(name: "InvitationGroup", onDelete: CASCADE)
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
 }
