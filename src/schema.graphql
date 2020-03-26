@@ -180,7 +180,7 @@ type Mutation {
 
 type Subscription {
 
-  group(input: SubscriptionGroupInput!): SubscriptionGroupPayload!
+  userGroup(input: SubscriptionUserGroupInput!): SubscriptionUserGroupPayload!
 }
 
 # INPUTS
@@ -313,15 +313,15 @@ input CreateListLineInput {
   checked: Boolean
 }
 
-input SubscriptionGroupInput {
+input SubscriptionUserGroupInput {
   groupId: ID!
 }
 
 # PAYLOADS
 
-type SubscriptionGroupPayload {
+type SubscriptionUserGroupPayload {
   mutation: String!
-  node: Group
+  node: UserGroup
   updatedFields: [String!]
-  previousValues: Group
+  previousValues: UserGroup
 }
