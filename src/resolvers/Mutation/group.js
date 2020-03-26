@@ -206,49 +206,61 @@ const groupMutation = {
     }
   },
 
-  removeUserFromGroup: async (root, args, context) => {
+  removeUsersFromGroup: async (root, args, context) => {
     try {
       const res = await authenticate(context);
       // fetch current user by uid
       const user = await Query.userByFirebase(root, { firebaseId: res.uid }, context);
-      // fetch target user by uid
-      const targetUser = await Query.userByFirebase(
-        root,
-        {
-          firebaseId: args.input.userId,
-        },
-        context,
-      );
       // fetch group by id
       const group = await Query.group(root, args.input, context);
       // fetch admin
       const admin = await Group.admin(group, null, context);
       // check if current user is admin
       if (user.id === admin.id) {
-        // check if target is admin himself
-        if (targetUser.id === admin.id) {
-          throw new Error('The target user can\t be the admin of the group.');
-        }
-        // check if target user is in group
-        const exists = await context.prisma.$exists.userGroup({
-          user: { id: targetUser.id },
-          group: { id: args.input.groupId },
-        });
+        // array of userGroups to be deleted
+        let deleted = [];
 
-        if (exists) {
+        // loop on every id in list
+        for (element of args.input.userIdArray) {
+          // fetch target user by uid
+          const targetUser = await Query.userByFirebase(
+            root,
+            {
+              firebaseId: element,
+            },
+            context,
+          );
+
+          // check if target is admin himself
+          if (targetUser.id === admin.id) {
+            throw new Error('The target user can\t be the admin of the group.');
+          }
+          // check if target user is in group
+          const exists = await context.prisma.$exists.userGroup({
+            user: { firebaseId: element },
+            group: { id: args.input.groupId },
+          });
+
+          // throw error
+          if (!exists){
+            throw new Error('The target user is not a member of the group');
+          }
+
+          // fetch userGroup with ids
           const userGroup = await Query.userGroupByIds(root, {
             input: {
               userId: targetUser.id,
               groupId: args.input.groupId,
             },
           }, context);
-          // get id of userGroup
-          const userGroupId = userGroup[0].id;
+
+          // add to array of deleted userGroups
+          deleted.push(userGroup[0].id);
+
           // delete userGroup
-          await context.prisma.deleteUserGroup({ id: userGroupId });
-          return group;
+          await context.prisma.deleteUserGroup({ id: userGroup[0].id });          
         }
-        throw new Error('The target user is not a member of the group');
+        return deleted;
       }
       throw new Error('The current user is not the admin of the group.');
     } catch (error) {

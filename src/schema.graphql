@@ -150,8 +150,8 @@ type Mutation {
   # leave a group
   leaveGroup(input: LeaveGroupInput!): Group!
 
-  # remove user from group (admin only)
-  removeUserFromGroup(input: RemoveUserFromGroupInput!): Group!
+  # remove users from group (admin only)
+  removeUsersFromGroup(input: RemoveUsersFromGroupInput!): [ID!]!
 
   # update group name
   updateGroupName(input: UpdateGroupNameInput!): Group!
@@ -209,8 +209,8 @@ input CreateGroupInput {
   role: String!
 }
 
-input RemoveUserFromGroupInput {
-  userId: ID!
+input RemoveUsersFromGroupInput {
+  userIdArray: [ID!]!
   groupId: ID!
 }
 
