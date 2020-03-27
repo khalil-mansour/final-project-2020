@@ -122,14 +122,13 @@ const getTransactionBalanceAmount = (transaction, userId) => {
     }
     return 0;
   }
-  else {
-    const contribution = transaction.contributions
-      .find((contribution) => contribution.user.firebaseId === userId);
-  
-    return contribution
-        ? contribution.amount * -1
-        : 0 ;
-  }
+
+  const contribution = transaction.contributions
+    .find((contribution) => contribution.user.firebaseId === userId);
+
+  return contribution
+    ? contribution.amount * -1
+    : 0;
 };
 
 const transactionQuery = {
@@ -151,6 +150,7 @@ const transactionQuery = {
         amount
         description
         isPayback
+        isDeleted
         createdBy {
           firebaseId
           name
