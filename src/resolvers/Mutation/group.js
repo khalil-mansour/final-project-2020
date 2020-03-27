@@ -218,7 +218,7 @@ const groupMutation = {
       // check if current user is admin
       if (user.id === admin.id) {
         // array of userGroups to be deleted
-        let deleted = [];
+        const deleted = [];
 
         // loop on every id in list
         for (element of args.input.userIdArray) {
@@ -242,7 +242,7 @@ const groupMutation = {
           });
 
           // throw error
-          if (!exists){
+          if (!exists) {
             throw new Error('The target user is not a member of the group');
           }
 
@@ -258,7 +258,7 @@ const groupMutation = {
           deleted.push(userGroup[0].id);
 
           // delete userGroup
-          await context.prisma.deleteUserGroup({ id: userGroup[0].id });          
+          await context.prisma.deleteUserGroup({ id: userGroup[0].id });
         }
         return deleted;
       }
