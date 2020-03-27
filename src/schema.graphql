@@ -9,6 +9,7 @@ type User {
   name: String!
   lastName: String!
   email: String!
+  avatar: String
   groups: [UserGroup!]!
 }
 
@@ -117,6 +118,8 @@ type Query {
   list(listId: ID!): List!
   #query userGroup by user id
   userGroupsByUserId: [UserGroup]!
+  #query userGroup by group id
+  userGroupByGroupId(groupId: ID!): [UserGroup]!
 
   # query transaction by id
   transaction(transactionId: ID!): String!

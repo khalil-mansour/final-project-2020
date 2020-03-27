@@ -1,6 +1,4 @@
 const { authenticate } = require('../../utils.js');
-const { Query } = require('../Query/Query.js');
-const { Invitation } = require('../Invitation.js');
 
 async function verifyToken(token, context) {
   const res = await context.prisma.$exists.invitation({
@@ -10,13 +8,12 @@ async function verifyToken(token, context) {
 }
 
 
-
 const invitationMutation = {
   createInvitation: async (root, args, context) => {
     try {
       // authenticate
-      const res = await authenticate(context);      
-      
+      const res = await authenticate(context);
+
       // check if user is in group
       const exists = await context.prisma.$exists.userGroup({
         user: { firebaseId: res.uid },
@@ -35,7 +32,6 @@ const invitationMutation = {
             uniqueToken = code;
           }
         } while (!unique);
-
 
 
         return await context.prisma.createInvitation({

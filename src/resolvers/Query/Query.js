@@ -39,7 +39,7 @@ const Query = {
   invitations: (root, args, context) => context.prisma.invitations(),
   /* GET single invitation by ID */
   invitation: (root, args, context) => context.prisma.invitation({ id: args.invitationId }),
-  
+
   /* GET last invitation for group */
   lastInvitation: (root, args, context) => context.prisma.invitations({
     where: {
@@ -70,6 +70,12 @@ const Query = {
     where: {
       user: { id: args.input.userId },
       group: { id: args.input.groupId },
+    },
+  }),
+
+  userGroupByGroupId: (root, args, context) => context.prisma.userGroups({
+    where: {
+      group: { id: args.groupId },
     },
   }),
 

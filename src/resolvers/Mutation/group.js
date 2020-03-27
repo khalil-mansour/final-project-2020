@@ -43,27 +43,28 @@ const groupMutation = {
       // create initial landlord invitation for group
       await invitationMutation.createInvitation(
         root,
-        {  
+        {
           input: {
             groupId: group.id,
-            role: "landlord", 
+            role: 'landlord',
           },
-        }, 
-        context);
+        },
+        context,
+      );
 
       // create initial tenant invitation for group
       await invitationMutation.createInvitation(
         root,
-        {  
+        {
           input: {
             groupId: group.id,
-            role: "tenant", 
+            role: 'tenant',
           },
-        }, 
-        context);      
-      
-      return group;
+        },
+        context,
+      );
 
+      return group;
     } catch (error) {
       throw new Error(error.message);
     }
@@ -94,21 +95,20 @@ const groupMutation = {
               groupId: exists.id,
               role: role.type,
             },
-            context
+            context,
           );
-          
+
           if (invitation.id === latest[0].id) {
             return await context.prisma.createUserGroup({
               user: { connect: { firebaseId: res.uid } },
               group: { connect: { id: exists.id } },
               role: { connect: { type: role.type } },
-            });          
+            });
           }
-          else {
-            throw new Error("This invitation code is no longer valid !");
-          }          
+
+          throw new Error('This invitation code is no longer valid !');
         }
-        throw new Error("User already in group !");
+        throw new Error('User already in group !');
       }
       throw new Error("Group doesn't exist or invalid code !");
     } catch (error) {
@@ -260,7 +260,7 @@ const groupMutation = {
     try {
       const res = await authenticate(context);
       // fetch user by uid
-      const user = await Query.userByFirebase(root, {firebaseId: res.uid }, context);
+      const user = await Query.userByFirebase(root, { firebaseId: res.uid }, context);
       console.log(user.firebaseId);
 
       // fetch group by id
@@ -270,7 +270,7 @@ const groupMutation = {
       // fetch admin
       const admin = await Group.admin(group, null, context);
       console.log(admin.id);
-      
+
       // check if user is admin of group
       if (admin.id === user.id) {
         return await context.prisma.deleteGroup({ id: group.id });
