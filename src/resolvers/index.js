@@ -16,7 +16,7 @@ const { List } = require('./List');
 const { ListSection } = require('./ListSection');
 const { ListLine } = require('./ListLine');
 
-const { groupSubscription } = require('./Subscription/group');
+const { userGroupSubscription } = require('./Subscription/userGroup');
 
 module.exports = {
   Query: {
@@ -32,7 +32,7 @@ module.exports = {
     ...listMutation,
   },
   Subscription: {
-    ...groupSubscription,
+    ...userGroupSubscription,
   },
   User,
   Group,
