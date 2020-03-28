@@ -1,5 +1,5 @@
 const { authenticate } = require('../../utils.js');
-const { Query } = require('../Query.js');
+const { Query } = require('../Query/Query.js');
 const { Group } = require('../Group');
 
 async function getUserGroup(user, group, context) {
@@ -16,41 +16,68 @@ const groupMutation = {
   createGroup: async (root, args, context) => {
     try {
       const res = await authenticate(context);
-      // fetch user by uid
-      const user = await Query.userByFirebase(root, res.uid, context);
-
       const fragment = `
       fragment groupWithChatroom on Group {
         id
         name
         chatroom { id }
       }`;
-
-      // create the group
-      const createdGroup = await context.prisma.createGroup({
-        name: args.input.name,
-        address: { connect: { id: args.input.addressId } },
-        admin: { connect: { id: user.id } },
-        chatroom: {
-          create: {
-            name: `${args.input.name} chat`,
-          },
-        },
-      }).$fragment(fragment);
-      // create the userGroup with current user
-      await context.prisma.createUserGroup({
-        user: { connect: { id: user.id } },
-        group: { connect: { id: createdGroup.id } },
-        join_at: new Date().toUTCString(),
-      });
-      // Join the chatroom of the group
-      await context.prisma.createUserChatroom(
+      return await context.prisma.createGroup(
         {
-          user: { connect: { id: user.id } },
-          chatroom: { connect: { id: createdGroup.chatroom.id } },
-        },
-      );
-      return createdGroup;
+          users: {
+            create: {
+              user: { connect: { firebaseId: res.uid } },
+            },
+          },
+          name: args.input.name,
+          admin: { connect: { firebaseId: res.uid } },
+          address: {
+            create: {
+              country: '',
+              province: '',
+              city: '',
+              street: '',
+              apartmentUnit: '',
+              postalCode: '',
+            },
+          },
+          chatroom: {
+            create: {
+              name: `${args.input.name} chat`,
+            },
+          },
+        }).$fragment(fragment);
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  },
+
+  joinGroup: async (root, args, context) => {
+    try {
+      const res = await authenticate(context);
+      // fetch user by uid
+      const user = await Query.userByFirebase(root, { firebaseId: res.uid }, context);
+
+      const exists = await context.prisma.$exists.group({
+        id: args.input.groupId,
+      });
+
+      if (exists) {
+        const userInGroup = await context.prisma.$exists.userGroup({
+          user: { id: user.id },
+          group: { id: args.input.groupId },
+        });
+        if (!userInGroup) {
+          await context.prisma.createUserGroup({
+            user: { connect: { id: user.id } },
+            group: { connect: { id: args.input.groupId } },
+          });
+        }
+
+        return await Query.group(root, args.input, context);
+      }
+
+      throw new Error("Group doesn't exist!");
     } catch (error) {
       throw new Error(error.message);
     }
@@ -60,7 +87,7 @@ const groupMutation = {
     try {
       const res = await authenticate(context);
       // fetch user by uid
-      const user = await Query.userByFirebase(root, res.uid, context);
+      const user = await Query.userByFirebase(root, { firebaseId: res.uid }, context);
       // check if user is in group
       const exists = await context.prisma.$exists.userGroup({
         user: { id: user.id },
@@ -84,11 +111,48 @@ const groupMutation = {
     }
   },
 
+  updateGroupInfo: async (root, args, context) => {
+    try {
+      const res = await authenticate(context);
+      // check if user is in group
+      const exists = await context.prisma.$exists.userGroup({
+        user: { firebaseId: res.uid },
+        group: { id: args.input.groupId },
+      });
+
+      // if user in group, update group
+      if (exists) {
+        return context.prisma.updateGroup({
+          data: {
+            name: args.input.name,
+            address: {
+              update: {
+                country: args.input.address.country,
+                province: args.input.address.province,
+                city: args.input.address.city,
+                street: args.input.address.street,
+                apartmentUnit: args.input.address.apartmentUnit,
+                postalCode: args.input.address.postalCode,
+              },
+            },
+          },
+          where: {
+            id: args.input.groupId,
+          },
+        });
+      }
+      // else throw new error : user not in group
+      throw new Error('User not in group');
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  },
+
   leaveGroup: async (root, args, context) => {
     try {
       const res = await authenticate(context);
       // fetch user by uid
-      const user = await Query.userByFirebase(root, res.uid, context);
+      const user = await Query.userByFirebase(root, { firebaseId: res.uid }, context);
       // check if user is in group
       const exists = await context.prisma.$exists.userGroup({
         user: { id: user.id },
@@ -113,7 +177,15 @@ const groupMutation = {
     try {
       const res = await authenticate(context);
       // fetch current user by uid
-      const user = await Query.userByFirebase(root, res.uid, context);
+      const user = await Query.userByFirebase(root, { firebaseId: res.uid }, context);
+      // fetch target user by uid
+      const targetUser = await Query.userByFirebase(
+        root,
+        {
+          firebaseId: args.input.userId,
+        },
+        context,
+      );
       // fetch group by id
       const group = await Query.group(root, args.input, context);
       // fetch admin
@@ -122,11 +194,17 @@ const groupMutation = {
       if (user.id === admin.id) {
         // check if target user is in group
         const exists = await context.prisma.$exists.userGroup({
-          user: { id: args.input.userId },
+          user: { id: targetUser.id },
           group: { id: args.input.groupId },
         });
+
         if (exists) {
-          const userGroup = await Query.userGroupByIds(root, args, context);
+          const userGroup = await Query.userGroupByIds(root, {
+            input: {
+              userId: targetUser.id,
+              groupId: args.input.groupId,
+            },
+          }, context);
           // get id of userGroup
           const userGroupId = userGroup[0].id;
           // delete userGroup

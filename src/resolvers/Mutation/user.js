@@ -1,5 +1,5 @@
 const { authenticate } = require('../../utils.js');
-const { Query } = require('../Query.js');
+const { Query } = require('../Query/Query.js');
 
 const userMutation = {
   signUp: async (root, args, context) => {
@@ -26,7 +26,7 @@ const userMutation = {
     try {
       const res = await authenticate(context);
       // fetch current user by uid
-      const user = await Query.userByFirebase(root, res.uid, context);
+      const user = await Query.userByFirebase(root, { firebaseId: res.uid }, context);
       return context.prisma.updateUser({
         data: {
           name: args.input.name,

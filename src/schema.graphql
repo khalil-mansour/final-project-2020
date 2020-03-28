@@ -10,7 +10,7 @@ type User {
   firebaseId: String!
   name: String!
   lastName: String!
-  email: String! 
+  email: String!
   groups: [UserGroup!]!
   userChatrooms: [UserChatroom!]!
 }
@@ -22,13 +22,14 @@ type Group {
   admin: User!
   chatroom: Chatroom!
   users: [UserGroup!]!
+  lists: [List]
 }
 
 type UserGroup {
   id: ID!
   user: User!
   group: Group!
-  join_at: String!
+  createdAt: String!
 }
 
 type Invitation {
@@ -39,27 +40,55 @@ type Invitation {
   expiredAt: String!
 }
 
+type List {
+  id: ID!
+  title: String
+  description: String
+  type: String
+  group: Group!
+  isTemplate: Boolean!
+  sections: [ListSection!]!
+}
+
+type ListSection {
+  id: ID!
+  list: List!
+  title: String
+  lines: [ListLine]
+  mainSection: Boolean!
+}
+
+type ListLine {
+  id: ID!
+  section: ListSection!
+  text: String!
+  quantity: Int
+  checked: Boolean!
+}
+
 type Address {
   id: ID!
   country: String!
   province: String!
   city: String!
   street: String!
-  apartment_unit: Int
+  apartmentUnit: String
+  postalCode: String!
+  group: Group!
 }
 
 type Chatroom {
   id: ID!
   name: String!
-  isArchived: Boolean 
+  isArchived: Boolean
   userChatroom: [UserChatroom!]!
 }
 
 type UserChatroom {
   id: ID!
-  user: User! 
-  chatroom: Chatroom! 
-  leftDate: DateTime 
+  user: User!
+  chatroom: Chatroom!
+  leftDate: DateTime
   userChatrooms: [UserChatroom!]!
 }
 
@@ -85,7 +114,6 @@ type Query {
 
   # query user by id
   user(id: ID!): User!
-  
   login: Boolean!
   # query user by firebase id (string)
   userByFirebase(firebaseId: String!): User!
@@ -99,8 +127,17 @@ type Query {
   userGroup(userGroupId: ID!): UserGroup!
   # query userGroup
   userGroupByIds(input: UserGroupByIdsInput!): [UserGroup]
+  #query lists for a group
+  listsByGroup(groupId: ID!): [List]
+  #query list from id
+  list(listId: ID!): List!
+  #query userGroup by user id
+  userGroupsByUserId: [UserGroup]!
 
-  
+  # query transaction by id
+  transaction(transactionId: ID!): String!
+
+
   # Chat
 
   # query a userChatroom by ID
@@ -126,7 +163,6 @@ type Query {
 }
 
 type Mutation {
-
   # USER
 
   # create a new user
@@ -138,19 +174,18 @@ type Mutation {
   # edit a user
   updateUser(input: UpdateUserInput!): User!
 
-
   # ADDRESS
 
-  # create a new address
-  createAddress(input: CreateAddressInput!): Address!
-
-  # edit a new address
+  # edit an existing address
   updateAddress(input: UpdateAddressInput!): Address!
 
   # GROUP
 
   # create a new group
   createGroup(input: CreateGroupInput!): Group!
+
+  # joinGroup
+  joinGroup(input: JoinGroupInput!): Group!
 
   # leave a group
   leaveGroup(input: LeaveGroupInput!): Group!
@@ -160,6 +195,9 @@ type Mutation {
 
   # update group name
   updateGroupName(input: UpdateGroupNameInput!): Group!
+
+  # update group information
+  updateGroupInfo(input: UpdateGroupInfoInput!): Group!
 
   # delete group (admin only)
   deleteGroup(input: DeleteGroupInput!): Group!
@@ -172,7 +210,16 @@ type Mutation {
   # accept invitation
   acceptInvitation(input: AcceptInvitationInput!): UserGroup!
 
-# CHAT
+  #List
+
+  #create list
+  createList(input: CreateListInput!): List!
+  #update list
+  updateList(input: UpdateListInput!): List!
+  #delete lsit
+  deleteLists(input: DeleteListsInput!): Boolean
+
+  # CHAT
 
   # create a chatroom
   createChatroom(input: CreateChatroomInput!): Chatroom,
@@ -221,12 +268,10 @@ input SignUpInput {
 }
 
 input UpdateUserInput {
-  userId: ID!
-  typeId: ID!
   name: String!
   lastName: String!
   email: String!
-  avatat: String
+  avatar: String
 }
 
 input AssignTypeToUserInput {
@@ -234,21 +279,16 @@ input AssignTypeToUserInput {
   typeId: ID!
 }
 
-input CreateAddressInput {
-  country: String!
-  province: String!
-  city: String!
-  street: String!
-  apartment_unit: Int
-}
-
 input CreateGroupInput {
   name: String!
-  addressId: ID!
 }
 
 input RemoveUserFromGroupInput {
   userId: ID!
+  groupId: ID!
+}
+
+input JoinGroupInput {
   groupId: ID!
 }
 
@@ -312,6 +352,21 @@ input UpdateGroupNameInput {
   name: String!
 }
 
+input UpdateGroupInfoInput {
+  groupId: ID!
+  name: String!
+  address: AddressInput!
+}
+
+input AddressInput {
+  country: String!
+  province: String!
+  city: String!
+  street: String!
+  apartmentUnit: String
+  postalCode: String!
+}
+
 input CreateInvitationInput {
   groupId: ID!
   link: String!
@@ -329,5 +384,49 @@ input UpdateAddressInput {
   province: String!
   city: String!
   street: String!
-  apartment_unit: Int
+  apartmentUnit: String
+  postalCode: String!
+}
+
+input CreateListInput {
+  id: ID
+  title: String
+  description: String
+  type: String
+  group: ID!
+  isTemplate: Boolean
+  sections: [SectionInput!]!
+}
+
+input UpdateListInput {
+  id: ID
+  title: String
+  description: String
+  type: String
+  isTemplate: Boolean
+  sections: [SectionInput!]!
+}
+
+input DeleteListsInput {
+  lists: [ID!]!
+}
+
+input SectionInput {
+  id: ID
+  title: String
+  lines: [CreateListLineInput!]!
+  list: ID
+  mainSection: Boolean
+}
+
+input CreateListSectionsInput {
+  sections: [SectionInput]!
+}
+
+input CreateListLineInput {
+  id: ID
+  text: String!
+  quantity: Int
+  section: ID
+  checked: Boolean
 }

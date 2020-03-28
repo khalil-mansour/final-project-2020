@@ -110,3 +110,4 @@ src/generated/
 src/config.json
 # vscode settings
 .vscode
+.idea
