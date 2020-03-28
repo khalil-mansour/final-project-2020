@@ -23,7 +23,7 @@ type Group {
   updatedAt: DateTime! @updatedAt
 }
 
-type List{
+type List {
   id: ID! @id
   title: String
   description: String
@@ -51,9 +51,9 @@ type ListLine {
 
 type UserGroup {
   id: ID! @id
-  user: User! @unique @relation(name: "UserGroups")
-  group: Group! @unique @relation(name: "GroupUsers")
-  role: UserType! @unique @relation(name: "UserGroupType")
+  user: User! @relation(name: "UserGroups")
+  group: Group! @relation(name: "GroupUsers")
+  role: UserType! @relation(name: "UserGroupType")
   createdAt: DateTime! @createdAt
 }
 
@@ -79,4 +79,5 @@ type Invitation {
   role: UserType! @relation(name: "InvitationRole")
   code: String! @unique
   createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
 }

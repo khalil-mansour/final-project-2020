@@ -89,7 +89,7 @@ type Query {
   # query all invitations
   invitations: [Invitation!]!
   # query invitations by groupId
-  lastInvitation(groupId: ID!, role: String): [Invitation!]!
+  invitationsForGroup(groupId: ID!, role: String): [Invitation!]!
 
   # query all userGroups
   userGroups: [UserGroup!]!
@@ -169,6 +169,8 @@ type Mutation {
 
   # invite a user to group
   createInvitation(input: CreateInvitationInput!): Invitation!
+
+  refreshInvitation(input: RefreshInvitationInput!): Invitation!
 
   #List
 
@@ -256,6 +258,10 @@ input AddressInput {
 input CreateInvitationInput {
   groupId: ID!
   role: String!
+}
+
+input RefreshInvitationInput {
+  invitationId: ID!
 }
 
 input UserGroupByIdsInput {

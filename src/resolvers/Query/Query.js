@@ -39,16 +39,13 @@ const Query = {
   invitations: (root, args, context) => context.prisma.invitations(),
   /* GET single invitation by ID */
   invitation: (root, args, context) => context.prisma.invitation({ id: args.invitationId }),
-
-  /* GET last invitation for group */
-  lastInvitation: (root, args, context) => context.prisma.invitations({
+  /* GET valid invitations for group */
+  invitationsForGroup: (root, args, context) => context.prisma.invitations({
     where: {
       group: { id: args.groupId },
       role: { type: args.role },
     },
-    last: 1,
   }),
-
   /* Get all userGroups */
   userGroups: (root, args, context) => context.prisma.userGroups(),
   /* Get userGroup by ID */
