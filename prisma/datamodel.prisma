@@ -18,11 +18,12 @@ type Group {
   admin: User! @relation(name: "GroupAdmin")
   users: [UserGroup!]! @relation(name: "GroupUsers", onDelete: CASCADE)
   lists: [List] @relation(name: "GroupLists", onDelete:CASCADE)
+  invitations: [Invitation] @relation(name: "InvitationGroup", onDelete: CASCADE)
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
 }
 
-type List{
+type List {
   id: ID! @id
   title: String
   description: String
@@ -50,14 +51,15 @@ type ListLine {
 
 type UserGroup {
   id: ID! @id
-  user: User! @unique @relation(name: "UserGroups")
-  group: Group! @unique @relation(name: "GroupUsers")
+  user: User! @relation(name: "UserGroups")
+  group: Group! @relation(name: "GroupUsers")
+  role: UserType! @relation(name: "UserGroupType")
   createdAt: DateTime! @createdAt
 }
 
 type UserType {
   id: ID! @id
-  type: String!
+  type: String! @unique
 }
 
 type Address {
@@ -73,10 +75,9 @@ type Address {
 
 type Invitation {
   id: ID! @id
-  from: User! @relation(name: "InvitationUser")
   group: Group! @relation(name: "InvitationGroup")
-  link: String!
-  expiredAt: String!
+  role: UserType! @relation(name: "InvitationRole")
+  code: String! @unique
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
 }
