@@ -78,7 +78,7 @@ const groupMutation = {
 
       // check if group exists for code
       if (!group) {
-        throw new Error("Invalid code !");
+        throw new Error('Invalid code !');
       }
 
       // check if user is already in group
@@ -94,7 +94,6 @@ const groupMutation = {
         group: { connect: { id: group.id } },
         role: { connect: { type: role.type } },
       });
-
     } catch (error) {
       throw new Error(error.message);
     }
@@ -190,46 +189,40 @@ const groupMutation = {
   removeUsersFromGroup: async (root, args, context) => {
     try {
       const res = await authenticate(context);
-      
+
       // fetch group by id
       const group = await Query.group(root, args.input, context);
       // fetch admin
       const admin = await Group.admin(group, null, context);
       // check if current user is admin
       if (res.uid === admin.firebaseId) {
-        // array of userGroups to be deleted
-        const deleted = [];
+        const userGroupIds = await Promise.all(
+          args.input.userIdArray.map(async (element) => {
+            // check if target is admin himself
+            if (element === admin.uid) {
+              throw new Error('The target user can\t be the admin of the group.');
+            }
+            // check if target user is in group
+            if (!(await userBelongsToGroup(context, element, args.input.groupId))) {
+              throw new Error('The target user is not a member of the group');
+            }
+            // fetch userGroup with ids
+            const userGroup = await Query.userGroupByIds(root, {
+              input: {
+                userId: element,
+                groupId: args.input.groupId,
+              },
+            }, context);
 
-        // loop on every id in list
-        for (element of args.input.userIdArray) {
-          // fetch target user by uid
-          const targetUser = await Query.userByFirebase(root, { firebaseId: element }, context);
+            return userGroup[0].id;
+          }),
+        );
 
-          // check if target is admin himself
-          if (targetUser.id === admin.id) {
-            throw new Error('The target user can\t be the admin of the group.');
-          }
+        await Promise.all(userGroupIds.map(async (element) => {
+          await context.prisma.deleteUserGroup({ id: element });
+        }));
 
-          // check if target user is in group
-          if (!(userBelongsToGroup(context, element, args.input.groupId))) {
-            throw new Error('The target user is not a member of the group');
-          }
-
-          // fetch userGroup with ids
-          const userGroup = await Query.userGroupByIds(root, {
-            input: {
-              userId: targetUser.id,
-              groupId: args.input.groupId,
-            },
-          }, context);
-
-          // add to array of deleted userGroups
-          deleted.push(userGroup[0].id);
-
-          // delete userGroup
-          await context.prisma.deleteUserGroup({ id: userGroup[0].id });
-        }
-        return deleted;
+        return userGroupIds;
       }
       throw new Error('The current user is not the admin of the group.');
     } catch (error) {

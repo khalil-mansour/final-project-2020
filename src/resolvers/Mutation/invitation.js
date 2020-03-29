@@ -1,3 +1,4 @@
+const randomize = require('randomatic');
 const { authenticate, userBelongsToGroup } = require('../../utils.js');
 
 async function verifyToken(token, context) {
@@ -15,17 +16,16 @@ const invitationMutation = {
 
 
       // check if user is in group
-      if (!(userBelongsToGroup(context, res.uid, args.input.groupId))) {
+      if (!(await userBelongsToGroup(context, res.uid, args.input.groupId))) {
         throw new Error('User sending invite not in current group');
       }
 
       // random tag
-      const randomize = require('randomatic');
       let unique = false;
       let uniqueToken = '';
       do {
         const code = randomize('Aa0', 5);
-        unique = await verifyToken(code, context);
+        unique = verifyToken(code, context);
         if (unique) {
           uniqueToken = code;
         }
@@ -37,7 +37,6 @@ const invitationMutation = {
         role: { connect: { type: args.input.role } },
         code: uniqueToken,
       });
-      
     } catch (error) {
       throw new Error(error.message);
     }
@@ -50,17 +49,16 @@ const invitationMutation = {
 
 
       // check if user is in group
-      if (!(userBelongsToGroup(context, res.uid, args.input.groupId))) {
+      if (!(await userBelongsToGroup(context, res.uid, args.input.groupId))) {
         throw new Error('User sending invite not in current group');
       }
 
       // random tag
-      const randomize = require('randomatic');
       let unique = false;
       let uniqueToken = '';
       do {
         const code = randomize('Aa0', 5);
-        unique = await verifyToken(code, context);
+        unique = verifyToken(code, context);
         if (unique) {
           uniqueToken = code;
         }

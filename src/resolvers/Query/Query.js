@@ -65,7 +65,7 @@ const Query = {
   /* Get userGroup by user and group IDs */
   userGroupByIds: (root, args, context) => context.prisma.userGroups({
     where: {
-      user: { id: args.input.userId },
+      user: { firebaseId: args.input.userId },
       group: { id: args.input.groupId },
     },
   }),
