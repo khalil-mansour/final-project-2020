@@ -54,7 +54,7 @@ const Query = {
   /* Get userGroup by user and group IDs */
   userGroupByIds: (root, args, context) => context.prisma.userGroups({
     where: {
-      user: { id: args.input.userId },
+      user: { firebaseId: args.input.userId },
       group: { id: args.input.groupId },
     },
   }),
@@ -64,6 +64,17 @@ const Query = {
   listsByGroup: (root, args, context) => context.prisma.group({ id: args.groupId }).lists(),
 
   list: (root, args, context) => context.prisma.list({ id: args.listId }),
+
+  /* GET all breakNotices */
+  breakNotices: (root, args, context) => context.prisma.breakNotices(),
+  /* GET breakNotice by id */
+  breakNotice: (root, args, context) => context.prisma.breakNotice({ id: args.breakNoticeId }),
+  /* GET all breakNotices for group */
+  breakNoticesByGroup: (root, args, context) => context.prisma.breakNotices({
+    where : {
+      group: { id: args.groupId },
+    },
+  }),
 };
 
 module.exports = { Query };

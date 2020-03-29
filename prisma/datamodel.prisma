@@ -18,6 +18,7 @@ type Group {
   admin: User! @relation(name: "GroupAdmin")
   users: [UserGroup!]! @relation(name: "GroupUsers", onDelete: CASCADE)
   lists: [List] @relation(name: "GroupLists", onDelete:CASCADE)
+  notices: [BreakNotice] @relation(name: "BreakNoticeGroup", onDelete: CASCADE)
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
 }
@@ -77,6 +78,27 @@ type Invitation {
   group: Group! @relation(name: "InvitationGroup")
   link: String!
   expiredAt: String!
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
+}
+
+type BreakNotice {
+  id: ID! @id
+  subject: String!
+  text: String!
+  group: Group! @relation(name: "BreakNoticeGroup")
+  urgencyLevel: String!
+  solved: Boolean!
+  files: [File]! @relation(name: "BreakNoticeFiles", onDelete: CASCADE)
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
+}
+
+type File {
+  id: ID! @id
+  filename: String!
+  location: String!
+  notice: BreakNotice! @relation(name: "BreakNoticeFiles", onDelete: CASCADE)
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
 }

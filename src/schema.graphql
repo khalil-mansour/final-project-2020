@@ -1,3 +1,5 @@
+scalar Upload
+
 type UserType {
   id: ID!
   type: String!
@@ -19,6 +21,7 @@ type Group {
   admin: User!
   users: [UserGroup!]!
   lists: [List]
+  notices: [BreakNotice]
 }
 
 type UserGroup {
@@ -73,6 +76,23 @@ type Address {
   group: Group!
 }
 
+type BreakNotice {
+  id: ID!
+  subject: String!
+  text: String!
+  group: Group!
+  urgencyLevel: String!
+  solved: Boolean!
+  files: [File]
+}
+
+type File {
+  id: ID!
+  filename: String!
+  location: String!
+  notice: BreakNotice!
+}
+
 type Query {
   # query all users
   users: [User!]!
@@ -84,6 +104,8 @@ type Query {
   invitations: [Invitation!]!
   # query all userGroups
   userGroups: [UserGroup!]!
+  # query all breakNotices
+  breakNotices: [BreakNotice!]!
 
   # query user by id
   user(id: ID!): User!
@@ -100,12 +122,17 @@ type Query {
   userGroup(userGroupId: ID!): UserGroup!
   # query userGroup
   userGroupByIds(input: UserGroupByIdsInput!): [UserGroup]
-  #query lists for a group
+  # query lists for a group
   listsByGroup(groupId: ID!): [List]
-  #query list from id
+  # query list from id
   list(listId: ID!): List!
-  #query userGroup by user id
+  # query userGroup by user id
   userGroupsByUserId: [UserGroup]!
+
+  # query breakNotice by id
+  breakNotice(breakNoticeId: ID!): BreakNotice!
+  # query breakNotice by groupId
+  breakNoticesByGroup(groupId: ID!): [BreakNotice]
 
   # query transaction by id
   transaction(transactionId: ID!): String!
@@ -158,6 +185,14 @@ type Mutation {
 
   # accept invitation
   acceptInvitation(input: AcceptInvitationInput!): UserGroup!
+
+  # BREAK NOTICE
+
+  # create a break notice
+  createBreakNotice(input: CreateBreakNoticeInput!): BreakNotice!
+
+  # solve a break notice 
+  solveBreakNotice(input: SolveBreakNoticeInput!): BreakNotice!
 
   #List
 
@@ -298,4 +333,16 @@ input CreateListLineInput {
   quantity: Int
   section: ID
   checked: Boolean
+}
+
+input CreateBreakNoticeInput {
+  subject: String!
+  text: String!
+  groupId: ID!
+  urgencyLevel: String!
+  files: [Upload!]!
+}
+
+input SolveBreakNoticeInput {
+  id: ID!
 }
