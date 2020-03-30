@@ -16,6 +16,7 @@ const { List } = require('./List');
 const { ListSection } = require('./ListSection');
 const { ListLine } = require('./ListLine');
 
+const { userGroupSubscription } = require('./Subscription/userGroup');
 
 module.exports = {
   Query: {
@@ -29,6 +30,9 @@ module.exports = {
     ...addressMutation,
     ...invitationMutation,
     ...listMutation,
+  },
+  Subscription: {
+    ...userGroupSubscription,
   },
   User,
   Group,

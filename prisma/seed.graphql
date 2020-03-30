@@ -29,4 +29,20 @@ mutation {
   ) {
     firebaseId
   }
+
+  typeLandlord: createUserType(
+    data: {
+      type: "landlord"
+    }
+  ) {
+    id
+  }
+
+  typeTenant: createUserType(
+    data: {
+      type: "tenant"
+    }
+  ) {
+    id
+  }
 }

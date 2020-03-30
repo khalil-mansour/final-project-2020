@@ -1,50 +1,77 @@
-const { authenticate } = require('../../utils.js');
-const { Query } = require('../Query/Query.js');
-const { Invitation } = require('../Invitation.js');
+const randomize = require('randomatic');
+const { authenticate, userBelongsToGroup } = require('../../utils.js');
+
+async function verifyToken(token, context) {
+  return !(await context.prisma.$exists.invitation({
+    code: token,
+  }));
+}
+
 
 const invitationMutation = {
   createInvitation: async (root, args, context) => {
     try {
+      // authenticate
       const res = await authenticate(context);
+
+
       // check if user is in group
-      const exists = await context.prisma.$exists.userGroup({
-        user: { firebaseId: res.uid },
-        group: { id: args.input.groupId },
-      });
-      if (exists) {
-        return context.prisma.createInvitation({
-          from: { connect: { firebaseId: res.uid } },
-          group: { connect: { id: args.input.groupId } },
-          link: args.input.link,
-          expiredAt: args.input.expiredAt,
-        });
+      if (!(await userBelongsToGroup(context, res.uid, args.input.groupId))) {
+        throw new Error('User sending invite not in current group');
       }
-      throw new Error('User sending invite not in current group');
+
+      // random tag
+      let unique = false;
+      let uniqueToken = '';
+      do {
+        const code = randomize('Aa0', 5);
+        unique = verifyToken(code, context);
+        if (unique) {
+          uniqueToken = code;
+        }
+      } while (!unique);
+
+
+      return context.prisma.createInvitation({
+        group: { connect: { id: args.input.groupId } },
+        role: { connect: { type: args.input.role } },
+        code: uniqueToken,
+      });
     } catch (error) {
       throw new Error(error.message);
     }
   },
 
-  acceptInvitation: async (root, args, context) => {
+  refreshInvitation: async (root, args, context) => {
     try {
+      // authenticate
       const res = await authenticate(context);
-      // fetch invitation by id
-      const invitation = await Query.invitation(root, args.input, context);
-      // fetch group linked to invitation
-      const group = await Invitation.group(invitation, res, context);
-      // check if user already in group
-      const exists = await context.prisma.$exists.userGroup({
-        user: { firebaseId: res.uid },
-        group: { id: group.id },
-      });
 
-      if (!exists) {
-        return context.prisma.createUserGroup({
-          user: { connect: { firebaseId: res.uid } },
-          group: { connect: { id: group.id } },
-        });
+
+      // check if user is in group
+      if (!(await userBelongsToGroup(context, res.uid, args.input.groupId))) {
+        throw new Error('User sending invite not in current group');
       }
-      throw new Error('User is already a member of the group');
+
+      // random tag
+      let unique = false;
+      let uniqueToken = '';
+      do {
+        const code = randomize('Aa0', 5);
+        unique = verifyToken(code, context);
+        if (unique) {
+          uniqueToken = code;
+        }
+      } while (!unique);
+
+      return context.prisma.updateInvitation({
+        data: {
+          code: uniqueToken,
+        },
+        where: {
+          id: args.input.invitationId,
+        },
+      });
     } catch (error) {
       throw new Error(error.message);
     }
