@@ -1,4 +1,4 @@
-const { authenticate } = require('../../utils.js');
+const { authenticate, getCurrentDate } = require('../../utils.js');
 
 const getLinesToDelete = (section, oldList) => {
   const currentSection = oldList.sections.find((oldSection) => oldSection.id === section.id);
@@ -13,6 +13,7 @@ const getLinesToDelete = (section, oldList) => {
 const getSectionsToDelete = (list, oldList) => oldList.sections.filter(
   (currSection) => !list.sections.find((section) => section.id === currSection.id),
 ).map((sectionToDelete) => sectionToDelete.id);
+
 
 const listMutation = {
   createList: async (root, args, context) => {

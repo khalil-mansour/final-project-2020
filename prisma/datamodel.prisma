@@ -30,6 +30,8 @@ type List{
   group: Group! @relation(name: "GroupLists")
   isTemplate: Boolean!
   sections: [ListSection!]! @relation(name: "ListSections", onDelete: CASCADE)
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
 }
 
 type ListSection {
