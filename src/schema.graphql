@@ -148,6 +148,11 @@ type Query {
   # query breakNotice by groupId
   breakNoticesByGroup(groupId: ID!): [BreakNotice]
 
+  # query breakNotice by id
+  breakNotice(breakNoticeId: ID!): BreakNotice!
+  # query breakNotice by groupId
+  breakNoticesByGroup(groupId: ID!): [BreakNotice]
+
   # query transaction by id
   transaction(transactionId: ID!): String!
 }
@@ -198,6 +203,14 @@ type Mutation {
   createInvitation(input: CreateInvitationInput!): Invitation!
 
   refreshInvitation(input: RefreshInvitationInput!): Invitation!
+
+  # BREAK NOTICE
+
+  # create a break notice
+  createBreakNotice(input: CreateBreakNoticeInput!): BreakNotice!
+
+  # solve a break notice 
+  solveBreakNotice(input: SolveBreakNoticeInput!): BreakNotice!
 
   # BREAK NOTICE
 
@@ -357,10 +370,6 @@ input CreateListLineInput {
   checked: Boolean
 }
 
-input SubscriptionUserGroupInput {
-  groupId: ID!
-}
-
 input CreateBreakNoticeInput {
   subject: String!
   text: String!
@@ -381,4 +390,3 @@ type SubscriptionUserGroupPayload {
   updatedFields: [String!]
   previousValues: UserGroup
 }
-
