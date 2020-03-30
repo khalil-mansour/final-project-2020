@@ -88,7 +88,7 @@ const Query = {
   breakNotice: (root, args, context) => context.prisma.breakNotice({ id: args.breakNoticeId }),
   /* GET all breakNotices for group */
   breakNoticesByGroup: (root, args, context) => context.prisma.breakNotices({
-    where : {
+    where: {
       group: { id: args.groupId },
     },
   }),
