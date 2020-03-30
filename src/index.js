@@ -11,5 +11,9 @@ const server = new GraphQLServer({
   }),
 });
 
+const options = {
+  bodyParserOptions: { limit: '500kb' },
+};
+
 // eslint-disable-next-line no-console
-server.start(() => console.log('Server is running on http://localhost:4000'));
+server.start(options, () => console.log('Server is running on http://localhost:4000'));
