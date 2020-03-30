@@ -19,6 +19,7 @@ const { List } = require('./List');
 const { ListSection } = require('./ListSection');
 const { ListLine } = require('./ListLine');
 
+const { userGroupSubscription } = require('./Subscription/userGroup');
 
 const { transactionSubscription } = require('./Subscription/transaction');
 
@@ -38,6 +39,7 @@ module.exports = {
   },
   Subscription: {
     ...transactionSubscription,
+    ...userGroupSubscription,
   },
   User,
   Group,

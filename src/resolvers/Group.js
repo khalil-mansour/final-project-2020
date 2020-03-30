@@ -15,6 +15,9 @@ const Group = {
   /* GET list for group */
   lists: (parent, args, context) => context.prisma.group({ id: parent.id }).lists(),
 
+  /* GET group invitations */
+  invitations: (parent, args, context) => context.prisma.group({ id: parent.id }).invitations(),
+
 };
 
 module.exports = { Group };
