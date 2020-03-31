@@ -90,6 +90,8 @@ type Query {
   invitations: [Invitation!]!
   # query invitations by groupId
   invitationsForGroup(groupId: ID!, role: String): [Invitation!]!
+  # query last invitation by groupId
+  lastInvitationForGroup(groupId: ID!, role: String): [Invitation!]!
 
   # query all userGroups
   userGroups: [UserGroup!]!

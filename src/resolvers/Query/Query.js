@@ -46,6 +46,13 @@ const Query = {
       role: { type: args.role },
     },
   }),
+  lastInvitationForGroup: (root, args, context) => context.prisma.invitations({
+    where: {
+      group: { id: args.groupId },
+      role: { type: args.role },
+    },
+    last: 1,
+  }),
   /* Get all userGroups */
   userGroups: (root, args, context) => context.prisma.userGroups(),
   /* Get userGroup by ID */
