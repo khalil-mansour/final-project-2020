@@ -84,6 +84,9 @@ const breakNoticeMutation = {
           id
           location
         }
+        owner {
+          firebaseId
+        }
       }`;
 
       // fetch notice
@@ -92,6 +95,11 @@ const breakNoticeMutation = {
       // check if current user belongs to group
       if (!(await userBelongsToGroup(context, res.uid, notice.group.id))) {
         throw new Error('User does not belong in group.');
+      }
+
+      // check if user is the owner of the notice
+      if (notice.owner.firebaseId !== res.uid) {
+        throw new Error('Notice does not belong to user.');
       }
 
       // delete files from FS
@@ -190,6 +198,7 @@ const breakNoticeMutation = {
       return context.prisma.updateBreakNotice({
         data: {
           solved: true,
+          solvedAt: new Date(),
         },
         where: {
           id: breakNotice.id,
