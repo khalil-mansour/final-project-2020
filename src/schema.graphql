@@ -1,4 +1,5 @@
 scalar Upload
+scalar DateTime
 
 type UserType {
   id: ID!
@@ -86,7 +87,10 @@ type BreakNotice {
   group: Group!
   urgencyLevel: String!
   solved: Boolean!
+  owner: User!
   files: [File]
+  happenedAt: DateTime
+  solvedAt: DateTime
 }
 
 type File {
@@ -361,18 +365,24 @@ input CreateListLineInput {
 
 input CreateBreakNoticeInput {
   subject: String!
-  text: String!
+  text: String
   groupId: ID!
   urgencyLevel: String!
-  files: [Upload!]!
+  filesToUpload: [Upload!]!
+  happenedAt: DateTime
+}
+
+input FileInput {
+  id: ID!
 }
 
 input UpdateBreakNoticeInput {
-  breakNoticeId: ID!
+  id: ID!
   subject: String!
-  text: String!
+  text: String
   urgencyLevel: String!
-  files: [Upload!]!
+  files: [FileInput!]!
+  filesToUpload: [Upload!]!
 }
 
 input SolveBreakNoticeInput {

@@ -3,8 +3,13 @@ const { authenticate, userBelongsToGroup } = require('../../utils.js');
 const { Query } = require('../Query/Query.js');
 
 // store the files in filesystem
-async function storeFS({ stream, filename }) {
-  const uploadDir = 'media';
+async function storeFS({
+  stream, filename, notice,
+}) {
+  const uploadDir = `media/${notice.id}`;
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir);
+  }
   const path = `${uploadDir}/${filename}`;
   return new Promise((resolve, reject) => stream
     .on('error', (error) => {
@@ -20,8 +25,8 @@ async function storeFS({ stream, filename }) {
 }
 
 // delete the files from filesystem
-async function deleteFromFS(files) {
-
+function deleteFromFS(files) {
+  files.forEach((file) => fs.unlinkSync(file.location));
 }
 
 const breakNoticeMutation = {
@@ -41,13 +46,15 @@ const breakNoticeMutation = {
         group: { connect: { id: args.input.groupId } },
         urgencyLevel: args.input.urgencyLevel,
         solved: false,
+        owner: { connect: { firebaseId: res.uid } },
+        happenedAt: args.input.happenedAt,
       });
 
       await Promise.all(
-        args.input.files.map(async (element) => {
+        args.input.filesToUpload.map(async (element) => {
           const { filename, createReadStream } = await element;
           const stream = createReadStream();
-          const pathObj = await storeFS({ stream, filename });
+          const pathObj = await storeFS({ stream, filename, notice });
           const fileLocation = pathObj.path;
           await context.prisma.createFile({
             filename,
@@ -67,47 +74,62 @@ const breakNoticeMutation = {
     try {
       const res = await authenticate(context);
 
-      // fetch group
-      const group = await context.prisma.breakNotice({ id: args.input.breakNoticeId }).group();
+      const frag = `
+      fragment breakNoticeWithGroupAndFiles on BreakNotice {
+        id
+        group {
+          id
+        }
+        files {
+          id
+          location
+        }
+      }`;
 
+      // fetch notice
+      const notice = await context.prisma.breakNotice({ id: args.input.id }).$fragment(frag);
 
       // check if current user belongs to group
-      if (!(await userBelongsToGroup(context, res.uid, group.id))) {
+      if (!(await userBelongsToGroup(context, res.uid, notice.group.id))) {
         throw new Error('User does not belong in group.');
       }
 
-      // delete files linked to current break notice (TODO : delete files from FS)
-      await context.prisma.deleteManyFiles({
-        notice: { id: args.input.breakNoticeId },
-      });
+      // delete files from FS
+      const deletedFiles = notice.files.filter((file) => !args.input.files.find((fileToFind) => fileToFind.id === file.id));
 
-      // update break notice with new data
-      const updatedBreakNotice = await context.prisma.updateBreakNotice({
-        data: {
-          subject: args.input.subject,
-          text: args.input.text,
-          urgencyLevel: args.input.urgencyLevel,
-        },
-        where: {
-          id: args.input.breakNoticeId,
-        },
-      });
+      if (deletedFiles.length) {
+        deleteFromFS(deletedFiles);
+      }
+
 
       await Promise.all(
-        args.input.files.map(async (element) => {
+        args.input.filesToUpload.map(async (element) => {
           const { filename, createReadStream } = await element;
           const stream = createReadStream();
-          const pathObj = await storeFS({ stream, filename });
+          const pathObj = await storeFS({ stream, filename, notice });
           const fileLocation = pathObj.path;
-          await context.prisma.createFile({
+          return context.prisma.createFile({
             filename,
             location: fileLocation,
-            notice: { connect: { id: args.input.breakNoticeId } },
+            notice: { connect: { id: args.input.id } },
           });
         }),
       );
 
-      return updatedBreakNotice;
+      // update break notice with new data
+      return context.prisma.updateBreakNotice({
+        data: {
+          subject: args.input.subject,
+          text: args.input.text,
+          urgencyLevel: args.input.urgencyLevel,
+          files: {
+            delete: deletedFiles.map((file) => ({ id: file.id })),
+          },
+        },
+        where: {
+          id: args.input.id,
+        },
+      });
     } catch (error) {
       throw new Error(error.message);
     }

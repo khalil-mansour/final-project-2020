@@ -90,9 +90,12 @@ type BreakNotice {
   group: Group! @relation(name: "BreakNoticeGroup")
   urgencyLevel: String!
   solved: Boolean!
+  owner: User!
   files: [File] @relation(name: "BreakNoticeFiles", onDelete: CASCADE)
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
+  happenedAt: DateTime
+  solvedAt: DateTime
 }
 
 type File {
