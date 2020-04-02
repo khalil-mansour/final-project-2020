@@ -383,6 +383,7 @@ input UpdateBreakNoticeInput {
   urgencyLevel: String!
   files: [FileInput!]!
   filesToUpload: [Upload!]!
+  happenedAt: DateTime
 }
 
 input SolveBreakNoticeInput {

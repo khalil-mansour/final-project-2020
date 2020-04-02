@@ -125,6 +125,7 @@ const breakNoticeMutation = {
           files: {
             delete: deletedFiles.map((file) => ({ id: file.id })),
           },
+          happenedAt: args.input.happenedAt,
         },
         where: {
           id: args.input.id,
