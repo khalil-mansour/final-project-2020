@@ -2,7 +2,7 @@ const fs = require('fs');
 const { authenticate, userBelongsToGroup } = require('../../utils.js');
 const { Query } = require('../Query/Query.js');
 
-// store the files in local filesystem
+// store the files in filesystem
 async function storeFS({ stream, filename }) {
   const uploadDir = 'media';
   const path = `${uploadDir}/${filename}`;
@@ -17,6 +17,11 @@ async function storeFS({ stream, filename }) {
     .pipe(fs.createWriteStream(path))
     .on('error', (error) => reject(error))
     .on('finish', () => resolve({ path })));
+}
+
+// delete the files from filesystem
+async function deleteFromFS(files) {
+
 }
 
 const breakNoticeMutation = {
@@ -53,6 +58,56 @@ const breakNoticeMutation = {
       );
 
       return notice;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  },
+
+  updateBreakNotice: async (root, args, context) => {
+    try {
+      const res = await authenticate(context);
+
+      // fetch group
+      const group = await context.prisma.breakNotice({ id: args.input.breakNoticeId }).group();
+
+
+      // check if current user belongs to group
+      if (!(await userBelongsToGroup(context, res.uid, group.id))) {
+        throw new Error('User does not belong in group.');
+      }
+
+      // delete files linked to current break notice (TODO : delete files from FS)
+      await context.prisma.deleteManyFiles({
+        notice: { id: args.input.breakNoticeId },
+      });
+
+      // update break notice with new data
+      const updatedBreakNotice = await context.prisma.updateBreakNotice({
+        data: {
+          subject: args.input.subject,
+          text: args.input.text,
+          urgencyLevel: args.input.urgencyLevel,
+        },
+        where: {
+          id: args.input.breakNoticeId,
+        },
+      });
+
+      await Promise.all(
+        args.input.files.map(async (element) => {
+          const { filename, createReadStream } = await element;
+          const stream = createReadStream();
+          const pathObj = await storeFS({ stream, filename });
+          const fileLocation = pathObj.path;
+          await context.prisma.createFile({
+            filename,
+            location: fileLocation,
+            notice: { connect: { id: args.input.breakNoticeId } },
+          });
+        }),
+      );
+
+      return updatedBreakNotice;
     } catch (error) {
       throw new Error(error.message);
     }

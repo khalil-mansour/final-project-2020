@@ -207,6 +207,9 @@ type Mutation {
   # solve a break notice 
   solveBreakNotice(input: SolveBreakNoticeInput!): BreakNotice!
 
+  # update a break notice
+  updateBreakNotice(input: UpdateBreakNoticeInput!): BreakNotice!
+
   #List
 
   #create list
@@ -219,7 +222,6 @@ type Mutation {
 }
 
 type Subscription {
-
   userGroup(input: SubscriptionUserGroupInput!): SubscriptionUserGroupPayload!
 }
 
@@ -361,6 +363,14 @@ input CreateBreakNoticeInput {
   subject: String!
   text: String!
   groupId: ID!
+  urgencyLevel: String!
+  files: [Upload!]!
+}
+
+input UpdateBreakNoticeInput {
+  breakNoticeId: ID!
+  subject: String!
+  text: String!
   urgencyLevel: String!
   files: [Upload!]!
 }
