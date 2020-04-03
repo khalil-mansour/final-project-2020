@@ -214,6 +214,9 @@ type Mutation {
   # update a break notice
   updateBreakNotice(input: UpdateBreakNoticeInput!): BreakNotice!
 
+  # delete a break notice
+  deleteBreakNotice(input: DeleteBreakNoticeInput!): BreakNotice!
+
   #List
 
   #create list
@@ -387,6 +390,10 @@ input UpdateBreakNoticeInput {
 }
 
 input SolveBreakNoticeInput {
+  id: ID!
+}
+
+input DeleteBreakNoticeInput {
   id: ID!
 }
 

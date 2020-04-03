@@ -208,6 +208,24 @@ const breakNoticeMutation = {
       throw new Error(error.message);
     }
   },
+
+  deleteBreakNotice: async (root, args, context) => {
+    try {
+      const res = await authenticate(context);
+
+      // fetch notice
+      const owner = await context.prisma.breakNotice({ id: args.input.id }).owner();
+
+      // check if user is the owner of the notice
+      if (owner.firebaseId !== res.uid) {
+        throw new Error('Notice does not belong to user.');
+      }
+
+      return context.prisma.deleteBreakNotice({ id: args.input.id });
+    } catch (error) {
+      throw new Error(error);
+    }
+  },
 };
 
 module.exports = { breakNoticeMutation };
