@@ -101,7 +101,7 @@ type BreakNotice {
 type File {
   id: ID! @id
   filename: String!
-  location: String!
+  cloudinaryUrl: String!
   notice: BreakNotice! @relation(name: "BreakNoticeFiles")
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt

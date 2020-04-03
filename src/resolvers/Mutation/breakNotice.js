@@ -1,32 +1,11 @@
-const fs = require('fs');
+const cloudinary = require('cloudinary').v2;
 const { authenticate, userBelongsToGroup } = require('../../utils.js');
 const { Query } = require('../Query/Query.js');
 
-// store the files in filesystem
-async function storeFS({
-  stream, filename, notice,
-}) {
-  const uploadDir = `media/${notice.id}`;
-  if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir);
-  }
-  const path = `${uploadDir}/${filename}`;
-  return new Promise((resolve, reject) => stream
-    .on('error', (error) => {
-      if (stream.truncated) {
-        // delete truncated file
-        fs.unlinkSync(path);
-      }
-      reject(error);
-    })
-    .pipe(fs.createWriteStream(path))
-    .on('error', (error) => reject(error))
-    .on('finish', () => resolve({ path })));
-}
-
-// delete the files from filesystem
-function deleteFromFS(files) {
-  files.forEach((file) => fs.unlinkSync(file.location));
+// store the files in cloudinary
+async function uploadToCloud({ stream, filename, notice }) {
+  const path = `media/${notice.id}/${filename}`;
+  return path;
 }
 
 const breakNoticeMutation = {
@@ -54,11 +33,11 @@ const breakNoticeMutation = {
         args.input.filesToUpload.map(async (element) => {
           const { filename, createReadStream } = await element;
           const stream = createReadStream();
-          const pathObj = await storeFS({ stream, filename, notice });
-          const fileLocation = pathObj.path;
+          const result = await uploadToCloud({ stream, filename, notice });
+
           await context.prisma.createFile({
             filename,
-            location: fileLocation,
+            cloudinaryUrl: result,
             notice: { connect: { id: notice.id } },
           });
         }),

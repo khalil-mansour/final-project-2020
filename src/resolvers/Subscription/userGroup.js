@@ -12,9 +12,11 @@ const userGroupSubscription = {
         }
 
         return context.prisma.$subscribe.userGroup({
-          mutation_in: ['CREATED', 'UPDATED', 'DELETED'],
+          mutation_in: ['CREATED', 'DELETED'],
           node: {
-            id: args.input.groupId,
+            group: {
+              id: args.input.groupId,
+            },
           },
         });
       } catch (error) {

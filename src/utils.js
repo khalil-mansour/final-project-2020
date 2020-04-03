@@ -1,8 +1,15 @@
 const firebaseAdmin = require('firebase-admin');
+const cloudinary = require('cloudinary').v2;
 const serviceAccount = require('./serviceKey.json');
 const config = require('./config.json');
 
 require('dotenv').config();
+
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET,
+});
 
 firebaseAdmin.initializeApp({
   credential: firebaseAdmin.credential.cert(serviceAccount),

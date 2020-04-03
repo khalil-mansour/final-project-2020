@@ -96,7 +96,7 @@ type BreakNotice {
 type File {
   id: ID!
   filename: String!
-  location: String!
+  cloudinaryUrl: String!
   notice: BreakNotice!
 }
 
@@ -185,7 +185,7 @@ type Mutation {
   leaveGroup(input: LeaveGroupInput!): Group!
 
   # remove users from group (admin only)
-  removeUsersFromGroup(input: RemoveUsersFromGroupInput!): [ID!]!
+  removeUsersFromGroup(input: RemoveUsersFromGroupInput!): [UserGroup!]!
 
   # update group name
   updateGroupName(input: UpdateGroupNameInput!): Group!
