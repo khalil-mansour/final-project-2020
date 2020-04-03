@@ -3,12 +3,10 @@ const { authenticate, userBelongsToGroup } = require('../../utils.js');
 const { Query } = require('../Query/Query.js');
 
 // store the files in filesystem
-async function storeFS({
-  stream, filename, notice,
-}) {
+async function storeFS({ stream, filename, notice }) {
   const uploadDir = `media/${notice.id}`;
   if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir);
+    fs.mkdirSync(uploadDir, { recursive: true });
   }
   const path = `${uploadDir}/${filename}`;
   return new Promise((resolve, reject) => stream
@@ -90,7 +88,9 @@ const breakNoticeMutation = {
       }`;
 
       // fetch notice
-      const notice = await context.prisma.breakNotice({ id: args.input.id }).$fragment(frag);
+      const notice = await context.prisma
+        .breakNotice({ id: args.input.id })
+        .$fragment(frag);
 
       // check if current user belongs to group
       if (!(await userBelongsToGroup(context, res.uid, notice.group.id))) {
@@ -103,12 +103,13 @@ const breakNoticeMutation = {
       }
 
       // delete files from FS
-      const deletedFiles = notice.files.filter((file) => !args.input.files.find((fileToFind) => fileToFind.id === file.id));
+      const deletedFiles = notice.files.filter(
+        (file) => !args.input.files.find((fileToFind) => fileToFind.id === file.id),
+      );
 
       if (deletedFiles.length) {
         deleteFromFS(deletedFiles);
       }
-
 
       await Promise.all(
         args.input.filesToUpload.map(async (element) => {
@@ -159,9 +160,11 @@ const breakNoticeMutation = {
       }`;
 
       // fetch break notice
-      const breakNotice = await context.prisma.breakNotice({
-        id: args.input.id,
-      }).$fragment(groupFrag);
+      const breakNotice = await context.prisma
+        .breakNotice({
+          id: args.input.id,
+        })
+        .$fragment(groupFrag);
 
       // check if already solved
       if (breakNotice.solved === true) {
@@ -181,7 +184,8 @@ const breakNoticeMutation = {
       }`;
 
       const userGroup = await Query.userGroupByIds(
-        root, {
+        root,
+        {
           input: {
             userId: res.uid,
             groupId: breakNotice.group.id,
@@ -192,7 +196,9 @@ const breakNoticeMutation = {
 
       // check if current user has landlord role
       if (userGroup[0].role.type !== 'landlord') {
-        throw new Error('Only a user with a role of \'landlord\' can solve a break notice.');
+        throw new Error(
+          "Only a user with a role of 'landlord' can solve a break notice.",
+        );
       }
 
       return context.prisma.updateBreakNotice({
@@ -214,7 +220,9 @@ const breakNoticeMutation = {
       const res = await authenticate(context);
 
       // fetch notice
-      const owner = await context.prisma.breakNotice({ id: args.input.id }).owner();
+      const owner = await context.prisma
+        .breakNotice({ id: args.input.id })
+        .owner();
 
       // check if user is the owner of the notice
       if (owner.firebaseId !== res.uid) {
