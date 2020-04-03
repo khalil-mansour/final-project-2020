@@ -205,6 +205,7 @@ const transactionQuery = {
           }
           amount
         }
+        createdAt
         updatedAt
       }
       `;
