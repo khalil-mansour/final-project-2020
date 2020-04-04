@@ -560,7 +560,7 @@ const transactionMutation = {
 
       const parsedInputTransaction = {
         paidBy: {
-          firebaseId: res.uid,
+          firebaseId: args.input.payBackFromUserId,
         },
         isDeleted: false,
         isPayback: true,

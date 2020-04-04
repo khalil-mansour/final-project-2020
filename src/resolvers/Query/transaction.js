@@ -202,6 +202,8 @@ const transactionQuery = {
         contributions {
           user {
             firebaseId
+            name
+            lastName
           }
           amount
         }
@@ -250,6 +252,8 @@ const transactionQuery = {
         contributions {
           user {
             firebaseId
+            name
+            lastName
           }
           amount
         }

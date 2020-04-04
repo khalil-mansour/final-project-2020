@@ -417,6 +417,7 @@ input SubscriptionTransactionInput {
 }
 
 input PayBackInput {
+  payBackFromUserId: String!
   payBackToUserId: String!
   groupId: ID!
   amount: Int!
