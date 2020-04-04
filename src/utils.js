@@ -22,7 +22,15 @@ function authenticate(context) {
       resolve({ uid: config.simulated_firebase_id });
     });
   }
-  const authorization = context.request.get('Authorization');
+
+  let authorization;
+
+  if (context.connection && context.connection.context) {
+    authorization = context.connection.context.Authorization;
+  } else {
+    authorization = context.request.get('Authorization');
+  }
+
   let token = '';
   if (authorization) {
     token = authorization.replace('Bearer ', '');
