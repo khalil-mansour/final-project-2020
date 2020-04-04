@@ -217,7 +217,8 @@ const groupMutation = {
             },
           }, context);
 
-          return context.prisma.deleteUserGroup({ id: userGroup[0].id });
+          await context.prisma.deleteUserGroup({ id: userGroup[0].id });
+          return userGroup[0].id;
         }),
       );
     } catch (error) {
