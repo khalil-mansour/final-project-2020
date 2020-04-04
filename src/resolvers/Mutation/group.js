@@ -218,7 +218,7 @@ const groupMutation = {
           }, context);
 
           await context.prisma.deleteUserGroup({ id: userGroup[0].id });
-          return userGroup[0].id;
+          return element;
         }),
       );
     } catch (error) {
