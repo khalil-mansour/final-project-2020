@@ -226,8 +226,6 @@ type Mutation {
   #delete list
   deleteLists(input: DeleteListsInput!): Boolean
 
-  fakeJoinGroup(groupId: ID!, userId: ID!, role: String!): UserGroup!
-
 }
 
 type Subscription {

@@ -2,22 +2,42 @@ const cloudinary = require('cloudinary').v2;
 const { authenticate, userBelongsToGroup } = require('../../utils.js');
 const { Query } = require('../Query/Query.js');
 
+
 // store the files in cloudinary
-async function uploadToCloud({ stream, filename, notice }) {
-  const path = `media/${notice.id}/${filename}`;
-  return path;
+async function uploadToCloud(files, notice, context) {
+  return Promise.all(
+    files.map(async (element) => {
+      const { createReadStream } = await element;
+      const stream = createReadStream();
+      const result = await cloudinary.uploader.upload(stream.path)
+        .then((res) => res)
+        .catch((error) => new Error(error));
+      return context.prisma.createFile({
+        filename: result.public_id,
+        cloudinaryUrl: result.secure_url,
+        notice: { connect: { id: notice.id } },
+      });
+    }),
+  );
+}
+
+// delete files from cloudinary
+async function deleteFromCloud(files) {
+  return Promise.all(
+    files.map(async (element) => cloudinary.uploader.destroy(element.filename)
+      .then((result) => result)
+      .catch((error) => new Error(error))),
+  );
 }
 
 const breakNoticeMutation = {
   createBreakNotice: async (root, args, context) => {
     try {
       const res = await authenticate(context);
-
       // check if current user belongs to group
       if (!(await userBelongsToGroup(context, res.uid, args.input.groupId))) {
         throw new Error('User does not belong in group.');
       }
-
       // create the notice before adding the files
       const notice = await context.prisma.createBreakNotice({
         subject: args.input.subject,
@@ -29,19 +49,8 @@ const breakNoticeMutation = {
         happenedAt: args.input.happenedAt,
       });
 
-      await Promise.all(
-        args.input.filesToUpload.map(async (element) => {
-          const { filename, createReadStream } = await element;
-          const stream = createReadStream();
-          const result = await uploadToCloud({ stream, filename, notice });
-
-          await context.prisma.createFile({
-            filename,
-            cloudinaryUrl: result,
-            notice: { connect: { id: notice.id } },
-          });
-        }),
-      );
+      // upload files to cloudinary
+      await uploadToCloud(args.input.filesToUpload, notice, context);
 
       return notice;
     } catch (error) {
@@ -61,7 +70,8 @@ const breakNoticeMutation = {
         }
         files {
           id
-          location
+          filename
+          cloudinaryUrl
         }
         owner {
           firebaseId
@@ -89,22 +99,11 @@ const breakNoticeMutation = {
       );
 
       if (deletedFiles.length) {
-        deleteFromFS(deletedFiles);
+        await deleteFromCloud(deletedFiles);
       }
 
-      await Promise.all(
-        args.input.filesToUpload.map(async (element) => {
-          const { filename, createReadStream } = await element;
-          const stream = createReadStream();
-          const pathObj = await storeFS({ stream, filename, notice });
-          const fileLocation = pathObj.path;
-          return context.prisma.createFile({
-            filename,
-            location: fileLocation,
-            notice: { connect: { id: args.input.id } },
-          });
-        }),
-      );
+      // upload new files to cloudinary
+      await uploadToCloud(args.input.filesToUpload, notice, context);
 
       // update break notice with new data
       return context.prisma.updateBreakNotice({
@@ -200,15 +199,34 @@ const breakNoticeMutation = {
     try {
       const res = await authenticate(context);
 
+      const frag = `
+      fragment breakNoticeWithOwnerAndFiles on BreakNotice {
+        id
+        owner {
+          firebaseId
+        }
+        files {
+          filename
+        }
+      }`;
+
       // fetch notice
-      const owner = await context.prisma
+      const notice = await context.prisma
         .breakNotice({ id: args.input.id })
-        .owner();
+        .$fragment(frag);
+
+      // check if notice exists
+      if (!notice) {
+        throw new Error('No notice found with this id.');
+      }
 
       // check if user is the owner of the notice
-      if (owner.firebaseId !== res.uid) {
+      if (notice.owner.firebaseId !== res.uid) {
         throw new Error('Notice does not belong to user.');
       }
+
+      // delete files linked to notice on cloudinary
+      await deleteFromCloud(notice.files);
 
       return context.prisma.deleteBreakNotice({ id: args.input.id });
     } catch (error) {
