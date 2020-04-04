@@ -186,6 +186,12 @@ const groupMutation = {
     }
   },
 
+  fakeJoinGroup: async (root, args, context) => context.prisma.createUserGroup({
+    user: { connect: { firebaseId: args.userId } },
+    group: { connect: { id: args.groupId } },
+    role: { connect: { type: args.role } },
+  }),
+
   removeUsersFromGroup: async (root, args, context) => {
     try {
       const res = await authenticate(context);

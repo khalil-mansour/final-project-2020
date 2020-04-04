@@ -19,6 +19,7 @@ const { ListLine } = require('./ListLine');
 const { BreakNotice } = require('./BreakNotice');
 
 const { userGroupSubscription } = require('./Subscription/userGroup');
+const { breakNoticeSubscription } = require('./Subscription/breakNotice');
 
 module.exports = {
   Query: {
@@ -36,6 +37,7 @@ module.exports = {
   },
   Subscription: {
     ...userGroupSubscription,
+    ...breakNoticeSubscription,
   },
   User,
   Group,

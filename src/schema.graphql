@@ -226,10 +226,13 @@ type Mutation {
   #delete list
   deleteLists(input: DeleteListsInput!): Boolean
 
+  fakeJoinGroup(groupId: ID!, userId: ID!, role: String!): UserGroup!
+
 }
 
 type Subscription {
   userGroup(input: SubscriptionUserGroupInput!): SubscriptionUserGroupPayload!
+  breakNotice(input: SubscriptionBreakNoticeInput!): SubscriptionBreakNoticePayload!
 }
 
 # INPUTS
@@ -401,6 +404,10 @@ input SubscriptionUserGroupInput {
   groupId: ID!
 }
 
+input SubscriptionBreakNoticeInput {
+  groupId: ID!
+}
+
 # PAYLOADS
 
 type SubscriptionUserGroupPayload {
@@ -408,4 +415,11 @@ type SubscriptionUserGroupPayload {
   node: UserGroup
   updatedFields: [String!]
   previousValues: UserGroup
+}
+
+type SubscriptionBreakNoticePayload {
+  mutation: String!
+  node: BreakNotice
+  updatedFields: [String!]
+  previousValues: BreakNotice
 }
