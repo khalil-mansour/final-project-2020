@@ -22,6 +22,7 @@ const { List } = require('./List');
 const { ListSection } = require('./ListSection');
 const { ListLine } = require('./ListLine');
 
+const { userGroupSubscription } = require('./Subscription/userGroup');
 
 const { chatSubscription } = require('./Subscription/chat');
 
@@ -40,6 +41,7 @@ module.exports = {
     ...listMutation,
   },
   Subscription: {
+    ...userGroupSubscription,
     ...chatSubscription,
   },
   User,

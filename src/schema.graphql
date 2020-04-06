@@ -11,6 +11,7 @@ type User {
   name: String!
   lastName: String!
   email: String!
+  avatar: String
   groups: [UserGroup!]!
   userChatrooms: [UserChatroom!]!
 }
@@ -22,6 +23,7 @@ type Group {
   admin: User!
   chatroom: Chatroom!
   users: [UserGroup!]!
+  invitations: [Invitation]
   lists: [List]
 }
 
@@ -29,15 +31,16 @@ type UserGroup {
   id: ID!
   user: User!
   group: Group!
+  role: UserType!
   createdAt: String!
 }
 
 type Invitation {
   id: ID!
-  from: User!
+  code: String!
   group: Group!
-  link: String!
-  expiredAt: String!
+  role: UserType!
+  createdAt: String!
 }
 
 type List {
@@ -101,20 +104,29 @@ type Message {
 }
 
 type Query {
+  # query all userTypes
+  userTypes: [UserType!]!
   # query all users
   users: [User!]!
   # query all groups
   groups: [Group!]!
   # query all addresses
   addresses: [Address!]!
+
   # query all invitations
   invitations: [Invitation!]!
+  # query invitations by groupId
+  invitationsForGroup(groupId: ID!, role: String): [Invitation!]!
+
   # query all userGroups
   userGroups: [UserGroup!]!
 
   # query user by id
   user(id: ID!): User!
   login: Boolean!
+
+  # query userType by id
+  userType(userTypeId: ID!): UserType!
   # query user by firebase id (string)
   userByFirebase(firebaseId: String!): User!
   # query group by id
@@ -133,6 +145,8 @@ type Query {
   list(listId: ID!): List!
   #query userGroup by user id
   userGroupsByUserId: [UserGroup]!
+  #query userGroup by group id
+  userGroupByGroupId(groupId: ID!): [UserGroup]!
 
   # query transaction by id
   transaction(transactionId: ID!): String!
@@ -185,13 +199,13 @@ type Mutation {
   createGroup(input: CreateGroupInput!): Group!
 
   # joinGroup
-  joinGroup(input: JoinGroupInput!): Group!
+  joinGroup(input: JoinGroupInput!): UserGroup!
 
   # leave a group
   leaveGroup(input: LeaveGroupInput!): Group!
 
-  # remove user from group (admin only)
-  removeUserFromGroup(input: RemoveUserFromGroupInput!): Group!
+  # remove users from group (admin only)
+  removeUsersFromGroup(input: RemoveUsersFromGroupInput!): [ID!]!
 
   # update group name
   updateGroupName(input: UpdateGroupNameInput!): Group!
@@ -207,8 +221,7 @@ type Mutation {
   # invite a user to group
   createInvitation(input: CreateInvitationInput!): Invitation!
 
-  # accept invitation
-  acceptInvitation(input: AcceptInvitationInput!): UserGroup!
+  refreshInvitation(input: RefreshInvitationInput!): Invitation!
 
   #List
 
@@ -216,7 +229,7 @@ type Mutation {
   createList(input: CreateListInput!): List!
   #update list
   updateList(input: UpdateListInput!): List!
-  #delete lsit
+  #delete list
   deleteLists(input: DeleteListsInput!): Boolean
 
   # CHAT
@@ -258,6 +271,11 @@ type SubscriptionMessagePayload {
 
 }
 
+type Subscription {
+
+  userGroup(input: SubscriptionUserGroupInput!): SubscriptionUserGroupPayload!
+}
+
 # INPUTS
 
 input SignUpInput {
@@ -281,15 +299,16 @@ input AssignTypeToUserInput {
 
 input CreateGroupInput {
   name: String!
+  role: String!
 }
 
-input RemoveUserFromGroupInput {
-  userId: ID!
+input RemoveUsersFromGroupInput {
+  userIdArray: [ID!]!
   groupId: ID!
 }
 
 input JoinGroupInput {
-  groupId: ID!
+  code: String!
 }
 
 input LeaveGroupInput {
@@ -369,8 +388,11 @@ input AddressInput {
 
 input CreateInvitationInput {
   groupId: ID!
-  link: String!
-  expiredAt: String!
+  role: String!
+}
+
+input RefreshInvitationInput {
+  invitationId: ID!
 }
 
 input UserGroupByIdsInput {
@@ -429,4 +451,17 @@ input CreateListLineInput {
   quantity: Int
   section: ID
   checked: Boolean
+}
+
+input SubscriptionUserGroupInput {
+  groupId: ID!
+}
+
+# PAYLOADS
+
+type SubscriptionUserGroupPayload {
+  mutation: String!
+  node: UserGroup
+  updatedFields: [String!]
+  previousValues: UserGroup
 }
