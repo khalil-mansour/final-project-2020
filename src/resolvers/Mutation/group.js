@@ -1,7 +1,7 @@
 const { authenticate, userBelongsToGroup } = require('../../utils.js');
 const { Query } = require('../Query/Query.js');
 const { Group } = require('../Group');
-const { invitationMutation } = require('../Mutation/invitation.js');
+const { invitationMutation } = require('./invitation.js');
 
 async function getUserGroup(user, group, context) {
   return context.prisma.userGroups({
