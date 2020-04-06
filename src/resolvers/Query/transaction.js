@@ -149,6 +149,7 @@ const transactionQuery = {
         id
         amount
         description
+        isEven
         isPayback
         isDeleted
         createdBy {
