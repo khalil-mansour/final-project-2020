@@ -1,7 +1,7 @@
 const { authenticate, userBelongsToGroup } = require('../../utils.js');
 const { Query } = require('../Query/Query.js');
 const { Group } = require('../Group');
-const { invitationMutation } = require('../Mutation/invitation.js');
+const { invitationMutation } = require('./invitation.js');
 
 async function getUserGroup(user, group, context) {
   return context.prisma.userGroups({
@@ -206,36 +206,32 @@ const groupMutation = {
       // fetch admin
       const admin = await Group.admin(group, null, context);
       // check if current user is admin
-      if (res.uid === admin.firebaseId) {
-        const userGroupIds = await Promise.all(
-          args.input.userIdArray.map(async (element) => {
-            // check if target is admin himself
-            if (element === admin.uid) {
-              throw new Error('The target user can\t be the admin of the group.');
-            }
-            // check if target user is in group
-            if (!(await userBelongsToGroup(context, element, args.input.groupId))) {
-              throw new Error('The target user is not a member of the group');
-            }
-            // fetch userGroup with ids
-            const userGroup = await Query.userGroupByIds(root, {
-              input: {
-                userId: element,
-                groupId: args.input.groupId,
-              },
-            }, context);
-
-            return userGroup[0].id;
-          }),
-        );
-
-        await Promise.all(userGroupIds.map(async (element) => {
-          await context.prisma.deleteUserGroup({ id: element });
-        }));
-
-        return userGroupIds;
+      if (res.uid !== admin.firebaseId) {
+        throw new Error('The current user is not the admin of the group.');
       }
-      throw new Error('The current user is not the admin of the group.');
+
+      return Promise.all(
+        args.input.userIdArray.map(async (element) => {
+          // check if target is admin himself
+          if (element === admin.uid) {
+            throw new Error('The target user can\t be the admin of the group.');
+          }
+          // check if target user is in group
+          if (!(await userBelongsToGroup(context, element, args.input.groupId))) {
+            throw new Error('The target user is not a member of the group');
+          }
+          // fetch userGroup with ids
+          const userGroup = await Query.userGroupByIds(root, {
+            input: {
+              userId: element,
+              groupId: args.input.groupId,
+            },
+          }, context);
+
+          await context.prisma.deleteUserGroup({ id: userGroup[0].id });
+          return element;
+        }),
+      );
     } catch (error) {
       throw new Error(error.message);
     }

@@ -111,3 +111,6 @@ src/config.json
 # vscode settings
 .vscode
 .idea
+
+# media folder
+media

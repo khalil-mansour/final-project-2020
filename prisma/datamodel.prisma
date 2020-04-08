@@ -21,6 +21,7 @@ type Group {
   lists: [List] @relation(name: "GroupLists", onDelete:CASCADE)
   invitations: [Invitation] @relation(name: "InvitationGroup", onDelete: CASCADE)
   chatroom: Chatroom! @relation(name: "GroupChatroom", link: "INLINE", onDelete: SET_NULL)
+  notices: [BreakNotice] @relation(name: "BreakNoticeGroup", onDelete: CASCADE)
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
 }
@@ -114,3 +115,27 @@ type Message {
   deletedAt: DateTime
 }
 
+
+type BreakNotice {
+  id: ID! @id
+  subject: String!
+  text: String!
+  group: Group! @relation(name: "BreakNoticeGroup")
+  urgencyLevel: String!
+  solved: Boolean!
+  owner: User!
+  files: [File] @relation(name: "BreakNoticeFiles", onDelete: CASCADE)
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
+  happenedAt: DateTime
+  solvedAt: DateTime
+}
+
+type File {
+  id: ID! @id
+  filename: String!
+  cloudinaryUrl: String!
+  notice: BreakNotice! @relation(name: "BreakNoticeFiles")
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
+}

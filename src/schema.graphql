@@ -1,3 +1,4 @@
+scalar Upload
 scalar DateTime
 
 type UserType {
@@ -25,6 +26,7 @@ type Group {
   users: [UserGroup!]!
   invitations: [Invitation]
   lists: [List]
+  notices: [BreakNotice]
 }
 
 type UserGroup {
@@ -80,6 +82,26 @@ type Address {
   group: Group!
 }
 
+type BreakNotice {
+  id: ID!
+  subject: String!
+  text: String!
+  group: Group!
+  urgencyLevel: String!
+  solved: Boolean!
+  owner: User!
+  files: [File]
+  happenedAt: DateTime
+  solvedAt: DateTime
+}
+
+type File {
+  id: ID!
+  filename: String!
+  cloudinaryUrl: String!
+  notice: BreakNotice!
+}
+
 type Chatroom {
   id: ID!
   name: String!
@@ -120,6 +142,8 @@ type Query {
 
   # query all userGroups
   userGroups: [UserGroup!]!
+  # query all breakNotices
+  breakNotices: [BreakNotice!]!
 
   # query user by id
   user(id: ID!): User!
@@ -139,14 +163,19 @@ type Query {
   userGroup(userGroupId: ID!): UserGroup!
   # query userGroup
   userGroupByIds(input: UserGroupByIdsInput!): [UserGroup]
-  #query lists for a group
+  # query lists for a group
   listsByGroup(groupId: ID!): [List]
-  #query list from id
+  # query list from id
   list(listId: ID!): List!
-  #query userGroup by user id
+  # query userGroup by user id
   userGroupsByUserId: [UserGroup]!
   #query userGroup by group id
   userGroupByGroupId(groupId: ID!): [UserGroup]!
+
+  # query breakNotice by id
+  breakNotice(breakNoticeId: ID!): BreakNotice!
+  # query breakNotice by groupId
+  breakNoticesByGroup(groupId: ID!): [BreakNotice]
 
   # query transaction by id
   transaction(transactionId: ID!): String!
@@ -223,6 +252,20 @@ type Mutation {
 
   refreshInvitation(input: RefreshInvitationInput!): Invitation!
 
+  # BREAK NOTICE
+
+  # create a break notice
+  createBreakNotice(input: CreateBreakNoticeInput!): BreakNotice!
+
+  # solve a break notice
+  solveBreakNotice(input: SolveBreakNoticeInput!): BreakNotice!
+
+  # update a break notice
+  updateBreakNotice(input: UpdateBreakNoticeInput!): BreakNotice!
+
+  # delete a break notice
+  deleteBreakNotice(input: DeleteBreakNoticeInput!): BreakNotice!
+
   #List
 
   #create list
@@ -272,8 +315,8 @@ type SubscriptionMessagePayload {
 }
 
 type Subscription {
-
   userGroup(input: SubscriptionUserGroupInput!): SubscriptionUserGroupPayload!
+  breakNotice(input: SubscriptionBreakNoticeInput!): SubscriptionBreakNoticePayload!
 }
 
 # INPUTS
@@ -453,7 +496,42 @@ input CreateListLineInput {
   checked: Boolean
 }
 
+input CreateBreakNoticeInput {
+  subject: String!
+  text: String
+  groupId: ID!
+  urgencyLevel: String!
+  filesToUpload: [Upload!]!
+  happenedAt: DateTime
+}
+
+input FileInput {
+  id: ID!
+}
+
+input UpdateBreakNoticeInput {
+  id: ID!
+  subject: String!
+  text: String
+  urgencyLevel: String!
+  files: [FileInput!]!
+  filesToUpload: [Upload!]!
+  happenedAt: DateTime
+}
+
+input SolveBreakNoticeInput {
+  id: ID!
+}
+
+input DeleteBreakNoticeInput {
+  id: ID!
+}
+
 input SubscriptionUserGroupInput {
+  groupId: ID!
+}
+
+input SubscriptionBreakNoticeInput {
   groupId: ID!
 }
 
@@ -464,4 +542,11 @@ type SubscriptionUserGroupPayload {
   node: UserGroup
   updatedFields: [String!]
   previousValues: UserGroup
+}
+
+type SubscriptionBreakNoticePayload {
+  mutation: String!
+  node: BreakNotice
+  updatedFields: [String!]
+  previousValues: BreakNotice
 }

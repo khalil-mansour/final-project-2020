@@ -4,6 +4,7 @@ const { addressMutation } = require('./Mutation/address');
 const { chat } = require('./Mutation/chat');
 const { invitationMutation } = require('./Mutation/invitation');
 const { listMutation } = require('./Mutation/list');
+const { breakNoticeMutation } = require('./Mutation/breakNotice');
 
 const { Query } = require('./Query/Query');
 const { listQuery } = require('./Query/List');
@@ -21,8 +22,10 @@ const { UserGroup } = require('./UserGroup');
 const { List } = require('./List');
 const { ListSection } = require('./ListSection');
 const { ListLine } = require('./ListLine');
+const { BreakNotice } = require('./BreakNotice');
 
 const { userGroupSubscription } = require('./Subscription/userGroup');
+const { breakNoticeSubscription } = require('./Subscription/breakNotice');
 
 const { chatSubscription } = require('./Subscription/chat');
 
@@ -39,10 +42,12 @@ module.exports = {
     ...chat,
     ...invitationMutation,
     ...listMutation,
+    ...breakNoticeMutation,
   },
   Subscription: {
     ...userGroupSubscription,
     ...chatSubscription,
+    ...breakNoticeSubscription,
   },
   User,
   Group,
@@ -54,4 +59,5 @@ module.exports = {
   List,
   ListSection,
   ListLine,
+  BreakNotice,
 };
