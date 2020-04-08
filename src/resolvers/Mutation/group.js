@@ -50,6 +50,12 @@ const groupMutation = {
         },
       ).$fragment(fragment);
 
+      await context.prisma.createUserChatroom({
+        user: { connect: { firebaseId: res.uid } },
+        chatroom: { connect: { id: group.chatroom.id } },
+      });
+
+
       // create initial landlord invitation for group
       await invitationMutation.createInvitation(
         root,

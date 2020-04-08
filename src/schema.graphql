@@ -123,6 +123,7 @@ type Message {
   deletedAt: DateTime
   user: User!
   chatroom: Chatroom!
+  createdAt: DateTime
 }
 
 type Query {
@@ -304,17 +305,6 @@ type Mutation {
 
 type Subscription {
   message(input: SubscriptionMessageInput!): SubscriptionMessagePayload
-}
-
-type SubscriptionMessagePayload {
-  mutation: String!
-  node: Message!
-  updatedFields: [String!]
-  previousValues: Message
-
-}
-
-type Subscription {
   userGroup(input: SubscriptionUserGroupInput!): SubscriptionUserGroupPayload!
   breakNotice(input: SubscriptionBreakNoticeInput!): SubscriptionBreakNoticePayload!
 }
@@ -399,10 +389,6 @@ input GetMessagesInput {
   chatroomId: ID!
   numberOfMessages: Int!
   skip: Int!
-}
-
-input SubscriptionMessageInput {
-  chatroomId: ID!
 }
 
 input AcceptInvitationInput {
@@ -535,6 +521,10 @@ input SubscriptionBreakNoticeInput {
   groupId: ID!
 }
 
+input SubscriptionMessageInput {
+  chatroomId: ID!
+}
+
 # PAYLOADS
 
 type SubscriptionUserGroupPayload {
@@ -549,4 +539,11 @@ type SubscriptionBreakNoticePayload {
   node: BreakNotice
   updatedFields: [String!]
   previousValues: BreakNotice
+}
+
+type SubscriptionMessagePayload {
+  mutation: String!
+  node: Message!
+  updatedFields: [String!]
+  previousValues: Message
 }

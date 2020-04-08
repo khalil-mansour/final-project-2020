@@ -109,7 +109,7 @@ const Query = {
         id: args.chatroomId,
       },
     },
-    first: args.input.numberOfMessages,
+    last: args.input.numberOfMessages,
     skip: args.input.skip,
   }),
 

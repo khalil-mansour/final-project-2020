@@ -81,7 +81,7 @@ const chat = {
     content: args.input.content,
     user: {
       connect: {
-        id: args.input.userId,
+        firebaseId: args.input.userId,
       },
     },
     chatroom: {
