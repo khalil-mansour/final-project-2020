@@ -1,8 +1,15 @@
 const firebaseAdmin = require('firebase-admin');
+const cloudinary = require('cloudinary').v2;
 const serviceAccount = require('./serviceKey.json');
 const config = require('./config.json');
 
 require('dotenv').config();
+
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET,
+});
 
 firebaseAdmin.initializeApp({
   credential: firebaseAdmin.credential.cert(serviceAccount),
@@ -15,7 +22,15 @@ function authenticate(context) {
       resolve({ uid: config.simulated_firebase_id });
     });
   }
-  const authorization = context.request.get('Authorization');
+
+  let authorization;
+
+  if (context.connection && context.connection.context) {
+    authorization = context.connection.context.Authorization;
+  } else {
+    authorization = context.request.get('Authorization');
+  }
+
   let token = '';
   if (authorization) {
     token = authorization.replace('Bearer ', '');
@@ -46,4 +61,6 @@ const userBelongsToGroup = async (
   groupId,
 ) => usersBelongsToGroup(context, [userFirebaseId], groupId);
 
-module.exports = { authenticate, userBelongsToGroup, usersBelongsToGroup };
+module.exports = {
+  authenticate, userBelongsToGroup, usersBelongsToGroup,
+};

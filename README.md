@@ -97,6 +97,16 @@ In Visual Studio Code, add these lines in settings.json :
   yarn eslint src/ --fix
 ```
 
+### cloudinary environment variables
+
+Copy and paste the following variables in order to access the cloudinary service:
+```
+CLOUD_NAME=dnjo9ocol
+API_KEY=346787735454781
+API_SECRET=N38mtsKdhxp_FkHzQw3-9MU_8A0
+```
+
+
 # 📖 Understanding the project structure 🤔💡
 The structure is pretty simple here. 
 - One rule don't modify the generated code for prisma 

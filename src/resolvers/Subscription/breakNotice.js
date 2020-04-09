@@ -1,7 +1,7 @@
 const { authenticate, userBelongsToGroup } = require('../../utils.js');
 
-const userGroupSubscription = {
-  userGroup: {
+const breakNoticeSubscription = {
+  breakNotice: {
     subscribe: async (parent, args, context) => {
       try {
         const res = await authenticate(context);
@@ -11,8 +11,8 @@ const userGroupSubscription = {
           throw new Error('The connected user is not allowed to subscribe to the changes of the specified group.');
         }
 
-        return context.prisma.$subscribe.userGroup({
-          mutation_in: ['CREATED', 'DELETED'],
+        return context.prisma.$subscribe.breakNotice({
+          mutation_in: ['CREATED', 'UPDATED', 'DELETED'],
           node: {
             group: {
               id: args.input.groupId,
@@ -27,4 +27,4 @@ const userGroupSubscription = {
   },
 };
 
-module.exports = { userGroupSubscription };
+module.exports = { breakNoticeSubscription };

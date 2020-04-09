@@ -25,6 +25,7 @@ type Group {
   users: [UserGroup!]! @relation(name: "GroupUsers", onDelete: CASCADE)
   lists: [List] @relation(name: "GroupLists", onDelete:CASCADE)
   invitations: [Invitation] @relation(name: "InvitationGroup", onDelete: CASCADE)
+  notices: [BreakNotice] @relation(name: "BreakNoticeGroup", onDelete: CASCADE)
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
 }
@@ -37,6 +38,8 @@ type List {
   group: Group! @relation(name: "GroupLists")
   isTemplate: Boolean!
   sections: [ListSection!]! @relation(name: "ListSections", onDelete: CASCADE)
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
 }
 
 type ListSection {
@@ -128,4 +131,28 @@ type TransactionOperationHistoricType {
   id: ID! @id
   name: String! @unique
   transactionOperationsHistoric: [TransactionOperationHistoric] @relation(name: "TransactionOperationHistoricType")
+}
+
+type BreakNotice {
+  id: ID! @id
+  subject: String!
+  text: String!
+  group: Group! @relation(name: "BreakNoticeGroup")
+  urgencyLevel: String!
+  solved: Boolean!
+  owner: User!
+  files: [File] @relation(name: "BreakNoticeFiles", onDelete: CASCADE)
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
+  happenedAt: DateTime
+  solvedAt: DateTime
+}
+
+type File {
+  id: ID! @id
+  filename: String!
+  cloudinaryUrl: String!
+  notice: BreakNotice! @relation(name: "BreakNoticeFiles")
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
 }
