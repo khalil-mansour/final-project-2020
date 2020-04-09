@@ -60,4 +60,6 @@ const userBelongsToGroup = async (
   groupId,
 ) => usersBelongsToGroup(context, [userFirebaseId], groupId);
 
-module.exports = { authenticate, userBelongsToGroup, usersBelongsToGroup };
+module.exports = {
+  authenticate, userBelongsToGroup, usersBelongsToGroup,
+};

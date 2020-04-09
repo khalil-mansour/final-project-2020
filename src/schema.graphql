@@ -51,6 +51,8 @@ type List {
   group: Group!
   isTemplate: Boolean!
   sections: [ListSection!]!
+  createdAt: String!
+  updatedAt: String!
 }
 
 type ListSection {
