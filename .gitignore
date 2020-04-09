@@ -110,3 +110,6 @@ src/generated/
 src/config.json
 # vscode settings
 .vscode
+
+# media folder
+media
