@@ -322,12 +322,8 @@ type Mutation {
 }
 
 type Subscription {
-
   # subscription to transaction create, update and delete operations
   transaction(input: SubscriptionTransactionInput!): SubscriptionTransactionPayload
-}
-
-type Subscription {
   userGroup(input: SubscriptionUserGroupInput!): SubscriptionUserGroupPayload!
   breakNotice(input: SubscriptionBreakNoticeInput!): SubscriptionBreakNoticePayload!
 }
