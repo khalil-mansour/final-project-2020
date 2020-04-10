@@ -123,11 +123,11 @@ const getTransactionBalanceAmount = (transaction, userId) => {
     return 0;
   }
 
-  const contribution = transaction.contributions
+  const userContribution = transaction.contributions
     .find((contribution) => contribution.user.firebaseId === userId);
 
-  return contribution
-    ? contribution.amount * -1
+  return userContribution
+    ? userContribution.amount * -1
     : 0;
 };
 
