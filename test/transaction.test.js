@@ -552,6 +552,7 @@ describe('Transaction', () => {
       mutation PayBack {
         payBack (
           input: {
+            payBackFromUserId: "locataire2eUB94OOxfCDuCVl7O2"
             payBackToUserId: "locataire2eUB94OOxfCDuCVl7O2"
             groupId: "ck6zhs0b1006p0715m27689wl"
             amount: 626500
