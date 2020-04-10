@@ -3,6 +3,7 @@ image: node:latest
 stages:
   - install
   - generate
+  - test
   - lint
   
 cache:
@@ -24,6 +25,15 @@ generate prisma files:
   script:
     - yarn global add prisma
     - prisma generate
+
+test:
+  stage: test
+  before_script:
+    - yarn
+    - yarn global add prisma
+    - prisma generate
+  script:
+    - yarn mocha
 
 lint:
   stage: lint

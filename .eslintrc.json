@@ -18,6 +18,8 @@
   },
   "rules": {
     "linebreak-style": ["error", "unix"],
+    "max-len": [1, 125, 4],
+    "no-plusplus": 0,
     "mocha/no-mocha-arrows": 0
   }
 }

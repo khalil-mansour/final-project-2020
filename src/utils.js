@@ -37,6 +37,7 @@ function authenticate(context) {
   }
   return firebaseAdmin.auth().verifyIdToken(token);
 }
+
 // Validate that every specified users belongs to the same group
 const usersBelongsToGroup = async (context, userFirebaseIds, groupId) => {
   const validUserGroupBelongingsCount = await context.prisma.userGroupsConnection({

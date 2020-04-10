@@ -6,7 +6,12 @@ type User {
   lastName: String!
   avatar: String
   email: String! @unique
+  createdTransactions: [Transaction] @relation(name: "CreatedByTransactions")
+  transactions: [Transaction] @relation(name: "PaidByTransactions")
+  contributions: [Contribution] @relation(name: "UserContributions")
   groups: [UserGroup!]! @relation(name: "UserGroups", onDelete: CASCADE)
+  transactionOperationsMade: [TransactionOperationHistoric] @relation(name: "TransactionOperationMadeByUser")
+  transactionOperationsConcerned: [TransactionOperationHistoric] @relation(name: "TransactionOperationConcernedUsers")
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
 }
@@ -16,6 +21,7 @@ type Group {
   name: String!
   address: Address! @relation(name: "GroupAddress", link: INLINE, onDelete: CASCADE)
   admin: User! @relation(name: "GroupAdmin")
+  transactions: [Transaction] @relation(name: "GroupTransactions")
   users: [UserGroup!]! @relation(name: "GroupUsers", onDelete: CASCADE)
   lists: [List] @relation(name: "GroupLists", onDelete:CASCADE)
   invitations: [Invitation] @relation(name: "InvitationGroup", onDelete: CASCADE)
@@ -83,6 +89,48 @@ type Invitation {
   code: String! @unique
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
+}
+
+type Transaction {
+  id: ID! @id
+  createdBy: User! @relation(name: "CreatedByTransactions")
+  paidBy: User! @relation(name: "PaidByTransactions")
+  amount: Int!
+  isDeleted: Boolean!
+  isPayback: Boolean!
+  isEven: Boolean!
+  description: String!
+  group: Group! @relation(name: "GroupTransactions")
+  contributions: [Contribution!]! @relation(name: "TransactionContributions", onDelete: CASCADE)
+  operationsHistoric: [TransactionOperationHistoric!]! @relation(name: "TransactionOperationHistoricTransaction")
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt 
+}
+
+type Contribution {
+  id: ID! @id
+  user: User! @relation(name: "UserContributions")
+  transaction: Transaction! @relation(name: "TransactionContributions")
+  percentage: Float!
+  amount: Int!
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
+}
+
+type TransactionOperationHistoric {
+  id: ID! @id
+  type: TransactionOperationHistoricType! @relation(name: "TransactionOperationHistoricType")
+  transaction: Transaction @relation(name: "TransactionOperationHistoricTransaction")
+  transactionDescription: String!
+  operationMadeByUser: User! @relation(name: "TransactionOperationMadeByUser")
+  concernedUsers: [User!]! @relation(name: "TransactionOperationConcernedUsers")
+  createdAt: DateTime! @createdAt
+}
+
+type TransactionOperationHistoricType {
+  id: ID! @id
+  name: String! @unique
+  transactionOperationsHistoric: [TransactionOperationHistoric] @relation(name: "TransactionOperationHistoricType")
 }
 
 type BreakNotice {

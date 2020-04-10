@@ -29,7 +29,54 @@ mutation {
   ) {
     firebaseId
   }
-
+  locataire2: createUser(
+    data: {
+      firebaseId: "locataire2eUB94OOxfCDuCVl7O2",
+      name: "locataire2"
+      lastName: "locataire2"
+      email: "locataire2@admin.com"
+    }
+  ) {
+    firebaseId
+  }
+  locataire3: createUser(
+    data: {
+      firebaseId: "locataire3eUB94OOxfCDuCVl7O2",
+      name: "locataire3"
+      lastName: "locataire3"
+      email: "locataire3@admin.com"
+    }
+  ) {
+    firebaseId
+  }
+  transactionOperationHistoricTypeCreate: createTransactionOperationHistoricType(
+    data: {
+      name: "CREATE"
+    }
+  ) {
+    id
+  }
+  transactionOperationHistoricTypeUpdate: createTransactionOperationHistoricType(
+    data: {
+      name: "UPDATE"
+    }
+  ) {
+    id
+  }
+  transactionOperationHistoricTypeDelete: createTransactionOperationHistoricType(
+    data: {
+      name: "DELETE"
+    }
+  ) {
+    id
+  }
+  transactionOperationHistoricTypeRestore: createTransactionOperationHistoricType(
+    data: {
+      name: "RESTORE"
+    }
+  ) {
+    id
+  }
   typeLandlord: createUserType(
     data: {
       type: "landlord"
@@ -37,7 +84,6 @@ mutation {
   ) {
     id
   }
-
   typeTenant: createUserType(
     data: {
       type: "tenant"

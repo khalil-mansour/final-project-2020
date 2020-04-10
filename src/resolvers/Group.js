@@ -9,6 +9,9 @@ const Group = {
   /* GET group users */
   users: (parent, args, context) => context.prisma.group({ id: parent.id }).users(),
 
+  /* GET group transactions */
+  transactions: (parent, args, context) => context.prisma.group({ id: parent.id }).transactions(),
+
   /* GET list for group */
   lists: (parent, args, context) => context.prisma.group({ id: parent.id }).lists(),
 
