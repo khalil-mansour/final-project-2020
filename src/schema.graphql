@@ -302,7 +302,7 @@ type Mutation {
   # create a break notice
   createBreakNotice(input: CreateBreakNoticeInput!): BreakNotice!
 
-  # solve a break notice 
+  # solve a break notice
   solveBreakNotice(input: SolveBreakNoticeInput!): BreakNotice!
 
   # update a break notice
@@ -325,7 +325,9 @@ type Subscription {
   # subscription to transaction create, update and delete operations
   transaction(input: SubscriptionTransactionInput!): SubscriptionTransactionPayload
   userGroup(input: SubscriptionUserGroupInput!): SubscriptionUserGroupPayload!
-  breakNotice(input: SubscriptionBreakNoticeInput!): SubscriptionBreakNoticePayload!
+  breakNotice(
+    input: SubscriptionBreakNoticeInput!
+  ): SubscriptionBreakNoticePayload!
 }
 
 # INPUTS
@@ -402,6 +404,7 @@ input CreateInvitationInput {
 
 input RefreshInvitationInput {
   invitationId: ID!
+  groupId: ID!
 }
 
 input UserGroupByIdsInput {
