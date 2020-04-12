@@ -361,13 +361,11 @@ input UpdateChatroomInput {
 }
 
 input JoinLeaveChatroomInput {
-  userId: ID!
   chatroomId: ID!
 }
 
 input SendMessageInput {
   content: String!
-  userId: ID!
   chatroomId: ID!
 }
 

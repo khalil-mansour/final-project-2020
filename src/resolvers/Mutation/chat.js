@@ -1,11 +1,14 @@
+const { authenticate } = require('../../utils.js');
+
+
 const getUserChatroomById = async (args, context) => {
   const chatrooms = await context.prisma.userChatrooms({
     where: {
       user: {
-        firebaseId: args.input.userId,
+        firebaseId: args.userId,
       },
       chatroom: {
-        id: args.input.chatroomId,
+        id: args.chatroomId,
       },
     },
   });
@@ -18,30 +21,44 @@ const getUserChatroomById = async (args, context) => {
 const chat = {
 
   // Create a chatroom
-  createChatroom: (root, args, context) => context.prisma.createChatroom({
-    name: args.input.name,
-  }),
+  createChatroom: async (root, args, context) => {
+    await authenticate(context);
+    return context.prisma.createChatroom({
+      name: args.input.name,
+    });
+  },
   // Deactivate a chatroom
-  deactivateChatroom: (root, args, context) => context.prisma.updateChatroom({
-    data: {
-      isArchived: true,
-    },
-    where: {
-      id: args.input.id,
-    },
-  }),
+  deactivateChatroom: async (root, args, context) => {
+    await authenticate(context);
+
+    return context.prisma.updateChatroom({
+      data: {
+        isArchived: true,
+      },
+      where: {
+        id: args.input.id,
+      },
+    });
+  },
   // Activate a chatrrom
-  activateChatroom: (root, args, context) => context.prisma.updateChatroom({
-    data: {
-      isArchived: false,
-    },
-    where: {
-      id: args.input.id,
-    },
-  }),
+  activateChatroom: async (root, args, context) => {
+    await authenticate(context);
+    return context.prisma.updateChatroom({
+      data: {
+        isArchived: false,
+      },
+      where: {
+        id: args.input.id,
+      },
+    });
+  },
   // Enter a chatroom
   joinChatroom: async (root, args, context) => {
-    const chatroom = await getUserChatroomById(args, context);
+    const res = await authenticate(context);
+    const chatroom = await getUserChatroomById({
+      userId: res.uid,
+      chatroomId: args.input.chatroomId,
+    }, context);
     if (chatroom) {
       throw new Error('A user cannot join a Chatroom multiple times');
     }
@@ -65,7 +82,11 @@ const chat = {
   // Leave a chatroom
   leaveChatroom: async (root, args, context) => {
     const dateTime = new Date().toUTCString();
-    const chatroom = await getUserChatroomById(args, context);
+    const res = await authenticate(context);
+    const chatroom = await getUserChatroomById({
+      userId: res.uid,
+      chatroomId: args.input.chatroomId,
+    }, context);
 
     return context.prisma.updateUserChatroom({
       data: {
@@ -77,30 +98,38 @@ const chat = {
     });
   },
   // Send a message
-  sendMessage: (root, args, context) => context.prisma.createMessage({
-    content: args.input.content,
-    user: {
-      connect: {
-        firebaseId: args.input.userId,
-      },
-    },
-    chatroom: {
-      connect: {
-        id: args.input.chatroomId,
-      },
-    },
-  }),
-  // Update a message
-  editMessage: (root, args, context) => context.prisma.updateMessage({
-    data: {
+  sendMessage: async (root, args, context) => {
+    const res = await authenticate(context);
+
+    return context.prisma.createMessage({
       content: args.input.content,
-    },
-    where: {
-      id: args.input.id,
-    },
-  }),
+      user: {
+        connect: {
+          firebaseId: res.uid,
+        },
+      },
+      chatroom: {
+        connect: {
+          id: args.input.chatroomId,
+        },
+      },
+    });
+  },
+  // Update a message
+  editMessage: async (root, args, context) => {
+    await authenticate(context);
+    return context.prisma.updateMessage({
+      data: {
+        content: args.input.content,
+      },
+      where: {
+        id: args.input.id,
+      },
+    });
+  },
   // Delete a message
-  deleteMessage: (root, args, context) => {
+  deleteMessage: async (root, args, context) => {
+    await authenticate(context);
     const date = new Date().toUTCString();
     return context.prisma.updateMessage({
       data: {
