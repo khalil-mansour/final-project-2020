@@ -15,6 +15,11 @@ type User {
   avatar: String
   groups: [UserGroup!]!
   userChatrooms: [UserChatroom!]!
+  createdTransactions: [Transaction]
+  transactions: [Transaction]
+  contributions: [Contribution]
+  transactionOperationsMade: [TransactionOperationHistoric]
+  transactionOperationsConcerned: [TransactionOperationHistoric]
 }
 
 type Group {
@@ -24,6 +29,7 @@ type Group {
   admin: User!
   chatroom: Chatroom!
   users: [UserGroup!]!
+  transactions: [Transaction]
   invitations: [Invitation]
   lists: [List]
   notices: [BreakNotice]
@@ -53,6 +59,8 @@ type List {
   group: Group!
   isTemplate: Boolean!
   sections: [ListSection!]!
+  createdAt: String!
+  updatedAt: String!
 }
 
 type ListSection {
@@ -80,6 +88,48 @@ type Address {
   apartmentUnit: String
   postalCode: String!
   group: Group!
+}
+
+type Transaction {
+  id: ID!
+  createdBy: User!
+  paidBy: User!
+  amount: Int!
+  isDeleted: Boolean!
+  isPayback: Boolean!
+  isEven: Boolean!
+  description: String!
+  group: Group!
+  contributions: [Contribution!]!
+  operationsHistoric: [TransactionOperationHistoric!]!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type Contribution {
+  id: ID!
+  user: User!
+  transaction: Transaction!
+  percentage: Float!
+  amount: Int!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type TransactionOperationHistoric {
+  id: ID!
+  type: TransactionOperationHistoricType!
+  transaction: Transaction
+  transactionDescription: String!
+  operationMadeByUser: User!
+  concernedUsers: [User!]!
+  createdAt: String!
+}
+
+type TransactionOperationHistoricType {
+  id: ID!
+  name: String!
+  transactionOperationsHistoric: [TransactionOperationHistoric]
 }
 
 type BreakNotice {
@@ -147,7 +197,8 @@ type Query {
   breakNotices: [BreakNotice!]!
 
   # query user by id
-  user(id: ID!): User!
+  user(userId: ID!): User!
+
   login: Boolean!
 
   # query userType by id
@@ -181,7 +232,6 @@ type Query {
   # query transaction by id
   transaction(transactionId: ID!): String!
 
-
   # Chat
 
   # query a userChatroom by ID
@@ -204,6 +254,29 @@ type Query {
 
   # query all chatrooms
   chatrooms: [Chatroom]!
+
+
+  transaction(transactionId: ID!): Transaction!
+
+  # query all transactions paid by a user for a group
+  userPaidTransactionsForGroup(groupId: ID!): [GroupTransactionsForUserPayload]!
+  # query all transactions related to a user of a group
+  groupTransactionsForUser(groupId: ID!): [GroupTransactionsForUserPayload]!
+  # query all contributions related to a user of a group
+  groupContributionsForUser(groupId: ID!): [Contribution]!
+  # query all transactions related to the connected user and another user of a group
+  groupTransactionsForTwoUsers(input: GroupTransactionsForTwoUsersInput!): [GroupTransactionsForUserPayload]!
+  # query all the operations made on every transactions related to a user at the moment of these operations for a group
+  groupTransactionsOperationsHistoric(groupId: ID!): [TransactionOperationHistoric]!
+
+  # query the balances with every person of a group
+  allBalances(groupId: ID!): QueryBalancesPayload!
+  # query the balances with every person of a group with unpaid amounts
+  unpaidBalances(groupId: ID!): QueryBalancesPayload!
+  # query the balances whit every person of a group that owe you money
+  usersWhoOweYou(groupId: ID!): QueryBalancesPayload!
+  # query the balances whit every person of a group that you owe money to
+  usersYouOweTo(groupId: ID!): QueryBalancesPayload!
 }
 
 type Mutation {
@@ -252,6 +325,29 @@ type Mutation {
   createInvitation(input: CreateInvitationInput!): Invitation!
 
   refreshInvitation(input: RefreshInvitationInput!): Invitation!
+
+  # TRANSACTION
+
+  # create a new transaction
+  createTransaction(input: CreateTransactionInput!): Transaction!
+
+  # delete a transaction
+  deleteTransaction(input: DeleteTransactionInput!): Transaction!
+
+  # restore a deleted transaction
+  restoreTransaction(input: RestoreTransactionInput!): Transaction!
+
+  # update a transaction completely
+  updateTransaction(input: UpdateTransactionInput!): Transaction!
+
+  # update a transaction's description
+  updateTransactionDescription(input: UpdateTransactionDescriptionInput!): Transaction!
+
+  # pay back another user
+  payBack(input: PayBackInput!): Transaction!
+
+  # update the amount of a payback
+  updatePaybackAmount(input: UpdatePaybackAmountInput!): Transaction!
 
   # BREAK NOTICE
 
@@ -304,9 +400,13 @@ type Mutation {
 }
 
 type Subscription {
+  # subscription to transaction create, update and delete operations
+  transaction(input: SubscriptionTransactionInput!): SubscriptionTransactionPayload
   message(input: SubscriptionMessageInput!): SubscriptionMessagePayload
   userGroup(input: SubscriptionUserGroupInput!): SubscriptionUserGroupPayload!
-  breakNotice(input: SubscriptionBreakNoticeInput!): SubscriptionBreakNoticePayload!
+  breakNotice(
+    input: SubscriptionBreakNoticeInput!
+  ): SubscriptionBreakNoticePayload!
 }
 
 # INPUTS
@@ -420,6 +520,7 @@ input CreateInvitationInput {
 
 input RefreshInvitationInput {
   invitationId: ID!
+  groupId: ID!
 }
 
 input UserGroupByIdsInput {
@@ -435,6 +536,63 @@ input UpdateAddressInput {
   street: String!
   apartmentUnit: String
   postalCode: String!
+}
+
+input CreateTransactionInput {
+  paidById: String!
+  isEven: Boolean!
+  amount: Int!
+  description: String!
+  groupId: ID!
+  contributions: [ContributionInput!]!
+}
+
+input ContributionInput {
+  userId: String!
+  percentage: Float
+}
+
+input DeleteTransactionInput {
+  transactionId: ID!
+}
+
+input RestoreTransactionInput {
+  transactionId: ID!
+}
+
+input UpdateTransactionInput {
+  transactionId: ID!
+  paidById: String!
+  isEven: Boolean!
+  amount: Int!
+  description: String!
+  contributions: [ContributionInput!]!
+}
+
+input UpdateTransactionDescriptionInput {
+  transactionId: ID!
+  description: String!
+}
+
+input SubscriptionTransactionInput {
+  groupId: ID!
+}
+
+input PayBackInput {
+  payBackFromUserId: String!
+  payBackToUserId: String!
+  groupId: ID!
+  amount: Int!
+}
+
+input GroupTransactionsForTwoUsersInput {
+  groupId: ID!
+  otherUserId: String!
+}
+
+input UpdatePaybackAmountInput {
+  transactionId: ID!
+  amount: Int!
 }
 
 input CreateListInput {
@@ -532,6 +690,28 @@ type SubscriptionUserGroupPayload {
   previousValues: UserGroup
 }
 
+type SubscriptionTransactionPayload {
+  mutation: String!
+  node: Transaction
+  updatedFields: [String!]
+  previousValues: Transaction
+}
+
+type QueryBalancesPayload {
+  totalBalance: Int!
+  userBalances: [UserBalance]!
+}
+
+type UserBalance {
+  user: User!
+  balance: Int!
+}
+
+type GroupTransactionsForUserPayload {
+  transactionBalanceAmount: Int!
+  transaction: Transaction!
+}
+
 type SubscriptionBreakNoticePayload {
   mutation: String!
   node: BreakNotice
@@ -545,3 +725,4 @@ type SubscriptionMessagePayload {
   updatedFields: [String!]
   previousValues: Message
 }
+

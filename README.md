@@ -1,7 +1,7 @@
 # 💻 Contributing to the project 💻
 ### 👉 Prerequisites 
 - [Visual Studio Code](https://code.visualstudio.com/)
-- [Latest stable version of Node (10.16+)](https://nodejs.org/en/)
+- [Latest stable version of Node (12.16+)](https://nodejs.org/en/)
 - [Angular CLI latest version](https://angular.io/guide/setup-local)
 - [Nodemon (to automatically restart the server on file change)](https://www.npmjs.com/package/nodemon)
   - `yarn global add nodemon`
@@ -58,29 +58,27 @@ You can also use nodemon to hot-reload your server. A yarn script also exist for
 ##### To fake the firebase authentication
 - Do not forget to remove any modification to the `config.json` file before doing a merge request to the master branch.
 - 1. Go to `src/config.json`
-- 2. Set `simulate_firebase_auth` to true
-- 3. Set `simulated_firebase_uid` to the [firebase uid](https://console.firebase.google.com/u/0/project/roommate-93dcd/authentication/users) of the user you want the server to see you as.
+- 2. Set `simulated_firebase_id` to the [firebase uid](https://console.firebase.google.com/u/0/project/roommate-93dcd/authentication/users) of the user you want the server to see you as.
+- 3. Go to `.env` (if the file doesn't exists, create it at the root of the project)
+- 4. Set `DEV_FLAG` to `true` (ex: DEV_FLAG=true)
 
 Exemples :
 ```json
 The server will see any request as coming from 'admin@admin.com'
 {
-  "simulate_firebase_auth": true,
-  "simulated_firebase_uid": "G4ZaG49WfabtVgzbUYnELosxlqL2"
+  "simulated_firebase_id": "G4ZaG49WfabtVgzbUYnELosxlqL2"
 }
 ```
 ```json
 The server will see any request as coming from 'proprio@admin.com'
 {
-  "simulate_firebase_auth": true,
-  "simulated_firebase_uid": "tT8tv8UXt2MSJiXoO5GoWFBfU0v2"
+  "simulated_firebase_id": "tT8tv8UXt2MSJiXoO5GoWFBfU0v2"
 }
 ```
 ```json
 The server will see any request as coming from 'locataire@admin.com'
 {
-  "simulate_firebase_auth": true,
-  "simulated_firebase_uid": "yaXRcIB3F5eUB94OOxfCDuCVl7O2"
+  "simulated_firebase_id": "yaXRcIB3F5eUB94OOxfCDuCVl7O2"
 }
 ```
 
@@ -135,7 +133,11 @@ The structure is pretty simple here.
     - schema.graphql
 ```
 
+### Test locally
+Run the following line to properly test the graphQL schema structure:
+```shell
+    yarn mocha
+```
+
 # 🧪 Building and running tests locally 🧪
 #### Build
-
-
