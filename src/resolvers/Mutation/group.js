@@ -2,6 +2,7 @@ const { authenticate, userBelongsToGroup } = require('../../utils.js');
 const { Query } = require('../Query/Query.js');
 const { Group } = require('../Group');
 const { invitationMutation } = require('./invitation.js');
+const { getUserChatroomById } = require('./chat');
 
 async function getUserGroup(user, group, context) {
   return context.prisma.userGroups({
@@ -90,9 +91,16 @@ const groupMutation = {
     try {
       const res = await authenticate(context);
 
-      // fetch group
-      const group = await context.prisma.invitation({ code: args.input.code }).group();
+      const fragment = `
+      fragment groupWithChatroom on Group {
+        id
+        chatroom { id }
+      }`;
 
+      // fetch group
+      const group = await context.prisma.invitation({ code: args.input.code })
+        .group()
+        .$fragment(fragment);
       // check if group exists for code
       if (!group) {
         throw new Error('Invalid code !');
@@ -105,6 +113,11 @@ const groupMutation = {
 
       // fetch role by code
       const role = await context.prisma.invitation({ code: args.input.code }).role();
+
+      await context.prisma.createUserChatroom({
+        user: { connect: { firebaseId: res.uid } },
+        chatroom: { connect: { id: group.chatroom.id } },
+      });
 
       return context.prisma.createUserGroup({
         user: { connect: { firebaseId: res.uid } },
@@ -195,6 +208,23 @@ const groupMutation = {
         const userGroup = await getUserGroup(res.uid, args.input.groupId, context);
         // get id of userGroup (always returns an array because fetching by non-unique fields)
         const userGroupId = userGroup[0].id;
+
+        const chatroom = await getUserChatroomById({
+          input: {
+            groupId: userGroupId,
+            userId: res.uid,
+          },
+        }, context);
+
+        await context.prisma.updateUserChatroom({
+          data: {
+            leftDate: new Date(),
+          },
+          where: {
+            id: chatroom.id,
+          },
+        });
+
         return context.prisma.deleteUserGroup({ id: userGroupId });
       }
       throw new Error('User not in group', 'Could not leave group');

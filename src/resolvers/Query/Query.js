@@ -106,7 +106,7 @@ const Query = {
   allMessageByChatroomId: (root, args, context) => context.prisma.messages({
     where: {
       chatroom: {
-        id: args.chatroomId,
+        id: args.input.chatroomId,
       },
     },
     last: args.input.numberOfMessages,

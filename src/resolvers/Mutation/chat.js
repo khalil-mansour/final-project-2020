@@ -2,7 +2,7 @@ const getUserChatroomById = async (args, context) => {
   const chatrooms = await context.prisma.userChatrooms({
     where: {
       user: {
-        id: args.input.userId,
+        firebaseId: args.input.userId,
       },
       chatroom: {
         id: args.input.chatroomId,
@@ -113,4 +113,4 @@ const chat = {
   },
 };
 
-module.exports = { chat };
+module.exports = { chat, getUserChatroomById };
