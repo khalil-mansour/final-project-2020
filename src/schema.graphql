@@ -229,9 +229,6 @@ type Query {
   # query breakNotice by groupId
   breakNoticesByGroup(groupId: ID!): [BreakNotice]
 
-  # query transaction by id
-  transaction(transactionId: ID!): String!
-
   # Chat
 
   # query a userChatroom by ID
@@ -256,6 +253,7 @@ type Query {
   chatrooms: [Chatroom]!
 
 
+  # query transaction by id
   transaction(transactionId: ID!): Transaction!
 
   # query all transactions paid by a user for a group
