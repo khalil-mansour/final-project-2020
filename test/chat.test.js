@@ -60,7 +60,6 @@ describe('Chat', () => {
       mutation JoinChatroom {
         joinChatroom (
           input: {
-            userId: "XXXXXXXXXXX",
             chatroomId: "XXXXXXXXXXX"
           }
         ) {
@@ -88,7 +87,6 @@ describe('Chat', () => {
       mutation LeaveChatroom {
         leaveChatroom (
             input: {
-              userId: "XXXXXXXXXXX",
               chatroomId: "XXXXXXXXXXX"
             }
           ) {
@@ -117,7 +115,6 @@ describe('Chat', () => {
         sendMessage(
           input:{
             content: "XXXXXXXXXXX",
-            userId: "XXXXXXXXXXX",
             chatroomId: "XXXXXXXXXXX"
           }) 
         {
