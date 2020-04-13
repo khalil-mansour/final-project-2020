@@ -485,7 +485,6 @@ const transactionQuery = {
           isPayback
           paidBy {
             firebaseId
-            avatar
           }
           contributions {
             id
