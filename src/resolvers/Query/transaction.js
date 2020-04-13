@@ -145,7 +145,7 @@ const transactionQuery = {
       }
 
       const fragment = `
-      fragment TransactionWithContributionsAndUsers on Transaction {
+      fragment TransactionWithContributionsAndUsers_transaction on Transaction {
         id
         amount
         description
@@ -192,7 +192,7 @@ const transactionQuery = {
       }
 
       const fragment = `
-      fragment TransactionWithContributionsAndUsers on Transaction {
+      fragment TransactionWithContributionsAndUsers_userPaidTransactionsForGroup on Transaction {
         id
         amount
         description
@@ -242,7 +242,7 @@ const transactionQuery = {
       }
 
       const fragment = `
-      fragment TransactionWithContributionsAndUsers on Transaction {
+      fragment TransactionWithContributionsAndUsers_groupTransactionsForUser on Transaction {
         id
         amount
         description
@@ -387,7 +387,7 @@ const transactionQuery = {
       }
 
       const fragment = `
-      fragment TransactionWithContributionsAndUsers on Transaction {
+      fragment TransactionWithContributionsAndUsers_groupTransactionsForTwoUsers on Transaction {
         id
         amount
         description
