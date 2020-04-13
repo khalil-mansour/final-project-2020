@@ -11,7 +11,6 @@ type User {
   createdTransactions: [Transaction] @relation(name: "CreatedByTransactions")
   transactions: [Transaction] @relation(name: "PaidByTransactions")
   contributions: [Contribution] @relation(name: "UserContributions")
-  groups: [UserGroup!]! @relation(name: "UserGroups", onDelete: CASCADE)
   transactionOperationsMade: [TransactionOperationHistoric] @relation(name: "TransactionOperationMadeByUser")
   transactionOperationsConcerned: [TransactionOperationHistoric] @relation(name: "TransactionOperationConcernedUsers")
   createdAt: DateTime! @createdAt
@@ -94,14 +93,6 @@ type Invitation {
   updatedAt: DateTime! @updatedAt
 }
 
-type Chatroom {
-  id: ID! @id
-  name: String!
-  isArchived: Boolean @default(value: false)
-  userChatroom: [UserChatroom!]! @relation(name: "ChatroomUserChatroom")
-  group: Group! @relation(name: "GroupChatroom")
-}
-
 type Transaction {
   id: ID! @id
   createdBy: User! @relation(name: "CreatedByTransactions")
@@ -126,6 +117,14 @@ type Contribution {
   amount: Int!
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
+}
+
+type Chatroom {
+  id: ID! @id
+  name: String!
+  isArchived: Boolean @default(value: false)
+  userChatroom: [UserChatroom!]! @relation(name: "ChatroomUserChatroom")
+  group: Group! @relation(name: "GroupChatroom")
 }
 
 type UserChatroom {
