@@ -483,6 +483,10 @@ const transactionQuery = {
         transaction {
           id
           isPayback
+          paidBy {
+            firebaseId
+            avatar
+          }
           contributions {
             id
             user {
