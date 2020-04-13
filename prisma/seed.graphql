@@ -31,7 +31,7 @@ mutation {
   }
   locataire2: createUser(
     data: {
-      firebaseId: "locataire2eUB94OOxfCDuCVl7O2",
+      firebaseId: "XYVeSZEOLxOHcnqoY0vihvZB7rM2",
       name: "locataire2"
       lastName: "locataire2"
       email: "locataire2@admin.com"
@@ -41,7 +41,7 @@ mutation {
   }
   locataire3: createUser(
     data: {
-      firebaseId: "locataire3eUB94OOxfCDuCVl7O2",
+      firebaseId: "Tv8qb5HyJ4NfWLAzjcQdDcDzlS92",
       name: "locataire3"
       lastName: "locataire3"
       email: "locataire3@admin.com"
