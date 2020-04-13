@@ -4367,16 +4367,22 @@ mkdirp@^0.5.1:
     minimist "^1.2.5"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 mocha@^7.0.1:
   version "7.1.1"
   resolved "https://registry.yarnpkg.com/mocha/-/mocha-7.1.1.tgz#89fbb30d09429845b1bb893a830bf5771049a441"
   integrity sha512-3qQsu3ijNS3GkWcccT5Zw0hf/rWvu1fTN9sPvEd81hlwsr30GX2GcDSSoBxo24IR8FelmrAydGC6/1J5QQP4WA==
 =======
+=======
+>>>>>>> 989b2839aada35ac60dea31db6bcae0e9ad847dc
 mocha@^7.1.0:
   version "7.1.0"
   resolved "https://registry.yarnpkg.com/mocha/-/mocha-7.1.0.tgz#c784f579ad0904d29229ad6cb1e2514e4db7d249"
   integrity sha512-MymHK8UkU0K15Q/zX7uflZgVoRWiTjy0fXE/QjKts6mowUvGxOdPhZ2qj3b0iZdUrNZlW9LAIMFHB4IW+2b3EQ==
+<<<<<<< HEAD
 >>>>>>> passed all 21 tests
+=======
+>>>>>>> 989b2839aada35ac60dea31db6bcae0e9ad847dc
   dependencies:
     ansi-colors "3.2.3"
     browser-stdout "1.3.1"
@@ -6507,16 +6513,22 @@ type-check@~0.3.2:
     prelude-ls "~1.1.2"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 type-fest@^0.11.0:
   version "0.11.0"
   resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-0.11.0.tgz#97abf0872310fed88a5c466b25681576145e33f1"
   integrity sha512-OdjXJxnCN1AvyLSzeKIgXTXxV+99ZuXl3Hpo9XpJAv9MBcHrrJOQ5kV7ypXOuQie+AmWG25hLbiKdwYTifzcfQ==
 =======
+=======
+>>>>>>> 989b2839aada35ac60dea31db6bcae0e9ad847dc
 type-detect@^4.0.0, type-detect@^4.0.5:
   version "4.0.8"
   resolved "https://registry.yarnpkg.com/type-detect/-/type-detect-4.0.8.tgz#7646fb5f18871cfbb7749e69bd39a6388eb7450c"
   integrity sha512-0fr/mIH1dlO+x7TlcMy+bIDqKPsw/70tVyeHW787goQjhmqaZe10uwLujubK9q9Lg6Fiho1KUKDYz0Z7k7g5/g==
+<<<<<<< HEAD
 >>>>>>> passed all 21 tests
+=======
+>>>>>>> 989b2839aada35ac60dea31db6bcae0e9ad847dc
 
 type-fest@^0.8.1:
   version "0.8.1"
