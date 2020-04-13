@@ -1,8 +1,8 @@
 {
   "dependencies": {
-    "dinero.js": "^1.6.0",
-    "cloudinary": "^1.21.0",
     "chai": "^4.2.0",
+    "cloudinary": "^1.21.0",
+    "dinero.js": "^1.8.1",
     "dotenv": "^8.2.0",
     "firebase-admin": "^8.9.2",
     "graphql": "^14.6.0",

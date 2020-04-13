@@ -21,8 +21,9 @@ describe('Address', () => {
         province
         city
         street
-        apartment_unit
-      }      
+        apartmentUnit
+        postalCode    
+      }   
     }`;
     tester.test(true, query);
   });
@@ -51,27 +52,6 @@ describe('Address', () => {
 
   // MUTATIONS
 
-  it('create address', () => {
-    const mutation = `
-      mutation CreateAddress {
-        createAddress(input:{
-          country: "Canada"
-          province:"QC"
-          city:"Gtown"
-          street: "toto"
-          apartment_unit: 6
-        }) {
-          id
-          country
-          province
-          city
-          street
-          apartment_unit
-        }
-      }`;
-    tester.test(true, mutation);
-  });
-
   it('update address', () => {
     const mutation = `
       mutation UpdateAddress {
@@ -81,12 +61,14 @@ describe('Address', () => {
           province: "TEXAS"
           city: "HOUSTON"
           street: "500 LAFLAME"
+          postalCode: "J8R 2N6"
         }) {
           id
           country
           province
           city
           street
+          postalCode
         }
       }`;
     tester.test(true, mutation);

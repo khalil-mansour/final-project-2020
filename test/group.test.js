@@ -20,27 +20,22 @@ describe('Group', () => {
         name
         address {
           id
-          country
-          province
-          city
         }
         admin {
           id
-          firebaseId
-          name
-          lastName
-          email
         }
         users {
           id
-          user {
-            id
-            name
-            lastName
-            email
-          }
-          join_at
         }
+        invitations {
+          id
+        }
+        lists {
+          id
+        }
+        notices {
+          id
+        }    
       }
     }`;
     tester.test(true, query);
@@ -84,8 +79,9 @@ describe('Group', () => {
       mutation CreateGroup {
         createGroup(input:{
           name: "test"
-          addressId: "ck73uisy4005m0783ldqb9jon"
+          role: "landlord"
         }) {
+          id
           name
         }
       }`;
@@ -106,17 +102,11 @@ describe('Group', () => {
 
   it('remove user from group', () => {
     const mutation = `
-      mutation RemoveUser {
-        removeUserFromGroup(input: {
-          userId: "ck6t35ouz00hm0715i5fezr8s"
+      mutation RemoveUsers {
+        removeUsersFromGroup(input: {
+          userIdArray: ["ck6t35ouz00hm0715i5fezr8s", "coco"]
           groupId: "ck6t2ccfl00eq0715deygqr0a"
-        }) {
-          id
-          name
-          users {
-            id
-          }
-        }
+        })
       }`;
     tester.test(true, mutation);
   });
@@ -132,12 +122,25 @@ describe('Group', () => {
   });
 
 
-  // Change how update works first
-  /*
   it('update group', () => {
-    const mutation = `{
-
-    }`
-  })
-  */
+    const mutation = `
+      mutation UpdateGroup {
+        updateGroupInfo(input:{
+          groupId:"ck8jkdqo800z60721henu34da"
+          name: "Test2"
+          address: {
+            country: "Canada"
+            province: "On"
+            city: "ott"
+            street: "rideau"
+            apartmentUnit: "4"
+            postalCode: "J8R4N3"
+          }
+        }) {
+          id
+          name
+        }
+      }`;
+    tester.test(true, mutation);
+  });
 });

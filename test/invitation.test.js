@@ -17,15 +17,31 @@ describe('Invitation', () => {
     const query = `{
       invitations {
         id
-        from {
-          id
-        }
+        code
         group {
           id
         }
-        link
-        expiredAt
-      }      
+        role {
+          id
+          type
+        }
+        createdAt
+      }    
+    }`;
+    tester.test(true, query);
+  });
+
+  it('fetch all invitations for group', () => {
+    const query = `{
+      invitationsForGroup(groupId: "ck8jkdqo800z60721henu34da") {
+        id
+        code
+        role {
+          id
+          type
+        }
+        createdAt
+      }
     }`;
     tester.test(true, query);
   });
@@ -44,17 +60,15 @@ describe('Invitation', () => {
 
   it('fetch single invitation', () => {
     const query = `{
-      invitation(invitationId: "testID") {
+      invitation(invitationId: "ck8jkdqpv00zi0721l112gien") {
         id
-        from {
+        code
+        role {
           id
+          type
         }
-        group {
-          id
-        }
-        link
-        expiredAt
-      }      
+        createdAt
+      }
     }`;
     tester.test(true, query);
   });
@@ -64,33 +78,31 @@ describe('Invitation', () => {
   it('create invitation', () => {
     const mutation = `
       mutation CreateInvitation {
-        createInvitation(input: {
-          groupId: "ck73us7zr00670783zs910jna"
-          link: "www.firebasetest.com"
-          expiredAt: "today"
+        createInvitation(input:{
+          groupId: "ck8jkdqo800z60721henu34da"
+          role: "tenant"
         }) {
           id
-          from {
-            name
-            lastName
+          code
+          role {
+            id
+            type
           }
-          group {
-            name
-          }
-          expiredAt
+          createdAt
         }
       }`;
     tester.test(true, mutation);
   });
 
-  it('accept invitation', () => {
+  it('refresh invitation', () => {
     const mutation = `
-      mutation AcceptInvitation {
-        acceptInvitation(input: {
-          invitationId: "ck6t39r0200iy07155ebg2gpb"
+      mutation RefreshInvitation {
+        refreshInvitation(input: {
+          invitationId: "ck8jkdqpv00zi0721l112gien"
+          groupId: "ck8jkdqo800z60721henu34da"
         }) {
           id
-          join_at
+          code
         }
       }`;
     tester.test(true, mutation);
